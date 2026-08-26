@@ -54,6 +54,7 @@ docs/
 │   └── integration-contracts.md     ←   Contract tích hợp (payment/meeting/ERP/AI)
 │
 ├── 06-deployment/                   ← Triển khai & vận hành
+│   ├── dev-environment.md           ←   Cài môi trường dev local (Windows) — BẮT ĐẦU Ở ĐÂY
 │   ├── installation-guide.md        ←   Cài đặt ban đầu
 │   ├── license-guide.md             ←   License & addon — THAM CHIẾU giai đoạn sau (D9)
 │   └── deployment-runbook.md        ←   Operations playbook
