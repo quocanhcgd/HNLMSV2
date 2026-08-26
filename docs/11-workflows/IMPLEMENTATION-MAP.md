@@ -58,26 +58,47 @@ tags: [workflow, implementation, mvp]
 
 ## 4. WF-04 — HR & Payroll (ROADMAP P3 — Addon HRM)
 
-- **Scope**: post-MVP (P3) — **không thuộc MVP**. Chỉ thiết kế chờ.
-- **Entity**: (addon HRM, migration riêng) — thiết kế chờ trong `08-addons/`.
-- **Lưu ý**: không seed/implementation ở giai đoạn này; khi triển khai theo `addon-development-guide.md`, addon gate qua feature flag (license gate FUTURE, D9).
+- **Scope**: 🚧 post-MVP (P3) — **không thuộc MVP**. Chuẩn bị triển khai khi mở phase HRM; gate addon qua feature flag (license FUTURE, D9).
+- **Entity** (P3 — migration addon riêng): `employees` (EmployeeProfile), `employment_contracts`, `teacher_assignments`, `work_schedules`, `attendance`, `leave_requests`, `performance_reviews`, `payroll_periods`, `payroll_lines`, `payslips`.
+- **API** (đề xuất, thêm vào `05-api/api-spec.yaml` khi triển khai): `GET/POST /hrm/employees` · `GET/POST /hrm/attendance` · `POST /hrm/leave-requests` · `POST /hrm/payroll/runs` (calculate → approve → lock) · `GET /hrm/payslips/:id/download`.
+- **Vai trò**: HR Manager, Payroll Officer, Branch Manager (xem), Employee (self) — xem `10-roles/`.
+- **Quy tắc nghiệp vụ** (từ `03-data-model.md` §7): payroll **lock sau approve**; thay đổi sau lock tạo adjustment record (không sửa kỳ lịch sử); công thức lương **versioned**; nhân sự đa chi nhánh phân bổ rõ; chỉnh attendance sau duyệt có **audit**; payslip là dữ liệu nhạy cảm → audit + re-auth khi xem.
+- **DoD (khi triển khai)**: tính lương → approve → lock đúng · payslip PDF tải được · adjust sau lock tạo record riêng · branch-scope.
+- **Tasks**: chưa có trong tracker MVP — sẽ thêm khi mở phase HRM.
 
-## 5. WF-05 — Online & Hybrid Learning (ROADMAP P2)
+## 5. WF-05 — Online & Hybrid Learning (ROADMAP P2 — Addon Online Classes)
 
-- **Scope**: post-MVP (P2). Thiết kế chờ: 4 delivery modes, emergency switch, recordings.
-- **Entity/API**: addon Online (P2); adapter meeting provider (Zoom/Meet/Teams) qua `integrations/`. Không thuộc MVP.
+- **Scope**: 🚠 post-MVP (P2) — **không thuộc MVP**. Chuẩn bị khi mở phase Online; gate addon qua feature flag.
+- **Entity**: `online_sessions` (class_id, provider, external_meeting_id, join/host reference, scheduled_at, attendance_sync_state, recording_ref, status), `meeting_events`.
+- **API/Adapter**: `integrations/` meeting adapter (Zoom/Meet/Teams) theo pattern `PaymentGatewayPluginAdapter` (`01-architecture.md` §5) — `create/update/cancel meeting`, `fetch_attendance`, `fetch_recording`.
+- **Quy tắc** (từ `integration-contracts.md`): provider event unique theo `(provider, event_id)` · signature + timestamp validation · lỗi mapping → review queue · reconcile định kỳ attendance/recording · **recording private, cấp quyền qua LMS** (không public).
+- **DoD**: tạo/lập lịch/đổi/hủy session đồng bộ provider · attendance sync chính xác · recording tải qua LMS permission.
+- **Điều kiện triển khai**: `Class.modality` (offline|online|hybrid) đã chừa ở MVP (§4) — chỉ cần bật addon + adapter.
 
 ## 6. WF-06 — Digital Library & Content Mgmt (ROADMAP P2)
 
-- **Scope**: post-MVP (P2). Không thuộc MVP. Nâng cấp từ `learning_content` MVP; semantic search/AI tag là phase sau.
+- **Scope**: 🚪 post-MVP (P2) — **không thuộc MVP**. Nâng cấp từ `LibraryResource` MVP.
+- **Entity**: `library_resources` (MVP) mở rộng: category, subject, `access_scope`, version, usage_policy, tags; semantic search/AI tag là phase sau (có `pgvector` ở Phase 3).
+- **API**: MVP đã có upload/download/auth; P2 thêm semantic search (`POST /library/search`) + AI auto-tag (P3).
+- **Quy tắc**: version đã dùng trong ghi danh không xóa · content giới hạn quyền cần permission trước khi cấp URL · `access_scope` (public|class|private) enforce.
+- **DoD (P2)**: search theo category/subject · phân trang · semantic search khi có vector.
 
 ## 7. WF-07 — AI-Powered Assessment & Grading (ROADMAP P3)
 
-- **Scope**: post-MVP (P3). **Không AI trong MVP** (D2/D5). Bảng `ai_tasks`/`ai_policy_decision`/`ai_review` nullable (RESERVED, phase 3).
+- **Scope**: 🚪 post-MVP (P3). **Không AI trong MVP** (D2/D5). Chuẩn bị khi mở phase AI.
+- **Entity**: `assessment_bank_items`, `assessments`, `assessment_attempts`, `assessment_results`, `english_pathways`, `english_skill_records` (P2) + `ai_tasks`, `ai_policy_decisions`, `ai_reviews` (**RESERVED** — bảng tạo nullable ở migration base, không dùng MVP).
+- **API**: `/assessments` · `/assessments/:id/attempts` (immutable sau submit) · `/ai/grading` (FUTURE, phase 3).
+- **Quy tắc**: unique business key chống duplicate attempt · answer/result immutable sau công bố · **AI governance**: log model/prompt/confidence; high-risk output **luôn vào review**.
+- **DoD (P3)**: chấm AI → review workflow · 4 kỹ năng English lưu riêng · speaking/writing chờ chấm thủ công.
+- **Tasks**: không có task MVP (ngoài phạm vi); roadmap P3.
 
 ## 8. WF-08 — Communication Hub (ROADMAP P2)
 
-- **Scope**: post-MVP (P2). Socket.IO real-time, conversations. Không thuộc MVP.
+- **Scope**: 🚠 post-MVP (P2) — **không thuộc MVP**. Socket.IO real-time + messaging.
+- **Entity**: `conversations`, `conversation_members` (vai trò + thời hạn), `messages` (immutable history + moderation/report state), `notifications`.
+- **API/stack**: Socket.IO (gateway) + `/conversations` CRUD + `/messages`; AI routing là phase sau.
+- **Quy tắc**: member bị thu hồi **không xem dữ liệu mới** ngoài scope · retention theo policy (NFR-011) · notification delivery + read_at · message không chứa secret; audit khi nhạy cảm.
+- **DoD (P2)**: realtime gửi/nhận trong class · thu hồi member chặn truy cập mới · notification đánh dấu read.
 
 ---
 
