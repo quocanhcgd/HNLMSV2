@@ -27,7 +27,7 @@ Script sẽ:
 1. Set execution policy `RemoteSigned` (CurrentUser) — để `pnpm.ps1` chạy được.
 2. Cài **pnpm@9** qua npm (nếu chưa có).
 3. Cài **Memurai Developer** qua Chocolatey (`choco install memurai-developer -y`); nếu thất bại fallback `redis-64`; rồi start service.
-4. Hỏi mật khẩu superuser PostgreSQL → tạo **role `lms`** + **database `educenter_lms`** (UTF8), nạp `database/lms-schema.sql` + `lms-seed.sql`.
+4. Hỏi mật khẩu superuser PostgreSQL → tạo **role `lms`** + **database `educ_lms`** (UTF8), nạp `database/lms-schema.sql` + `lms-seed.sql`.
 5. Verify: `node` · `pnpm` · `redis-cli ping` · `psql -U lms -c "SELECT 1"`.
 
 > Mật khẩu role dev mặc định `lms_dev` — **đổi trước khi lên production** (xem `06-deployment/installation-guide.md`).
@@ -57,14 +57,14 @@ psql -U postgres -h 127.0.0.1
 ```
 ```sql
 CREATE ROLE lms LOGIN PASSWORD 'lms_dev';
-CREATE DATABASE educenter_lms OWNER lms ENCODING 'UTF8' TEMPLATE template0;
+CREATE DATABASE educ_lms OWNER lms ENCODING 'UTF8' TEMPLATE template0;
 \q
 ```
 Nạp schema + seed (dùng user `lms`):
 ```powershell
 $env:PGPASSWORD='lms_dev'
-psql -U lms -h 127.0.0.1 -d educenter_lms -v ON_ERROR_STOP=1 -f database\lms-schema.sql
-psql -U lms -h 127.0.0.1 -d educenter_lms -v ON_ERROR_STOP=1 -f database\lms-seed.sql
+psql -U lms -h 127.0.0.1 -d educ_lms -v ON_ERROR_STOP=1 -f database\lms-schema.sql
+psql -U lms -h 127.0.0.1 -d educ_lms -v ON_ERROR_STOP=1 -f database\lms-seed.sql
 Remove-Item Env:PGPASSWORD
 ```
 > Schema cần extension `uuid-ossp` — đã có trong `lms-schema.sql` (dòng 8), chạy với quyền đủ (owner `lms`).
@@ -73,7 +73,7 @@ Remove-Item Env:PGPASSWORD
 
 | Thành phần | Giá trị |
 |---|---|
-| Database URL | `postgresql://lms:lms_dev@127.0.0.1:5432/educenter_lms` |
+| Database URL | `postgresql://lms:lms_dev@127.0.0.1:5432/educ_lms` |
 | Redis | `127.0.0.1:6379` |
 | API dev port | `3000` (NestJS, mặc định) |
 | Web dev port | `5173` (Vite) |
@@ -82,7 +82,7 @@ Template `.env` cho `apps/api` (sẽ scaffold ở T004):
 ```dotenv
 NODE_ENV=development
 PORT=3000
-DATABASE_URL=postgresql://lms:lms_dev@127.0.0.1:5432/educenter_lms
+DATABASE_URL=postgresql://lms:lms_dev@127.0.0.1:5432/educ_lms
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
 JWT_SECRET=dev-only-secret-change-me
@@ -94,7 +94,7 @@ JWT_SECRET=dev-only-secret-change-me
 node --version            # v20.x
 pnpm --version            # 9.x
 redis-cli ping            # PONG
-psql -U lms -h 127.0.0.1 -d educenter_lms -c "SELECT count(*) FROM users;"   # chạy được
+psql -U lms -h 127.0.0.1 -d educ_lms -c "SELECT count(*) FROM users;"   # chạy được
 ```
 
 ## 6. Troubleshooting

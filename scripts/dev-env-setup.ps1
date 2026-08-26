@@ -3,7 +3,7 @@
 # Chạy script này MỘT LẦN để chuẩn bị máy lập trình:
 #   - pnpm (quản lý package monorepo)
 #   - Redis 7-compatible (Memurai Developer) cho BullMQ
-#   - PostgreSQL: role + database 'educenter_lms' + schema + seed
+#   - PostgreSQL: role + database 'educ_lms' + schema + seed
 #   - Execution policy cho phép chạy script npm (pnpm.ps1)
 # Script tự nâng quyền Administrator nếu cần.
 # ============================================================
@@ -67,7 +67,7 @@ if ($memuraiSvc) {
 }
 
 # ---------- 4. PostgreSQL: role + database + schema + seed ----------
-Write-Step "PostgreSQL: role lms + database educenter_lms + schema + seed"
+Write-Step "PostgreSQL: role lms + database educ_lms + schema + seed"
 if (-not (Get-Command psql -ErrorAction SilentlyContinue)) { throw "Không tìm thấy psql - cài PostgreSQL 15/16 trước" }
 Write-Ok "psql $(psql --version)"
 
@@ -99,22 +99,22 @@ END \$\$;
 & psql -U $pgUser -h 127.0.0.1 -p 5432 -d postgres -v ON_ERROR_STOP=1 -c $sql
 if ($LASTEXITCODE -ne 0) { throw "Tạo role lms thất bại (sai mật khẩu superuser?)" }
 
-$dbExists = & psql -U $pgUser -h 127.0.0.1 -p 5432 -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='educenter_lms'"
+$dbExists = & psql -U $pgUser -h 127.0.0.1 -p 5432 -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='educ_lms'"
 if ($dbExists.Trim() -ne '1') {
-    & psql -U $pgUser -h 127.0.0.1 -p 5432 -d postgres -c "CREATE DATABASE educenter_lms OWNER lms ENCODING 'UTF8' TEMPLATE template0"
+    & psql -U $pgUser -h 127.0.0.1 -p 5432 -d postgres -c "CREATE DATABASE educ_lms OWNER lms ENCODING 'UTF8' TEMPLATE template0"
     if ($LASTEXITCODE -ne 0) { throw "CREATE DATABASE thất bại" }
-    Write-Ok "Đã tạo database educenter_lms (owner lms)"
+    Write-Ok "Đã tạo database educ_lms (owner lms)"
 } else {
-    Write-Ok "Database educenter_lms đã tồn tại"
+    Write-Ok "Database educ_lms đã tồn tại"
 }
 
 # Extension + schema + seed (chạy với role lms)
 $env:PGPASSWORD = $lmsPassPlain
-& psql -U lms -h 127.0.0.1 -p 5432 -d educenter_lms -v ON_ERROR_STOP=1 -f $schema
+& psql -U lms -h 127.0.0.1 -p 5432 -d educ_lms -v ON_ERROR_STOP=1 -f $schema
 if ($LASTEXITCODE -ne 0) { throw "Lỗi khi chạy lms-schema.sql" }
-& psql -U lms -h 127.0.0.1 -p 5432 -d educenter_lms -v ON_ERROR_STOP=1 -f $seed
+& psql -U lms -h 127.0.0.1 -p 5432 -d educ_lms -v ON_ERROR_STOP=1 -f $seed
 if ($LASTEXITCODE -ne 0) { throw "Lỗi khi chạy lms-seed.sql" }
-Write-Ok "Schema + seed đã nạp vào educenter_lms"
+Write-Ok "Schema + seed đã nạp vào educ_lms"
 Remove-Item Env:PGPASSWORD
 
 # ---------- 5. Verify ----------
@@ -126,12 +126,12 @@ Verify "Node $(node --version)"        { node --version }
 Verify "pnpm $(pnpm --version)"        { pnpm --version }
 Verify "redis-cli ping"                { if (Get-Command redis-cli -ErrorAction SilentlyContinue) { redis-cli ping } elseif (Get-Command memurai-cli -ErrorAction SilentlyContinue) { memurai-cli ping } else { throw 'no redis-cli/memurai-cli' } }
 $env:PGPASSWORD = $lmsPassPlain
-Verify "psql -U lms -d educenter_lms SELECT 1" { & psql -U lms -h 127.0.0.1 -p 5432 -d educenter_lms -tAc "SELECT 1" }
+Verify "psql -U lms -d educ_lms SELECT 1" { & psql -U lms -h 127.0.0.1 -p 5432 -d educ_lms -tAc "SELECT 1" }
 Remove-Item Env:PGPASSWORD
 
 Write-Host "`n============================================" -ForegroundColor Cyan
 Write-Host " HOÀN TẤT sau $([int]((Get-Date)-$start).TotalSeconds)s" -ForegroundColor Green
-Write-Host " - kết nối DB:  postgresql://lms:<pass>@127.0.0.1:5432/educenter_lms" -ForegroundColor White
+Write-Host " - kết nối DB:  postgresql://lms:<pass>@127.0.0.1:5432/educ_lms" -ForegroundColor White
 Write-Host " - Redis:       127.0.0.1:6379 (service Memurai/Redis)" -ForegroundColor White
 Write-Host " - Bước kế:     pnpm i && pnpm --filter api start:dev" -ForegroundColor White
 Write-Host "============================================" -ForegroundColor Cyan

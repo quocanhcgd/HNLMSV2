@@ -61,13 +61,13 @@ cd educenter-lms
 ### 2. Setup Database
 ```bash
 # Tạo database
-createdb educenter_lms
+createdb educ_lms
 
 # Chạy schema
-psql -d educenter_lms -f database/lms-schema.sql
+psql -d educ_lms -f database/lms-schema.sql
 
 # Chạy seed data (optional)
-psql -d educenter_lms -f database/lms-seed.sql
+psql -d educ_lms -f database/lms-seed.sql
 ```
 
 ### 3. Setup Backend
@@ -81,7 +81,7 @@ npm install
 cp .env.example .env
 
 # Edit .env với thông tin database của bạn
-# DATABASE_URL=postgresql://postgres:your-password@localhost:5432/educenter_lms
+# DATABASE_URL=postgresql://postgres:your-password@localhost:5432/educ_lms
 
 # Run development server
 npm run dev
@@ -213,7 +213,7 @@ export const FEATURES = {
 ### Database Migrations
 ```bash
 # Thêm table mới
-psql -d educenter_lms -f database/migrations/001-add-new-table.sql
+psql -d educ_lms -f database/migrations/001-add-new-table.sql
 ```
 
 ## 📝 License System (Phase 2)

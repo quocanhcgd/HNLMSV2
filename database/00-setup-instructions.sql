@@ -2,8 +2,8 @@
 -- Setup Script: Run this to create database
 -- =====================================================
 
--- Connect to educenter_lms database first!
--- In pgAdmin: Right-click educenter_lms → Query Tool → Run this
+-- Connect to educ_lms database first!
+-- In pgAdmin: Right-click educ_lms → Query Tool → Run this
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
