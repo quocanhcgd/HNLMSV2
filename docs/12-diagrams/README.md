@@ -17,6 +17,8 @@
 
 Mở trong browser — click từng bước để xem chi tiết (tiếng Việt):
 
+> 🧭 **Tổng hợp toàn hệ thống (Canvas)**: [**Workflows-Canvas.html**](./Workflows-Canvas.html) — trình bày **đầy đủ 8 workflow** trên một trang Canvas duy nhất: tự động layout, kéo/zoom, click node xem chi tiết, màu theo vai trò, badge MVP/Roadmap. Dữ liệu trích từ `../11-workflows/WF-*.md` (tái tạo bằng `scripts/generate-workflows-canvas.js`).
+
 | # | File | Workflow |
 |---|---|---|
 | WF-01 | [WF-01-Enrollment-Journey-Interactive.html](./WF-01-Enrollment-Journey-Interactive.html) | Hành trình ghi danh (MVP) |

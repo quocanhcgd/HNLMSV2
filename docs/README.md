@@ -81,7 +81,8 @@ docs/
 │   ├── Technical-Architecture.md
 │   ├── Database-Schema-ERD.md
 │   ├── API-Specification.md         ← (tham khảo; chuẩn API là 05-api/)
-│   └── WF-*-Interactive.html        ←   Interactive workflow diagrams
+│   ├── Workflows-Canvas.html         ←   🧭 Tổng hợp 8 workflow, render Canvas tương tác
+│   └── WF-*-Interactive.html         ←   Interactive workflow diagrams
 │
 ├── 13-mockups/                      ← UI mockups (HTML interactive, Tailwind CSS)
 │   ├── 01-login-license.html        ←   Login + trạng thái license mặc định (FUTURE: kích hoạt)
