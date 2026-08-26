@@ -1,0 +1,38 @@
+{
+	"nodes":[
+		{"id":"org-admin","type":"file","file":"01-Roles/Organization Admin.md","x":0,"y":-600,"width":300,"height":120,"color":"1"},
+		{"id":"org-admin-desc","type":"text","text":"## Organization Admin\nLevel 5 - Full Access\n\nManages entire organization\nAll branches, all data\nLicense management","x":0,"y":-450,"width":300,"height":150,"color":"1"},
+		{"id":"branch-mgr","type":"file","file":"01-Roles/Branch Manager.md","x":-400,"y":-200,"width":250,"height":100,"color":"2"},
+		{"id":"branch-mgr-desc","type":"text","text":"## Branch Manager\nLevel 4 - Branch Access\n\nManages one branch\nStaff oversight\nFinancial approval","x":-400,"y":-70,"width":250,"height":140,"color":"2"},
+		{"id":"system-admin","type":"file","file":"01-Roles/System Admin.md","x":400,"y":-200,"width":250,"height":100,"color":"1"},
+		{"id":"system-admin-desc","type":"text","text":"## System Admin\nLevel 5 - Infrastructure\n\nServer management\nBackups & security\nTechnical support","x":400,"y":-70,"width":250,"height":140,"color":"1"},
+		{"id":"academic-mgr","type":"file","file":"01-Roles/Academic Manager.md","x":-700,"y":150,"width":220,"height":100,"color":"3"},
+		{"id":"finance-officer","type":"file","file":"01-Roles/Finance Officer.md","x":-400,"y":150,"width":220,"height":100,"color":"4"},
+		{"id":"admission-cons","type":"file","file":"01-Roles/Admission Consultant.md","x":-100,"y":150,"width":220,"height":100,"color":"5"},
+		{"id":"hr-manager","type":"file","file":"01-Roles/HR Manager.md","x":200,"y":150,"width":220,"height":100,"color":"6"},
+		{"id":"teacher","type":"file","file":"01-Roles/Teacher.md","x":-700,"y":350,"width":200,"height":100,"color":"3"},
+		{"id":"teacher-desc","type":"text","text":"## Teacher\nLevel 2 - Class Scoped\n\nTeach assigned classes\nGrade students\nContent upload","x":-700,"y":470,"width":200,"height":130,"color":"3"},
+		{"id":"receptionist","type":"file","file":"01-Roles/Receptionist.md","x":-100,"y":350,"width":200,"height":100,"color":"5"},
+		{"id":"payroll","type":"file","file":"01-Roles/Payroll Officer.md","x":200,"y":350,"width":200,"height":100,"color":"6"},
+		{"id":"student","type":"file","file":"01-Roles/Student.md","x":-400,"y":550,"width":200,"height":100,"color":"2"},
+		{"id":"student-desc","type":"text","text":"## Student\nLevel 1 - Self Only\n\nView own classes\nSubmit assignments\nCheck grades","x":-400,"y":670,"width":200,"height":130,"color":"2"},
+		{"id":"parent","type":"file","file":"01-Roles/Parent (Addon).md","x":-100,"y":550,"width":200,"height":100,"color":"5"},
+		{"id":"parent-desc","type":"text","text":"## Parent (Addon)\nLevel 1 - Delegated\n\nMonitor child progress\nCommunicate with teacher\nPay invoices","x":-100,"y":670,"width":200,"height":130,"color":"5"},
+		{"id":"support","type":"text","text":"## Support Roles\n\n[[Customer Support]]\n- Level 1\n- User assistance\n\n[[IT Support]]\n- Level 2\n- Technical help\n\n[[Librarian]]\n- Level 2\n- Content curation\n\n[[Accountant]]\n- Level 3\n- Financial reporting","x":500,"y":350,"width":250,"height":350,"color":"4"},
+		{"id":"legend","type":"text","text":"## 🎨 Access Levels\n\n**Level 5**: Full Admin (Org/System)\n**Level 4**: Branch Management\n**Level 3**: Department Management\n**Level 2**: Operational (Scoped)\n**Level 1**: Limited/Self Only\n\n## 📦 License\n\n**Base System**: 14 roles\n**Addons**: +3 roles\n- Parent (Portal addon)\n- HR Manager (HRM addon)\n- Payroll Officer (HRM addon)","x":800,"y":-200,"width":350,"height":450,"color":"5"},
+		{"id":"role-index","type":"file","file":"01-Roles/README.md","x":800,"y":350,"width":350,"height":150,"color":"5"}
+	],
+	"edges":[
+		{"id":"e1","fromNode":"org-admin","toNode":"branch-mgr","fromSide":"bottom","toSide":"top","label":"Manages"},
+		{"id":"e2","fromNode":"org-admin","toNode":"system-admin","fromSide":"bottom","toSide":"top","label":"Coordinates with"},
+		{"id":"e3","fromNode":"branch-mgr","toNode":"academic-mgr","fromSide":"bottom","toSide":"top","label":"Supervises"},
+		{"id":"e4","fromNode":"branch-mgr","toNode":"finance-officer","fromSide":"bottom","toSide":"top","label":"Supervises"},
+		{"id":"e5","fromNode":"branch-mgr","toNode":"admission-cons","fromSide":"bottom","toSide":"top","label":"Supervises"},
+		{"id":"e6","fromNode":"org-admin","toNode":"hr-manager","fromSide":"bottom","toSide":"top","label":"Manages"},
+		{"id":"e7","fromNode":"academic-mgr","toNode":"teacher","fromSide":"bottom","toSide":"top","label":"Manages"},
+		{"id":"e8","fromNode":"admission-cons","toNode":"receptionist","fromSide":"bottom","toSide":"top","label":"Coordinates"},
+		{"id":"e9","fromNode":"hr-manager","toNode":"payroll","fromSide":"bottom","toSide":"top","label":"Manages"},
+		{"id":"e10","fromNode":"teacher","toNode":"student","fromSide":"bottom","toSide":"top","label":"Teaches","color":"3"},
+		{"id":"e11","fromNode":"student","toNode":"parent","fromSide":"right","toSide":"left","label":"Monitored by","color":"5"}
+	]
+}

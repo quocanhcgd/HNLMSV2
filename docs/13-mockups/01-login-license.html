@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & License - EduCenter LMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        :root {
+            --primary: #0d9488; --primary-light: #5eead4; --secondary: #10b981;
+            --accent: #f59e0b; --purple: #8b5cf6; --pink: #ec4899;
+            --bg-1: #ffffff; --bg-2: #f9fafb; --bg-3: #f3f4f6;
+            --text-1: #111827; --text-2: #6b7280; --text-3: #9ca3af; --border: #e5e7eb;
+        }
+        html.dark {
+            --bg-1: #1e293b; --bg-2: #0f172a; --bg-3: #334155;
+            --text-1: #f1f5f9; --text-2: #94a3b8; --text-3: #64748b; --border: #334155;
+        }
+        body { background: var(--bg-2); color: var(--text-1); transition: background .3s, color .3s; }
+        .gradient-teal { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); }
+        .card { background: var(--bg-1); border: 1px solid var(--border); border-radius: 1rem; transition: background .3s, border-color .3s; }
+        .surface { background: var(--bg-1); }
+        .soft { background: var(--bg-2); }
+        .track { background: var(--bg-3); }
+        .text-soft { color: var(--text-2); }
+        .text-faint { color: var(--text-3); }
+        .badge { display: inline-flex; align-items: center; padding: .25rem .75rem; border-radius: 9999px; font-size: .75rem; font-weight: 700; }
+        .badge-success { background: rgba(16,185,129,.15); color: var(--secondary); }
+        .badge-warning { background: rgba(245,158,11,.15); color: var(--accent); }
+        .badge-gray { background: var(--bg-3); color: var(--text-2); }
+        .badge-blue { background: rgba(59,130,246,.12); color: #2563eb; }
+        .nav-item { display: flex; align-items: center; padding: .75rem 1rem; margin: .25rem .5rem; border-radius: .75rem; transition: all .2s; cursor: pointer; color: var(--text-2); font-size: .875rem; }
+        .nav-item:hover { background: var(--bg-2); }
+        .nav-item.active { background: linear-gradient(135deg, rgba(13,148,136,.12) 0%, rgba(16,185,129,.12) 100%); color: var(--primary); font-weight: 600; }
+        .nav-locked { opacity: .55; cursor: not-allowed; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: #fff; padding: .65rem 1.25rem; border-radius: .75rem; font-weight: 600; transition: all .3s; border: none; cursor: pointer; font-size: .875rem; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(13,148,136,.3); }
+        .btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-outline { border: 2px solid var(--border); padding: .6rem 1.25rem; border-radius: .75rem; font-weight: 600; color: var(--text-2); background: var(--bg-1); cursor: pointer; transition: all .2s; font-size: .875rem; }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+        .input-field { width: 100%; padding: .75rem 1rem; border: 2px solid var(--border); border-radius: .75rem; transition: all .3s; font-size: .875rem; background: var(--bg-1); color: var(--text-1); }
+        .input-field:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(13,148,136,.1); }
+        .sidebar { background: var(--bg-1); border-right: 1px solid var(--border); }
+        .dropzone { border: 2px dashed #cbd5e1; border-radius: 1rem; padding: 2.5rem; text-align: center; color: var(--text-2); cursor: pointer; transition: all .2s; }
+        html.dark .dropzone { border-color: #475569; }
+        .dropzone:hover { border-color: var(--primary); color: var(--primary); background: rgba(13,148,136,.06); }
+        .spinner { width: 16px; height: 16px; border: 2px solid var(--primary); border-top-color: transparent; border-radius: 50%; display: inline-block; animation: spin .8s linear infinite; vertical-align: -3px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .step-dot { width: 28px; height: 28px; border-radius: 9999px; background: var(--bg-3); color: var(--text-3); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: .8rem; }
+        .step-line { flex: 1; height: 2px; background: var(--border); margin: 0 6px; }
+        .lang-btn { padding: .3rem .7rem; font-size: .75rem; font-weight: 700; color: var(--text-2); background: transparent; border: none; cursor: pointer; }
+        .lang-btn.on { background: var(--primary); color: #fff; }
+        .theme-btn { width: 36px; height: 34px; border-radius: .5rem; border: 2px solid var(--border); background: var(--bg-1); cursor: pointer; font-size: .95rem; display: inline-flex; align-items: center; justify-content: center; }
+        .menu-pop { display: flex; align-items: center; gap: .6rem; width: 100%; text-align: left; padding: .55rem .8rem; border-radius: .6rem; font-size: .85rem; color: var(--text-1); background: transparent; cursor: pointer; }
+        .menu-pop:hover { background: var(--bg-2); }
+        .kv-box { padding: .75rem 1rem; border-radius: .75rem; background: var(--bg-2); display: flex; justify-content: space-between; align-items: center; font-size: .875rem; border: 1px solid var(--border); }
+    </style>
+</head>
+<body>
+
+<!-- ===== LANG / THEME (login screen) ===== -->
+<div class="fixed top-4 right-4 z-40 flex items-center gap-2">
+    <button id="themeBtnLogin" class="theme-btn" onclick="toggleTheme()" title="Dark/Light">🌙</button>
+    <button id="langBtnLogin" class="theme-btn !w-auto px-3" onclick="toggleLang()" title="Language">🌐 EN</button>
+</div>
+
+<!-- ============ LOGIN ============ -->
+<div id="loginScreen" class="min-h-screen flex items-center justify-center" style="background: linear-gradient(135deg, #0d9488 0%, #10b981 100%);">
+    <div class="card overflow-hidden" style="width: 900px; max-width: 95vw;">
+        <div class="grid grid-cols-1 md:grid-cols-2">
+            <div class="hidden md:flex flex-col justify-center p-12" style="background: linear-gradient(135deg, rgba(13,148,136,.08) 0%, rgba(16,185,129,.08) 100%);">
+                <div class="mb-8">
+                    <svg width="220" height="180" viewBox="0 0 220 180" fill="none">
+                        <rect x="40" y="120" width="70" height="10" rx="2" fill="#0d9488" opacity=".8"/>
+                        <rect x="36" y="106" width="78" height="10" rx="2" fill="#10b981" opacity=".8"/>
+                        <rect x="32" y="92" width="86" height="10" rx="2" fill="#14b8a6" opacity=".8"/>
+                        <circle cx="150" cy="50" r="22" fill="#0d9488"/>
+                        <path d="M150 72 L150 120 M150 92 L128 108 M150 92 L172 108 M150 120 L128 148 M150 120 L172 148" stroke="#0d9488" stroke-width="7" stroke-linecap="round"/>
+                        <path d="M128 42 L150 32 L172 42 L150 52 Z" fill="#f59e0b"/>
+                        <rect x="148" y="52" width="4" height="12" fill="#f59e0b"/>
+                        <circle cx="185" cy="28" r="3" fill="#fbbf24" opacity=".7"/>
+                        <circle cx="198" cy="46" r="2" fill="#fbbf24" opacity=".7"/>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold mb-3" style="color: var(--primary);">EduCenter LMS</h2>
+                <p class="text-sm leading-relaxed text-soft" data-i18n="hero_text"></p>
+            </div>
+            <div class="p-10">
+                <div class="flex items-center space-x-3 mb-2 md:hidden">
+                    <div class="w-10 h-10 rounded-xl gradient-teal text-white flex items-center justify-center font-bold">E</div>
+                    <h2 class="text-xl font-bold">EduCenter LMS</h2>
+                </div>
+                <h3 class="text-2xl font-bold mb-1" data-i18n="login_title"></h3>
+                <p class="text-sm mb-8 text-soft" data-i18n="login_sub"></p>
+                <div id="loginError" class="hidden mb-4 text-sm font-semibold p-3 rounded-xl" style="background: rgba(239,68,68,.12); color: #dc2626;" data-i18n="login_error"></div>
+                <label class="block text-sm font-semibold mb-1.5" data-i18n="login_email"></label>
+                <input id="loginEmail" type="email" value="admin@edu.vn" class="input-field mb-4">
+                <label class="block text-sm font-semibold mb-1.5" data-i18n="login_pass"></label>
+                <input id="loginPass" type="password" value="admin123" class="input-field mb-6">
+                <button class="btn-primary w-full py-3" onclick="doLogin()" data-i18n="login_btn"></button>
+                <p class="text-xs mt-5 text-center text-faint"><b>admin@edu.vn</b> / <b>admin123</b></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="appScreen" class="hidden">
+    <aside class="sidebar fixed top-0 left-0 w-64 h-screen z-20 overflow-y-auto">
+        <div class="flex items-center space-x-3 p-5 border-b" style="border-color: var(--border);">
+            <div class="w-10 h-10 rounded-xl gradient-teal text-white flex items-center justify-center font-bold">E</div>
+            <div><p class="font-bold text-sm">EduCenter LMS</p><p class="text-xs text-faint" data-i18n="org_name"></p></div>
+        </div>
+        <nav class="p-2 pt-3">
+            <p class="px-3 pt-2 pb-1 text-xs font-bold uppercase text-faint" data-i18n="grp_admin"></p>
+            <div class="nav-item" onclick="go('dashboard')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg><span data-i18n="nav_dashboard"></span></div>
+            <div class="nav-item" onclick="go('org')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg><span data-i18n="nav_org"></span></div>
+            <div class="nav-item active" onclick="go('license')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><span data-i18n="nav_license"></span></div>
+            <div class="nav-item" onclick="go('users')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg><span data-i18n="nav_users"></span></div>
+            <p class="px-3 pt-3 pb-1 text-xs font-bold uppercase text-faint" data-i18n="grp_biz"></p>
+            <div class="nav-item" onclick="go('academic')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg><span data-i18n="nav_academic"></span></div>
+            <div class="nav-item" onclick="go('enroll')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg><span data-i18n="nav_enroll"></span></div>
+            <div class="nav-item" onclick="go('finance')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg><span data-i18n="nav_finance"></span></div>
+            <div class="nav-item" onclick="go('reports')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg><span data-i18n="nav_reports"></span></div>
+            <p class="px-3 pt-3 pb-1 text-xs font-bold uppercase text-faint" data-i18n="grp_addon"></p>
+            <div class="nav-item nav-locked"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg><span data-i18n="nav_crm"></span><span class="ml-auto badge badge-warning" data-i18n="not_activated"></span></div>
+            <div class="nav-item nav-locked"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span data-i18n="nav_hrm"></span><span class="ml-auto badge badge-warning" data-i18n="not_activated"></span></div>
+        </nav>
+    </aside>
+
+    <div class="ml-64 min-h-screen">
+        <div class="surface border-b sticky top-0 z-10" style="border-color: var(--border);">
+            <div class="px-8 py-4 flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-bold"><span data-i18n="crumb_settings"></span> / <span data-i18n="page_license"></span></h2>
+                    <p class="text-sm text-soft" data-i18n="page_sub"></p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <select class="text-sm px-3 py-2 rounded-lg border surface" style="border-color: var(--border);" onchange="toast(t('toast_branch'))">
+                        <option data-i18n="all_branches"></option>
+                        <option data-i18n="br_hn"></option>
+                        <option data-i18n="br_hcm"></option>
+                    </select>
+                    <button id="themeBtn" class="theme-btn" onclick="toggleTheme()" title="Dark/Light">🌙</button>
+                    <button id="langBtn" class="theme-btn !w-auto px-3" onclick="toggleLang()" title="Language">🌐 EN</button>
+                    <div class="relative" id="userMenu">
+                        <button onclick="toggleUserMenu(event)" class="flex items-center gap-2.5 rounded-xl border px-2.5 py-1.5 transition hover:border-teal-600" style="border-color: var(--border); background: var(--bg-1);">
+                            <div class="w-8 h-8 rounded-lg gradient-teal text-white flex items-center justify-center text-xs font-bold flex-none">NV</div>
+                            <div class="text-left leading-tight hidden sm:block">
+                                <p class="text-xs font-bold" data-i18n="user_name"></p>
+                                <p class="text-[10px] text-faint" data-i18n="user_role"></p>
+                            </div>
+                        </button>
+                        <div id="userDropdown" class="hidden absolute right-0 top-[52px] card shadow-xl w-56 p-2 z-30">
+                            <div class="px-3 py-2.5 mb-1 border-b" style="border-color: var(--border);">
+                                <p class="text-sm font-bold" data-i18n="user_name"></p>
+                                <p class="text-xs text-faint" data-i18n="user_role"></p>
+                            </div>
+                            <button class="menu-pop" onclick="demoMenu('user_profile')"><span>👤</span><span data-i18n="user_profile"></span></button>
+                            <button class="menu-pop" onclick="demoMenu('user_settings')"><span>⚙️</span><span data-i18n="user_settings"></span></button>
+                            <button class="menu-pop" onclick="demoMenu('user_password')"><span>🔑</span><span data-i18n="user_password"></span></button>
+                            <div class="border-t my-1" style="border-color: var(--border);"></div>
+                            <button class="menu-pop" style="color: #dc2626;" onclick="demoMenu('user_logout')"><span>🚪</span><span data-i18n="user_logout"></span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-8">
+            <div class="card p-6 mb-6">
+                <h3 class="text-lg font-bold mb-4" data-i18n="lic_title"></h3>
+                <div class="flex items-center mb-6">
+                    <div class="step-dot gradient-teal text-white">1</div><div class="step-line"></div>
+                    <div class="step-dot gradient-teal text-white">2</div><div class="step-line"></div>
+                    <div class="step-dot gradient-teal text-white">3</div><div class="step-line"></div>
+                    <div class="step-dot">4</div>
+                </div>
+                <div id="welcomeBox"></div>
+                <div class="flex space-x-3 mt-5">
+                    <button class="btn-outline" onclick="openModal('relicModal')">↺ <span data-i18n="btn_relicense"></span></button>
+                    <button class="btn-primary" onclick="openModal('addonModal')">+ <span data-i18n="btn_addon"></span></button>
+                </div>
+            </div>
+
+            <div class="card p-6 mb-6">
+                <h3 class="text-lg font-bold mb-5" data-i18n="con_title"></h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <div class="flex justify-between text-sm mb-2"><b data-i18n="con_students"></b><span class="text-soft">1.120 / 2.000</span></div>
+                        <div class="h-2.5 rounded-full track"><div class="h-2.5 rounded-full gradient-teal" style="width: 56%;"></div></div>
+                        <p class="text-xs mt-1.5 text-soft">56% — <span class="badge badge-blue" data-i18n="ok"></span></p>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-2"><b data-i18n="con_branches"></b><span class="text-soft">2 / 3</span></div>
+                        <div class="h-2.5 rounded-full track"><div class="h-2.5 rounded-full gradient-teal" style="width: 67%;"></div></div>
+                        <p class="text-xs mt-1.5 text-soft">67% — <span class="badge badge-blue" data-i18n="ok"></span></p>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-2"><b data-i18n="con_storage"></b><span class="text-soft">34 / 100</span></div>
+                        <div class="h-2.5 rounded-full track"><div class="h-2.5 rounded-full gradient-teal" style="width: 34%;"></div></div>
+                        <p class="text-xs mt-1.5 text-soft">34% — <span class="badge badge-blue" data-i18n="ok"></span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-6">
+                <h3 class="text-lg font-bold mb-4" data-i18n="addon_title"></h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead><tr class="text-left text-soft" style="border-bottom: 1px solid var(--border);">
+                            <th class="py-3 px-3 font-semibold" data-i18n="col_addon"></th><th class="py-3 px-3 font-semibold" data-i18n="col_status"></th>
+                            <th class="py-3 px-3 font-semibold" data-i18n="col_expiry"></th><th class="py-3 px-3 font-semibold text-right" data-i18n="col_action"></th>
+                        </tr></thead>
+                        <tbody id="addonRows"></tbody>
+                    </table>
+                </div>
+                <p class="text-xs mt-4 text-faint" data-i18n="addon_note"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Addon -->
+<div id="addonModal" class="hidden fixed inset-0 z-50 flex items-start justify-center pt-24" style="background: rgba(0,0,0,.45);">
+    <div class="card p-8 w-full max-w-md">
+        <div class="flex items-center justify-between mb-6"><h3 class="text-lg font-bold" data-i18n="modal_addon_title"></h3><button class="text-xl text-faint" onclick="closeModal('addonModal')">✕</button></div>
+        <label class="block text-sm font-semibold mb-1.5" data-i18n="col_addon"></label>
+        <select id="addonSel" class="input-field mb-4"><option data-i18n="opt_crm_price"></option><option data-i18n="opt_assess_price"></option><option data-i18n="opt_online_price"></option><option data-i18n="opt_hrm_price"></option></select>
+        <label class="block text-sm font-semibold mb-1.5" data-i18n="serial_key"></label>
+        <input id="serialKey" class="input-field mb-6" data-i18n-ph="serial_ph">
+        <div class="flex justify-end space-x-3">
+            <button class="btn-outline" onclick="closeModal('addonModal')" data-i18n="cancel"></button>
+            <button class="btn-primary" onclick="activateAddon()" data-i18n="activate"></button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Relicense -->
+<div id="relicModal" class="hidden fixed inset-0 z-50 flex items-start justify-center pt-24" style="background: rgba(0,0,0,.45);">
+    <div class="card p-8 w-full max-w-md">
+        <div class="flex items-center justify-between mb-6"><h3 class="text-lg font-bold" data-i18n="modal_relic_title"></h3><button class="text-xl text-faint" onclick="closeModal('relicModal')">✕</button></div>
+        <div class="dropzone" onclick="simulateUpload()" id="dropzone">
+            <p class="text-3xl mb-2">📄</p>
+            <p class="font-semibold" style="color: var(--text-1);" data-i18n="dropzone_title"></p>
+            <p class="text-xs mt-1 text-soft" data-i18n="dropzone_sub"></p>
+        </div>
+        <p class="text-sm mt-4 text-soft" id="uploadState" data-i18n="upload_none"></p>
+        <div class="flex justify-end space-x-3 mt-5">
+            <button class="btn-outline" onclick="closeModal('relicModal')" data-i18n="cancel"></button>
+            <button class="btn-primary" id="applyBtn" disabled onclick="applyLicense()" data-i18n="apply_btn"></button>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="hidden fixed top-20 right-8 z-50 card px-5 py-3.5 text-sm font-semibold shadow-xl" style="border-left: 4px solid var(--primary);"></div>
+
+<script>
+    /* ===== i18n dictionary (VI / EN) ===== */
+    var I18N = {
+        vi: {
+            hero_text: 'Hệ thống quản lý đào tạo đa chi nhánh — cài đặt on-premise, kích hoạt license offline, dữ liệu nằm hoàn toàn tại server của bạn.',
+            org_name: 'Trung tâm Ngoại ngữ ABC',
+            grp_admin: 'Quản trị', grp_biz: 'Nghiệp vụ', grp_addon: 'Addon',
+            nav_dashboard: 'Dashboard', nav_org: 'Tổ chức & Chi nhánh', nav_license: 'License',
+            nav_users: 'Người dùng & Vai trò', nav_academic: 'Đào tạo', nav_enroll: 'Học viên & Ghi danh',
+            nav_finance: 'Tài chính', nav_reports: 'Báo cáo', nav_crm: 'Tuyển sinh & CRM', nav_hrm: 'Nhân sự & Lương',
+            not_activated: 'Chưa kích hoạt',
+            user_name: 'Nguyễn Văn Admin', user_role: 'Organization Admin',
+            user_profile: 'Hồ sơ', user_settings: 'Cài đặt', user_password: 'Đổi mật khẩu', user_logout: 'Đăng xuất',
+            crumb_settings: 'Cài đặt', page_license: 'License & Kích hoạt',
+            page_sub: 'Trạng thái license, ràng buộc và addon',
+            all_branches: 'Tất cả chi nhánh', br_hn: 'Chi nhánh Hà Nội', br_hcm: 'Chi nhánh TP.HCM',
+            lic_title: '🔑 Trạng thái License',
+            lic_status: 'Trạng thái', lic_active: '● Hoạt động', lic_id: 'License ID', lic_type: 'Loại license',
+            lic_perpetual: 'Perpetual (vĩnh viễn)', lic_support: 'Hỗ trợ đến', lic_signature: 'Chữ ký',
+            lic_valid: 'Hợp lệ (RSA-2048)', lic_activated: 'Ngày kích hoạt',
+            btn_relicense: 'Cập nhật license mới', btn_addon: 'Kích hoạt addon',
+            con_title: '📏 Ràng buộc (Constraints)', con_students: 'Học viên tối đa', con_branches: 'Chi nhánh tối đa', con_storage: 'Lưu trữ (GB)', ok: 'OK',
+            addon_title: '🧩 Addons', col_addon: 'Addon', col_status: 'Trạng thái', col_expiry: 'Hết hạn', col_action: 'Thao tác',
+            addon_crm: 'Tuyển sinh & CRM', addon_crm_desc: 'Landing, lead, tư vấn',
+            addon_assess: 'Đánh giá & Kiểm tra', addon_assess_desc: 'Thi đầu vào, mock test',
+            addon_online: 'Lớp học Online', addon_online_desc: 'Zoom / Meet / Teams',
+            addon_hrm: 'Nhân sự & Lương', addon_hrm_desc: 'Chấm công, payroll',
+            addon_note: 'ℹ️ Addon hết hạn sẽ vào grace period 30 ngày (read-only), sau đó tự động tắt — dữ liệu không bị xóa.',
+            modal_addon_title: 'Kích hoạt Addon', serial_key: 'Serial key', serial_ph: 'CRM-XXXX-XXXX-XXXX-XXXX',
+            opt_crm_price: 'Tuyển sinh & CRM — 500$/năm', opt_assess_price: 'Đánh giá & Kiểm tra — 600$/năm',
+            opt_online_price: 'Lớp học Online — 400$/năm', opt_hrm_price: 'Nhân sự & Lương — 800$/năm',
+            cancel: 'Hủy', activate: 'Kích hoạt',
+            modal_relic_title: 'Cập nhật License', dropzone_title: 'Kéo thả license file (.json) hoặc bấm để chọn',
+            dropzone_sub: 'Hệ thống xác minh chữ ký offline — không gửi dữ liệu ra ngoài',
+            upload_none: 'Chưa có file được chọn', apply_btn: 'Xác minh & áp dụng',
+            status_updated: '● Hoạt động (đã cập nhật)', lic_v2: 'LIC-2026-001-ABC-EDU (v2)',
+            max_students: 'Học viên tối đa', max_branches: 'Chi nhánh tối đa',
+            activated_badge: 'Đã kích hoạt', dash: '—',
+            toast_login_ok: 'Đăng nhập thành công — màn hình License (US0)',
+            toast_serial: 'Vui lòng nhập serial key (demo: CRM-A1B2-C3D4-E5F6-G7H8)',
+            toast_serial_ok: '✅ Addon "Tuyển sinh & CRM" kích hoạt thành công',
+            toast_upload_ok: 'Tải license thành công — chữ ký hợp lệ',
+            toast_applied: '✅ License mới đã áp dụng — constraints được nâng cấp',
+            toast_branch: 'Đã chuyển phạm vi chi nhánh (demo)',
+            toast_go_pre: 'Demo: điều hướng tới "', toast_go_suf: '" (mockup này chỉ có License)',
+            upload_progress: 'Đang tải file license-abc-edu-2026.json (1.2 KB)...',
+            upload_done: '✅ File hợp lệ — license-abc-edu-2026.json (chữ ký RSA-2048 OK)',
+            verifying: 'Đang xác minh chữ ký & áp dụng constraints...'
+        },
+        en: {
+            hero_text: 'Multi-branch training management — on-premise, offline license activation, data stays entirely on your own server.',
+            org_name: 'ABC Language Center',
+            grp_admin: 'Administration', grp_biz: 'Operations', grp_addon: 'Addons',
+            nav_dashboard: 'Dashboard', nav_org: 'Organization & Branches', nav_license: 'License',
+            nav_users: 'Users & Roles', nav_academic: 'Academic', nav_enroll: 'Students & Enrollment',
+            nav_finance: 'Finance', nav_reports: 'Reports', nav_crm: 'Admissions & CRM', nav_hrm: 'HR & Payroll',
+            not_activated: 'Not activated',
+            user_name: 'Nguyen Van Admin', user_role: 'Organization Admin',
+            user_profile: 'Profile', user_settings: 'Settings', user_password: 'Change password', user_logout: 'Log out',
+            crumb_settings: 'Settings', page_license: 'License & Activation',
+            page_sub: 'License status, constraints and addons',
+            all_branches: 'All branches', br_hn: 'Hanoi branch', br_hcm: 'HCMC branch',
+            lic_title: '🔑 License Status',
+            lic_status: 'Status', lic_active: '● Active', lic_id: 'License ID', lic_type: 'License type',
+            lic_perpetual: 'Perpetual (lifetime)', lic_support: 'Support until', lic_signature: 'Signature',
+            lic_valid: 'Valid (RSA-2048)', lic_activated: 'Activated on',
+            btn_relicense: 'Update license', btn_addon: 'Activate addon',
+            con_title: '📏 Constraints', con_students: 'Max students', con_branches: 'Max branches', con_storage: 'Storage (GB)', ok: 'OK',
+            addon_title: '🧩 Addons', col_addon: 'Addon', col_status: 'Status', col_expiry: 'Expires', col_action: 'Actions',
+            addon_crm: 'Admissions & CRM', addon_crm_desc: 'Landing pages, leads, consulting',
+            addon_assess: 'Assessment & Testing', addon_assess_desc: 'Placement tests, mock exams',
+            addon_online: 'Online Classes', addon_online_desc: 'Zoom / Meet / Teams',
+            addon_hrm: 'HR & Payroll', addon_hrm_desc: 'Attendance, payroll',
+            addon_note: 'ℹ️ Expired addons enter a 30-day grace period (read-only), then disable automatically — data is never deleted.',
+            modal_addon_title: 'Activate Addon', serial_key: 'Serial key', serial_ph: 'CRM-XXXX-XXXX-XXXX-XXXX',
+            opt_crm_price: 'Admissions & CRM — $500/yr', opt_assess_price: 'Assessment & Testing — $600/yr',
+            opt_online_price: 'Online Classes — $400/yr', opt_hrm_price: 'HR & Payroll — $800/yr',
+            cancel: 'Cancel', activate: 'Activate',
+            modal_relic_title: 'Update License', dropzone_title: 'Drag & drop license file (.json) or click to select',
+            dropzone_sub: 'Verified offline — no data leaves your server',
+            upload_none: 'No file selected', apply_btn: 'Verify & apply',
+            status_updated: '● Active (updated)', lic_v2: 'LIC-2026-001-ABC-EDU (v2)',
+            max_students: 'Max students', max_branches: 'Max branches',
+            activated_badge: 'Activated', dash: '—',
+            toast_login_ok: 'Signed in — License screen (US0)',
+            toast_serial: 'Please enter a serial key (demo: CRM-A1B2-C3D4-E5F6-G7H8)',
+            toast_serial_ok: '✅ Addon "Admissions & CRM" activated',
+            toast_upload_ok: 'License uploaded — signature valid',
+            toast_applied: '✅ New license applied — constraints upgraded',
+            toast_branch: 'Branch scope switched (demo)',
+            toast_go_pre: 'Demo: navigating to "', toast_go_suf: '" (this mockup covers License only)',
+            upload_progress: 'Uploading license-abc-edu-2026.json (1.2 KB)...',
+            upload_done: '✅ Valid file — license-abc-edu-2026.json (RSA-2048 signature OK)',
+            verifying: 'Verifying signature & applying constraints...'
+        }
+    };
+
+    var LANG = localStorage.getItem('ec-lang') || 'vi';
+    var THEME = localStorage.getItem('ec-theme') || 'light';
+    var upgraded = false;
+    var addonsActivated = [];
+
+    function t(k) { return (I18N[LANG] && I18N[LANG][k] !== undefined) ? I18N[LANG][k] : k; }
+
+    function applyTheme() {
+        document.documentElement.classList.toggle('dark', THEME === 'dark');
+        var b1 = document.getElementById('themeBtn'), b2 = document.getElementById('themeBtnLogin');
+        if (b1) b1.textContent = THEME === 'dark' ? '☀️' : '🌙';
+        if (b2) b2.textContent = THEME === 'dark' ? '☀️' : '🌙';
+    }
+    function toggleTheme() { THEME = THEME === 'dark' ? 'light' : 'dark'; localStorage.setItem('ec-theme', THEME); applyTheme(); }
+
+    function toggleLang() { setLang(LANG === 'vi' ? 'en' : 'vi'); }
+    function updateLangBtns() {
+        var next = LANG === 'vi' ? 'EN' : 'VI';
+        ['langBtn', 'langBtnLogin'].forEach(function (id) { var b = document.getElementById(id); if (b) b.textContent = '🌐 ' + next; });
+    }
+
+    function setLang(l) {
+        LANG = l; localStorage.setItem('ec-lang', l);
+        document.documentElement.lang = l === 'vi' ? 'vi' : 'en';
+        document.querySelectorAll('[data-i18n]').forEach(function (el) {
+            var k = el.getAttribute('data-i18n');
+            if (I18N[l][k] !== undefined) el.textContent = I18N[l][k];
+        });
+        document.querySelectorAll('[data-i18n-ph]').forEach(function (el) {
+            el.placeholder = I18N[l][el.getAttribute('data-i18n-ph')] || '';
+        });
+        updateLangBtns(); renderWelcome(); renderAddons();
+        var st = document.getElementById('uploadState');
+        if (st && st.getAttribute('data-upload-state') !== 'done') st.textContent = t('upload_none');
+    }
+
+    /* ===== render dynamic sections ===== */
+    function kv(label, val) {
+        return '<div class="kv-box"><span class="text-soft">' + label + '</span><b>' + val + '</b></div>';
+    }
+    function renderWelcome() {
+        var b = document.getElementById('welcomeBox');
+        if (!upgraded) {
+            b.innerHTML =
+                kv(t('lic_status'), '<span class="badge badge-success">' + t('lic_active') + '</span>') +
+                kv(t('lic_id'), 'LIC-2026-001-ABC-EDU') +
+                kv(t('lic_type'), t('lic_perpetual')) +
+                kv(t('lic_support'), '2027-08-31') +
+                kv(t('lic_signature'), '<span class="badge badge-success">' + t('lic_valid') + '</span>') +
+                kv(t('lic_activated'), '2026-09-01');
+        } else {
+            b.innerHTML =
+                kv(t('lic_status'), '<span class="badge badge-success">' + t('status_updated') + '</span>') +
+                kv(t('lic_id'), t('lic_v2')) +
+                kv(t('max_students'), '2.000 → <span style="color: var(--secondary);">3.000</span>') +
+                kv(t('max_branches'), '3 → <span style="color: var(--secondary);">5</span>') +
+                kv(t('lic_signature'), '<span class="badge badge-success">' + t('lic_valid') + '</span>') +
+                kv(t('lic_type'), t('lic_perpetual'));
+        }
+    }
+    function renderAddons() {
+        var rows = document.getElementById('addonRows');
+        var defs = [
+            { key: 'addon_crm', desc: 'addon_crm_desc' },
+            { key: 'addon_assess', desc: 'addon_assess_desc' },
+            { key: 'addon_online', desc: 'addon_online_desc' },
+            { key: 'addon_hrm', desc: 'addon_hrm_desc' }
+        ];
+        var h = '';
+        defs.forEach(function (d, i) {
+            var on = addonsActivated.indexOf(d.key) !== -1;
+            h += '<tr class="border-b" style="border-color: var(--border);">' +
+                '<td class="py-3 px-3"><b>' + t(d.key) + '</b><br><span class="text-xs text-faint">' + t(d.desc) + '</span></td>' +
+                '<td class="py-3 px-3">' + (on ? '<span class="badge badge-success">● ' + t('lic_active') + '</span>' : '<span class="badge badge-warning">' + t('not_activated') + '</span>') + '</td>' +
+                '<td class="py-3 px-3">' + (on ? '2027-08-31' : t('dash')) + '</td>' +
+                '<td class="py-3 px-3 text-right">' + (on ? '<span class="badge badge-gray">' + t('activated_badge') + '</span>' : '<button class="btn-primary px-4 py-1.5 text-xs" onclick="openModal(\'addonModal\')">' + t('activate') + '</button>') + '</td></tr>';
+        });
+        rows.innerHTML = h;
+    }
+
+    /* ===== interactions ===== */
+    var toastTimer = null;
+    function toast(msg) {
+        var el = document.getElementById('toast');
+        el.textContent = msg; el.classList.remove('hidden');
+        clearTimeout(toastTimer); toastTimer = setTimeout(function () { el.classList.add('hidden'); }, 2600);
+    }
+    function doLogin() {
+        var e = document.getElementById('loginEmail').value.trim(), p = document.getElementById('loginPass').value;
+        if (e === 'admin@edu.vn' && p === 'admin123') {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('appScreen').classList.remove('hidden');
+            toast(t('toast_login_ok'));
+        } else {
+            var el = document.getElementById('loginError'); el.classList.remove('hidden');
+            setTimeout(function () { el.classList.add('hidden'); }, 3500);
+        }
+    }
+    function go(p) { toast(t('toast_go_pre') + p + t('toast_go_suf')); }
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+    function simulateUpload() {
+        var st = document.getElementById('uploadState');
+        st.innerHTML = '<span class="spinner"></span> ' + t('upload_progress');
+        setTimeout(function () {
+            st.innerHTML = '✅ ' + t('upload_done');
+            document.getElementById('applyBtn').disabled = false;
+            toast(t('toast_upload_ok'));
+        }, 900);
+    }
+    function applyLicense() {
+        var st = document.getElementById('uploadState');
+        st.innerHTML = '<span class="spinner"></span> ' + t('verifying');
+        setTimeout(function () {
+            closeModal('relicModal');
+            upgraded = true; renderWelcome();
+            toast(t('toast_applied'));
+        }, 1400);
+    }
+    function activateAddon() {
+        var key = document.getElementById('serialKey').value.trim();
+        if (!key) { toast(t('toast_serial')); return; }
+        addonsActivated.push('addon_crm');
+        closeModal('addonModal'); renderAddons();
+        document.getElementById('serialKey').value = '';
+        toast(t('toast_serial_ok'));
+    }
+
+    /* ===== user menu (popup) ===== */
+    function toggleUserMenu(e) {
+        e.stopPropagation();
+        document.getElementById('userDropdown').classList.toggle('hidden');
+    }
+    document.addEventListener('click', function (e) {
+        var d = document.getElementById('userDropdown');
+        if (d && !d.classList.contains('hidden') && !e.target.closest('#userMenu')) d.classList.add('hidden');
+    });
+    function demoMenu(key) {
+        var d = document.getElementById('userDropdown'); if (d) d.classList.add('hidden');
+        toast(t(key));
+    }
+
+    /* ===== init ===== */
+    applyTheme(); setLang(LANG);
+    renderWelcome(); renderAddons();
+</script>
+</body>
+</html>

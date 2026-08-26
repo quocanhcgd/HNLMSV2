@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WF-02: Chu trình Giảng dạy & Học tập - Sơ đồ Tương tác</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #f7fafc;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .workflow-canvas {
+            position: relative;
+            min-height: 1400px;
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 40px;
+            overflow-x: auto;
+        }
+
+        .phase-section {
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .phase-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .phase-number {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+
+        .steps-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px 0;
+        }
+
+        .step-node {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 220px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            border: 3px solid transparent;
+        }
+
+        .step-node:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .step-node.active {
+            border-color: #667eea;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .step-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .step-desc {
+            color: #718096;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .step-actor {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background: #edf2f7;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            color: #4a5568;
+            display: inline-block;
+        }
+
+        .connector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 0;
+        }
+
+        .arrow {
+            color: #cbd5e0;
+            font-size: 2rem;
+        }
+
+        .teacher-node {
+            background: #fff4e1;
+            border-left: 4px solid #ffa500;
+        }
+
+        .student-node {
+            background: #e1f0ff;
+            border-left: 4px solid #2196f3;
+        }
+
+        .system-node {
+            background: #f0f0f0;
+            border-left: 4px solid #9e9e9e;
+        }
+
+        .info-panel {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            width: 400px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 25px;
+            max-height: 85vh;
+            overflow-y: auto;
+            opacity: 0;
+            transform: translateX(450px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .info-panel.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .info-panel h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .info-panel .detail {
+            margin-bottom: 15px;
+        }
+
+        .info-panel .label {
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 5px;
+        }
+
+        .info-panel .value {
+            color: #718096;
+            line-height: 1.6;
+        }
+
+        .close-panel {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #a0aec0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .close-panel:hover {
+            background: #edf2f7;
+            color: #2d3748;
+        }
+
+        .metrics {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .info-panel {
+                width: calc(100% - 40px);
+                right: 20px;
+            }
+
+            .steps-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 WF-02: Chu trình Giảng dạy & Học tập</h1>
+        <p class="subtitle">Quy trình học tập liên tục - Click vào từng bước để xem chi tiết</p>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ffa500;"></div>
+                <span>Giáo viên</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #2196f3;"></div>
+                <span>Học viên</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #9e9e9e;"></div>
+                <span>Hệ thống</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #4caf50;"></div>
+                <span>Đánh giá</span>
+            </div>
+        </div>
+
+        <div class="workflow-canvas">
+            <!-- Phase 1: Pre-Class Preparation -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <span class="phase-number">Giai đoạn 1</span>
+                    Chuẩn bị trước buổi học
+                </div>
+                <div class="steps-container">
+                    <div class="step-node teacher-node" data-step="review-plan">
+                        <div class="step-icon">📋</div>
+                        <div class="step-title">Xem lại giáo án</div>
+                        <div class="step-desc">Giáo viên xem lại kế hoạch bài học</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node teacher-node" data-step="prepare-materials">
+                        <div class="step-icon">📚</div>
+                        <div class="step-title">Chuẩn bị tài liệu</div>
+                        <div class="step-desc">Slide, video, bài tập thực hành</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node teacher-node" data-step="upload-content">
+                        <div class="step-icon">📤</div>
+                        <div class="step-title">Tải tài liệu lên</div>
+                        <div class="step-desc">Upload lên LMS, đặt quyền truy cập</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node system-node" data-step="notify-students">
+                        <div class="step-icon">📧</div>
+                        <div class="step-title">Thông báo học viên</div>
+                        <div class="step-desc">Email/SMS tự động gửi đi</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node student-node" data-step="preview-materials">
+                        <div class="step-icon">📖</div>
+                        <div class="step-title">Học viên xem trước</div>
+                        <div class="step-desc">Tải và đọc tài liệu trước giờ học</div>
+                        <div class="step-actor">🎓 Học viên</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 2: Class Session -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <span class="phase-number">Giai đoạn 2</span>
+                    Buổi học trên lớp (90 phút)
+                </div>
+                <div class="steps-container">
+                    <div class="step-node teacher-node" data-step="attendance">
+                        <div class="step-icon">✓</div>
+                        <div class="step-title">Điểm danh</div>
+                        <div class="step-desc">Đánh dấu có mặt/vắng/trễ</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node teacher-node" data-step="warm-up">
+                        <div class="step-icon">🎯</div>
+                        <div class="step-title">Khởi động (10 phút)</div>
+                        <div class="step-desc">Ôn tập, giới thiệu bài mới</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node teacher-node" data-step="present">
+                        <div class="step-icon">👨‍🏫</div>
+                        <div class="step-title">Giảng bài (30 phút)</div>
+                        <div class="step-desc">Trình bày kiến thức mới, ví dụ</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+                </div>
+                <div class="steps-container" style="margin-top: 20px;">
+                    <div class="step-node student-node" data-step="practice">
+                        <div class="step-icon">✍️</div>
+                        <div class="step-title">Thực hành (40 phút)</div>
+                        <div class="step-desc">Làm bài tập, hoạt động nhóm</div>
+                        <div class="step-actor">🎓 Học viên</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node teacher-node" data-step="qa">
+                        <div class="step-icon">❓</div>
+                        <div class="step-title">Hỏi đáp (10 phút)</div>
+                        <div class="step-desc">Trả lời câu hỏi, làm rõ</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node teacher-node" data-step="session-notes">
+                        <div class="step-icon">📝</div>
+                        <div class="step-title">Ghi chú buổi học</div>
+                        <div class="step-desc">Tóm tắt nội dung, vấn đề</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 3: Assignment -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <span class="phase-number">Giai đoạn 3</span>
+                    Bài tập về nhà
+                </div>
+                <div class="steps-container">
+                    <div class="step-node teacher-node" data-step="create-assignment">
+                        <div class="step-icon">📝</div>
+                        <div class="step-title">Tạo bài tập</div>
+                        <div class="step-desc">Đặt tiêu đề, hướng dẫn, hạn nộp</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node system-node" data-step="notify-assignment">
+                        <div class="step-icon">📧</div>
+                        <div class="step-title">Thông báo bài tập</div>
+                        <div class="step-desc">Gửi thông báo tới học viên</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node student-node" data-step="do-homework">
+                        <div class="step-icon">📖</div>
+                        <div class="step-title">Làm bài tập</div>
+                        <div class="step-desc">Hoàn thành ở nhà (2-3 ngày)</div>
+                        <div class="step-actor">🎓 Học viên</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node student-node" data-step="submit">
+                        <div class="step-icon">📤</div>
+                        <div class="step-title">Nộp bài</div>
+                        <div class="step-desc">Upload file lên hệ thống</div>
+                        <div class="step-actor">🎓 Học viên</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 4: Grading -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <span class="phase-number">Giai đoạn 4</span>
+                    Chấm bài và phản hồi
+                </div>
+                <div class="steps-container">
+                    <div class="step-node teacher-node" data-step="review-submissions">
+                        <div class="step-icon">👀</div>
+                        <div class="step-title">Xem bài nộp</div>
+                        <div class="step-desc">Danh sách học viên đã nộp</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node teacher-node" data-step="grade-work">
+                        <div class="step-icon">🎓</div>
+                        <div class="step-title">Chấm điểm</div>
+                        <div class="step-desc">Đánh giá từng bài, cho điểm</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node teacher-node" data-step="feedback">
+                        <div class="step-icon">💬</div>
+                        <div class="step-title">Viết nhận xét</div>
+                        <div class="step-desc">Điểm mạnh, cần cải thiện</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node teacher-node" data-step="publish-grades">
+                        <div class="step-icon">✅</div>
+                        <div class="step-title">Công bố điểm</div>
+                        <div class="step-desc">Học viên nhận điểm & nhận xét</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 5: Progress Tracking -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <span class="phase-number">Giai đoạn 5</span>
+                    Theo dõi tiến độ
+                </div>
+                <div class="steps-container">
+                    <div class="step-node teacher-node" data-step="monitor">
+                        <div class="step-icon">📊</div>
+                        <div class="step-title">Theo dõi lớp</div>
+                        <div class="step-desc">Xem điểm TB, điểm danh, tiến độ</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node teacher-node" data-step="identify-risk">
+                        <div class="step-icon">⚠️</div>
+                        <div class="step-title">Nhận diện rủi ro</div>
+                        <div class="step-desc">Học viên yếu, vắng nhiều</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node teacher-node" data-step="intervene">
+                        <div class="step-icon">🤝</div>
+                        <div class="step-title">Can thiệp hỗ trợ</div>
+                        <div class="step-desc">Tư vấn, tài liệu thêm, dạy kèm</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node student-node" data-step="student-progress">
+                        <div class="step-icon">📈</div>
+                        <div class="step-title">Học viên xem tiến độ</div>
+                        <div class="step-desc">Dashboard cá nhân, điểm số</div>
+                        <div class="step-actor">🎓 Học viên</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 6: Course Completion -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <span class="phase-number">Giai đoạn 6</span>
+                    Hoàn thành khóa học
+                </div>
+                <div class="steps-container">
+                    <div class="step-node teacher-node" data-step="final-exam">
+                        <div class="step-icon">📋</div>
+                        <div class="step-title">Thi cuối kỳ</div>
+                        <div class="step-desc">Tạo đề, tổ chức thi, chấm điểm</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node teacher-node" data-step="final-grade">
+                        <div class="step-icon">🎓</div>
+                        <div class="step-title">Tính điểm tổng kết</div>
+                        <div class="step-desc">Bài tập 30% + Thi 70%</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node system-node" data-step="certificate">
+                        <div class="step-icon">🎖️</div>
+                        <div class="step-title">Cấp chứng chỉ</div>
+                        <div class="step-desc">Tự động tạo và gửi email</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node teacher-node" data-step="feedback-survey">
+                        <div class="step-icon">📝</div>
+                        <div class="step-title">Khảo sát đánh giá</div>
+                        <div class="step-desc">Thu thập phản hồi học viên</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="metrics">
+            <h3 style="margin-bottom: 15px; color: #2d3748;">📊 Chỉ số quan trọng</h3>
+            <div class="metric-row">
+                <span class="metric-label">Tỷ lệ hoàn thành khóa học</span>
+                <span class="metric-value">85%</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Tỷ lệ điểm danh trung bình</span>
+                <span class="metric-value">94%</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Tỷ lệ nộp bài đúng hạn</span>
+                <span class="metric-value">91%</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Mức độ hài lòng học viên</span>
+                <span class="metric-value">4.2/5</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Điểm trung bình lớp</span>
+                <span class="metric-value">8.2/10</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-panel" id="infoPanel">
+        <button class="close-panel" onclick="closePanel()">×</button>
+        <h3 id="panelTitle">Chi tiết bước</h3>
+        <div id="panelContent"></div>
+    </div>
+
+    <script>
+        const stepDetails = {
+            'review-plan': {
+                title: '📋 Xem lại giáo án',
+                actor: 'Giáo viên',
+                duration: '15 phút',
+                description: 'Giáo viên xem lại kế hoạch bài học, mục tiêu học tập, và các hoạt động đã lên kế hoạch cho buổi học sắp tới.',
+                actions: [
+                    'Đọc lại giáo án buổi học',
+                    'Xem lại ghi chú từ buổi học trước',
+                    'Kiểm tra câu hỏi học viên đã đặt',
+                    'Chuẩn bị trả lời các thắc mắc',
+                    'Lên danh sách hoạt động cần thiết'
+                ],
+                nextSteps: 'Sau khi xem xong, giáo viên bắt đầu chuẩn bị tài liệu cụ thể.'
+            },
+            'prepare-materials': {
+                title: '📚 Chuẩn bị tài liệu',
+                actor: 'Giáo viên',
+                duration: '30-60 phút',
+                description: 'Chuẩn bị đầy đủ tài liệu giảng dạy bao gồm slides, video, bài tập, và tài liệu tham khảo.',
+                materials: [
+                    'Slides trình bày (PowerPoint/PDF)',
+                    'Video hoặc audio minh họa',
+                    'Bài tập thực hành',
+                    'Đề cương bài học',
+                    'Tài liệu tham khảo thêm'
+                ],
+                tips: 'Nên chuẩn bị dự phòng thêm 20% hoạt động phòng khi học viên làm nhanh hơn dự kiến.',
+                nextSteps: 'Upload tất cả tài liệu lên LMS để học viên truy cập.'
+            },
+            'upload-content': {
+                title: '📤 Tải tài liệu lên LMS',
+                actor: 'Giáo viên',
+                duration: '10 phút',
+                description: 'Upload tài liệu lên hệ thống LMS, đặt quyền truy cập và thời gian hiển thị cho học viên.',
+                steps: [
+                    'Đăng nhập LMS → Lớp học của tôi',
+                    'Chọn lớp → Tab "Nội dung"',
+                    'Click "Tải tài liệu lên"',
+                    'Chọn files (tối đa 500MB/file)',
+                    'Đặt metadata: Bài số, chủ đề, mô tả',
+                    'Chọn quyền: Hiển thị với học viên',
+                    'Đặt thời gian: Có sẵn từ 2 ngày trước',
+                    'Click "Tải lên"'
+                ],
+                result: 'Tài liệu xuất hiện trong thư viện lớp học, học viên nhận thông báo.'
+            },
+            'notify-students': {
+                title: '📧 Thông báo học viên',
+                actor: 'Hệ thống (Tự động)',
+                duration: 'Tức thì',
+                description: 'Hệ thống tự động gửi thông báo email và SMS cho tất cả học viên trong lớp về tài liệu mới.',
+                notification: `
+Chào em,
+
+Tài liệu mới cho Bài 5: "Thì quá khứ" đã được tải lên.
+
+Hãy xem trước tài liệu trước giờ học nhé!
+
+Trân trọng,
+Cô Nguyễn
+                `,
+                channels: [
+                    'Email → 100% học viên',
+                    'SMS → Học viên đăng ký nhận',
+                    'Thông báo trong app'
+                ]
+            },
+            'preview-materials': {
+                title: '📖 Học viên xem trước tài liệu',
+                actor: 'Học viên',
+                duration: '20-30 phút',
+                description: 'Học viên tải và đọc tài liệu trước giờ học để chuẩn bị tốt hơn.',
+                benefits: [
+                    'Hiểu trước nội dung bài học',
+                    'Chuẩn bị câu hỏi để hỏi',
+                    'Tiết kiệm thời gian trên lớp',
+                    'Tham gia tích cực hơn',
+                    'Kết quả học tốt hơn'
+                ],
+                statistics: '78% học viên xem trước tài liệu (Mục tiêu: 70%)'
+            },
+            'attendance': {
+                title: '✓ Điểm danh',
+                actor: 'Giáo viên',
+                duration: '3-5 phút',
+                description: 'Đánh dấu điểm danh cho từng học viên ở đầu giờ học.',
+                steps: [
+                    'Mở LMS → Lớp học → Điểm danh',
+                    'Chọn ngày hôm nay',
+                    'Đánh dấu cho từng học viên:',
+                    '  - ✓ Có mặt',
+                    '  - ⏰ Đi trễ',
+                    '  - ❌ Vắng (có lý do/không lý do)',
+                    'Thêm ghi chú nếu cần',
+                    'Lưu điểm danh'
+                ],
+                automation: 'Nếu học viên vắng, hệ thống tự động gửi thông báo cho phụ huynh (nếu bật addon).',
+                metrics: 'Tỷ lệ điểm danh ảnh hưởng đến tiến độ và đánh giá cuối khóa.'
+            },
+            'warm-up': {
+                title: '🎯 Khởi động (10 phút)',
+                actor: 'Giáo viên',
+                duration: '10 phút',
+                description: 'Bắt đầu buổi học với hoạt động khởi động để học viên tập trung và sẵn sàng học.',
+                activities: [
+                    'Ôn lại bài cũ qua câu hỏi nhanh',
+                    'Trò chơi ngắn liên quan chủ đề',
+                    'Thảo luận về tình huống thực tế',
+                    'Kiểm tra bài tập về nhà ngắn gọn'
+                ],
+                purpose: 'Tạo không khí thoải mái, kích hoạt kiến thức cũ, chuẩn bị cho bài mới.'
+            },
+            'present': {
+                title: '👨‍🏫 Giảng bài (30 phút)',
+                actor: 'Giáo viên',
+                duration: '30 phút',
+                description: 'Trình bày kiến thức mới với slides, ví dụ thực tế, và kiểm tra hiểu biết liên tục.',
+                structure: [
+                    'Giới thiệu chủ đề (2 phút)',
+                    'Trình bày khái niệm chính (15 phút)',
+                    'Đưa ra ví dụ minh họa (8 phút)',
+                    'Kiểm tra hiểu biết qua câu hỏi (5 phút)'
+                ],
+                techniques: [
+                    'Sử dụng hình ảnh và video',
+                    'Đặt câu hỏi kiểm tra suốt bài',
+                    'Khuyến khích học viên đưa ví dụ',
+                    'Giải thích bằng ngôn ngữ đơn giản',
+                    'Liên hệ với thực tế đời sống'
+                ]
+            },
+            'practice': {
+                title: '✍️ Thực hành (40 phút)',
+                actor: 'Học viên',
+                duration: '40 phút',
+                description: 'Học viên áp dụng kiến thức vừa học qua các hoạt động thực hành cá nhân và nhóm.',
+                activities: [
+                    'Bài tập cá nhân (15 phút)',
+                    'Hoạt động theo cặp (10 phút)',
+                    'Thảo luận nhóm nhỏ (10 phút)',
+                    'Trình bày kết quả (5 phút)'
+                ],
+                teacherRole: 'Quan sát, hỗ trợ từng học viên, sửa lỗi kịp thời, khuyến khích tham gia.',
+                outcome: 'Học viên tự tin áp dụng kiến thức, phát hiện và sửa lỗi sai.'
+            },
+            'qa': {
+                title: '❓ Hỏi đáp (10 phút)',
+                actor: 'Giáo viên & Học viên',
+                duration: '10 phút',
+                description: 'Giải đáp thắc mắc của học viên, làm rõ các điểm chưa hiểu.',
+                approach: [
+                    'Mở: "Có câu hỏi nào không em?"',
+                    'Lắng nghe kỹ câu hỏi',
+                    'Giải thích rõ ràng, đơn giản',
+                    'Đưa thêm ví dụ nếu cần',
+                    'Kiểm tra đã hiểu chưa',
+                    'Ghi lại câu hỏi hay để share'
+                ],
+                tips: 'Nếu không có học viên hỏi, giáo viên có thể đặt câu hỏi ngược để kiểm tra hiểu biết.'
+            },
+            'session-notes': {
+                title: '📝 Ghi chú buổi học',
+                actor: 'Giáo viên',
+                duration: '5 phút',
+                description: 'Ghi lại những điểm chính của buổi học để theo dõi tiến độ và chuẩn bị buổi sau.',
+                notes: [
+                    'Nội dung đã hoàn thành',
+                    'Phần nào học viên còn khó',
+                    'Học viên nào cần hỗ trợ thêm',
+                    'Điều chỉnh cho buổi sau',
+                    'Ý tưởng cải thiện'
+                ],
+                system: 'Ghi trong LMS → Lớp học → Buổi học → Thêm ghi chú'
+            },
+            'create-assignment': {
+                title: '📝 Tạo bài tập',
+                actor: 'Giáo viên',
+                duration: '10 phút',
+                description: 'Tạo bài tập về nhà để củng cố kiến thức đã học.',
+                fields: [
+                    'Tiêu đề: "Bài tập Bài 5 - Thì quá khứ"',
+                    'Mô tả: "Hoàn thành bài tập 1-5 trang 23"',
+                    'Hướng dẫn chi tiết',
+                    'Hạn nộp: 3 ngày sau',
+                    'Điểm: 10 điểm',
+                    'Loại nộp: Upload file PDF/Word'
+                ],
+                tips: 'Bài tập nên vừa sức, không quá dễ cũng không quá khó. Ước tính 30-45 phút làm.'
+            },
+            'notify-assignment': {
+                title: '📧 Thông báo bài tập',
+                actor: 'Hệ thống',
+                duration: 'Tức thì',
+                description: 'Tự động gửi thông báo về bài tập mới cho tất cả học viên.',
+                notification: `
+Bài tập mới: Bài 5 - Thì quá khứ
+
+Hạn nộp: 3 ngày (28/08/2024)
+Điểm: 10 điểm
+
+Click để xem chi tiết và nộp bài.
+                `
+            },
+            'do-homework': {
+                title: '📖 Làm bài tập',
+                actor: 'Học viên',
+                duration: '30-45 phút',
+                description: 'Học viên hoàn thành bài tập ở nhà trong thời gian quy định.',
+                process: [
+                    'Đọc kỹ yêu cầu bài tập',
+                    'Xem lại tài liệu bài học',
+                    'Làm bài tập từng phần',
+                    'Tự kiểm tra lại',
+                    'Chuẩn bị file nộp'
+                ],
+                tips: 'Nếu gặp khó khăn, ghi chú lại để hỏi giáo viên. Nộp sớm hơn deadline để tránh rủi ro.'
+            },
+            'submit': {
+                title: '📤 Nộp bài',
+                actor: 'Học viên',
+                duration: '2 phút',
+                description: 'Upload bài tập đã hoàn thành lên hệ thống.',
+                steps: [
+                    'Đăng nhập LMS',
+                    'Vào Lớp học → Bài tập',
+                    'Chọn bài tập cần nộp',
+                    'Click "Nộp bài"',
+                    'Upload file hoặc viết trực tiếp',
+                    'Thêm ghi chú (tùy chọn)',
+                    'Click "Gửi"',
+                    'Nhận xác nhận đã nộp'
+                ],
+                deadline: 'Sau deadline, không thể nộp trễ trừ khi có lý do chính đáng.'
+            },
+            'review-submissions': {
+                title: '👀 Xem bài nộp',
+                actor: 'Giáo viên',
+                duration: '5 phút',
+                description: 'Xem danh sách học viên đã nộp bài và ai chưa nộp.',
+                dashboard: `
+Bài tập: Bài 5 - Thì quá khứ
+Hạn: 28/08/2024
+
+Đã nộp: 14/15 (93%)
+Chưa nộp: 1 học viên
+Nộp trễ: 0
+
+Sắp xếp theo: Thời gian nộp
+                `,
+                action: 'Nhắc nhở học viên chưa nộp qua tin nhắn hoặc điện thoại.'
+            },
+            'grade-work': {
+                title: '🎓 Chấm điểm',
+                actor: 'Giáo viên',
+                duration: '5-10 phút/bài',
+                description: 'Đánh giá và cho điểm từng bài làm của học viên.',
+                process: [
+                    'Mở bài nộp của học viên',
+                    'Đọc kỹ toàn bộ bài làm',
+                    'So sánh với đáp án',
+                    'Đếm số câu đúng/sai',
+                    'Tính điểm theo thang 10',
+                    'Ghi chú lỗi sai chính',
+                    'Lưu điểm'
+                ],
+                rubric: `
+Độ chính xác: 40%
+Hoàn thành đầy đủ: 30%
+Nỗ lực: 20%
+Đúng hạn: 10%
+                `
+            },
+            'feedback': {
+                title: '💬 Viết nhận xét',
+                actor: 'Giáo viên',
+                duration: '3-5 phút/bài',
+                description: 'Viết phản hồi chi tiết để học viên biết điểm mạnh và cần cải thiện.',
+                template: `
+Bài làm tốt, em đã hiểu khái niệm!
+
+Điểm mạnh:
+- Bài 1 & 4: Hoàn hảo!
+- Cấu trúc câu tốt
+
+Cần cải thiện:
+- Bài 2: Nhớ động từ bất quy tắc (went, not goed)
+- Bài 5: Chú ý chủ ngữ số nhiều
+
+Luyện thêm danh sách động từ trang 45 nhé.
+Hỏi cô nếu chưa rõ!
+
+Điểm: 8.5/10
+                `,
+                principles: [
+                    'Bắt đầu với điểm tích cực',
+                    'Cụ thể về lỗi sai',
+                    'Đưa gợi ý cải thiện',
+                    'Khuyến khích tiếp tục'
+                ]
+            },
+            'publish-grades': {
+                title: '✅ Công bố điểm',
+                actor: 'Giáo viên',
+                duration: '1 phút',
+                description: 'Sau khi chấm xong tất cả bài, công bố điểm để học viên xem.',
+                steps: [
+                    'Kiểm tra đã chấm hết',
+                    'Xem lại phân bố điểm',
+                    'Click "Công bố điểm"',
+                    'Hệ thống gửi thông báo',
+                    'Học viên nhận điểm & nhận xét'
+                ],
+                timeline: 'Nên chấm và công bố trong vòng 7 ngày sau hạn nộp.'
+            },
+            'monitor': {
+                title: '📊 Theo dõi lớp',
+                actor: 'Giáo viên',
+                duration: '10 phút/tuần',
+                description: 'Xem tổng quan tiến độ và hiệu suất của cả lớp.',
+                metrics: [
+                    'Điểm trung bình: 8.2/10',
+                    'Tỷ lệ điểm danh: 94%',
+                    'Tỷ lệ nộp bài: 91%',
+                    'Học viên xuất sắc: 4 em',
+                    'Học viên cần hỗ trợ: 2 em'
+                ]
+            },
+            'identify-risk': {
+                title: '⚠️ Nhận diện rủi ro',
+                actor: 'Giáo viên',
+                duration: '5 phút',
+                description: 'Phát hiện học viên có nguy cơ học kém hoặc bỏ học.',
+                riskSignals: [
+                    'Vắng nhiều (< 80% buổi)',
+                    'Điểm giảm liên tục',
+                    'Không nộp bài',
+                    'Không tham gia trên lớp',
+                    'Không hỏi bài khi khó'
+                ],
+                example: `
+Trần Thị B:
+- Điểm danh: 15/20 (75%) ⚠️
+- Điểm TB: 6.2/10 ⚠️
+- Xu hướng: Giảm dần ↘️
+→ Cần can thiệp ngay
+                `
+            },
+            'intervene': {
+                title: '🤝 Can thiệp hỗ trợ',
+                actor: 'Giáo viên',
+                duration: '15-30 phút',
+                description: 'Liên hệ và hỗ trợ học viên gặp khó khăn.',
+                actions: [
+                    'Gửi tin nhắn: "Em gặp khó khăn gì không?"',
+                    'Trao đổi trực tiếp sau giờ',
+                    'Đề xuất tài liệu bổ trợ',
+                    'Gợi ý nhóm học',
+                    'Liên hệ phụ huynh nếu cần',
+                    'Theo dõi trong 2 tuần'
+                ],
+                success: 'Phát hiện sớm và can thiệp kịp thời giúp 80% học viên cải thiện.'
+            },
+            'student-progress': {
+                title: '📈 Học viên xem tiến độ',
+                actor: 'Học viên',
+                duration: '3 phút',
+                description: 'Học viên theo dõi tiến độ học tập của mình.',
+                dashboard: `
+Điểm hiện tại: 8.5/10 (Khá)
+Điểm danh: 19/20 (95%)
+Bài tập: 9/10 đã nộp
+
+Tiến độ: 75% hoàn thành
+Dự kiến hoàn thành: 2 tuần nữa
+
+Điểm mạnh: Nghe, Nói
+Cần cải thiện: Ngữ pháp
+                `
+            },
+            'final-exam': {
+                title: '📋 Thi cuối kỳ',
+                actor: 'Giáo viên & Học viên',
+                duration: '90-120 phút',
+                description: 'Kiểm tra tổng hợp toàn bộ kiến thức đã học.',
+                components: [
+                    'Trắc nghiệm: 30 phút (30%)',
+                    'Nghe hiểu: 20 phút (20%)',
+                    'Đọc hiểu: 20 phút (20%)',
+                    'Viết: 30 phút (30%)'
+                ],
+                preparation: 'Giáo viên tạo đề, giám sát thi, chấm trong vòng 1 tuần.'
+            },
+            'final-grade': {
+                title: '🎓 Tính điểm tổng kết',
+                actor: 'Giáo viên',
+                duration: '5 phút/học viên',
+                description: 'Tính điểm cuối khóa dựa trên công thức quy định.',
+                formula: `
+Bài tập: 30%
+Kiểm tra giữa kỳ: 20%
+Thi cuối kỳ: 50%
+
+Ví dụ (Nguyễn Văn A):
+- Bài tập TB: 8.5 × 0.3 = 2.55
+- Giữa kỳ: 8.0 × 0.2 = 1.60
+- Cuối kỳ: 9.0 × 0.5 = 4.50
+Điểm tổng kết: 8.65/10 (Giỏi)
+                `
+            },
+            'certificate': {
+                title: '🎖️ Cấp chứng chỉ',
+                actor: 'Hệ thống',
+                duration: 'Tự động',
+                description: 'Tự động tạo chứng chỉ cho học viên hoàn thành khóa học.',
+                criteria: [
+                    'Điểm tổng kết ≥ 5.0',
+                    'Điểm danh ≥ 80%',
+                    'Hoàn tất tất cả bài tập bắt buộc',
+                    'Đã thanh toán đầy đủ học phí'
+                ],
+                certificate: 'PDF có tên, khóa học, điểm, ngày hoàn thành, chữ ký giáo viên.'
+            },
+            'feedback-survey': {
+                title: '📝 Khảo sát đánh giá',
+                actor: 'Giáo viên & Học viên',
+                duration: '5-10 phút',
+                description: 'Thu thập phản hồi của học viên về khóa học.',
+                questions: [
+                    'Chất lượng giảng dạy (1-5)',
+                    'Nội dung phù hợp (1-5)',
+                    'Tài liệu học tập (1-5)',
+                    'Mức độ khó (1-5)',
+                    'Sẽ giới thiệu không? (Có/Không)',
+                    'Góp ý cải thiện (Văn bản)'
+                ],
+                usage: 'Kết quả dùng để cải thiện chương trình và đánh giá giáo viên.'
+            }
+        };
+
+        // Add click handlers
+        document.querySelectorAll('.step-node').forEach(node => {
+            node.addEventListener('click', function() {
+                const stepId = this.getAttribute('data-step');
+                showStepDetails(stepId);
+
+                document.querySelectorAll('.step-node').forEach(n => n.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        function showStepDetails(stepId) {
+            const panel = document.getElementById('infoPanel');
+            const content = document.getElementById('panelContent');
+            const title = document.getElementById('panelTitle');
+            const details = stepDetails[stepId];
+
+            if (!details) return;
+
+            title.textContent = details.title;
+
+            let html = `
+                <div class="detail">
+                    <div class="label">👤 Người thực hiện</div>
+                    <div class="value">${details.actor}</div>
+                </div>
+                <div class="detail">
+                    <div class="label">⏱️ Thời gian</div>
+                    <div class="value">${details.duration}</div>
+                </div>
+                <div class="detail">
+                    <div class="label">📋 Mô tả</div>
+                    <div class="value">${details.description}</div>
+                </div>
+            `;
+
+            for (const [key, value] of Object.entries(details)) {
+                if (['title', 'actor', 'duration', 'description'].includes(key)) continue;
+
+                if (Array.isArray(value)) {
+                    html += `
+                        <div class="detail">
+                            <div class="label">${formatKey(key)}</div>
+                            <div class="value">
+                                <ul style="margin: 5px 0; padding-left: 20px;">
+                                    ${value.map(item => `<li>${item}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                } else if (typeof value === 'string') {
+                    html += `
+                        <div class="detail">
+                            <div class="label">${formatKey(key)}</div>
+                            <div class="value" style="white-space: pre-line;">${value}</div>
+                        </div>
+                    `;
+                }
+            }
+
+            content.innerHTML = html;
+            panel.classList.add('show');
+        }
+
+        function formatKey(key) {
+            const translations = {
+                'actions': '📝 Các hành động',
+                'nextSteps': '➡️ Bước tiếp theo',
+                'materials': '📚 Tài liệu cần có',
+                'tips': '💡 Mẹo',
+                'steps': '📋 Các bước',
+                'result': '✅ Kết quả',
+                'notification': '📧 Nội dung thông báo',
+                'channels': '📱 Kênh gửi',
+                'benefits': '✨ Lợi ích',
+                'statistics': '📊 Thống kê',
+                'automation': '🤖 Tự động hóa',
+                'metrics': '📈 Chỉ số',
+                'activities': '🎯 Hoạt động',
+                'purpose': '🎯 Mục đích',
+                'structure': '📐 Cấu trúc',
+                'techniques': '💡 Kỹ thuật',
+                'teacherRole': '👨‍🏫 Vai trò giáo viên',
+                'outcome': '✅ Kết quả mong đợi',
+                'approach': '🎯 Cách tiếp cận',
+                'notes': '📝 Ghi chú',
+                'system': '💻 Trong hệ thống',
+                'fields': '📋 Các trường',
+                'process': '⚙️ Quy trình',
+                'deadline': '⏰ Hạn chót',
+                'dashboard': '📊 Bảng điều khiển',
+                'action': '🎬 Hành động',
+                'rubric': '📏 Thang điểm',
+                'template': '📄 Mẫu',
+                'principles': '📐 Nguyên tắc',
+                'timeline': '⏱️ Thời gian',
+                'riskSignals': '⚠️ Dấu hiệu rủi ro',
+                'example': '📝 Ví dụ',
+                'success': '✅ Thành công',
+                'components': '🧩 Thành phần',
+                'preparation': '📝 Chuẩn bị',
+                'formula': '🧮 Công thức',
+                'criteria': '✓ Tiêu chí',
+                'certificate': '🎖️ Chứng chỉ',
+                'questions': '❓ Câu hỏi khảo sát',
+                'usage': '📊 Sử dụng'
+            };
+
+            return translations[key] || key;
+        }
+
+        function closePanel() {
+            document.getElementById('infoPanel').classList.remove('show');
+            document.querySelectorAll('.step-node').forEach(n => n.classList.remove('active'));
+        }
+
+        document.addEventListener('click', function(e) {
+            const panel = document.getElementById('infoPanel');
+            if (!e.target.closest('.step-node') && !e.target.closest('.info-panel')) {
+                panel.classList.remove('show');
+                document.querySelectorAll('.step-node').forEach(n => n.classList.remove('active'));
+            }
+        });
+    </script>
+</body>
+</html>

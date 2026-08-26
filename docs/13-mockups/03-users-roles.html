@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Người dùng & Vai trò - EduCenter LMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        :root {
+            --primary: #0d9488; --primary-light: #5eead4; --secondary: #10b981;
+            --accent: #f59e0b; --purple: #8b5cf6; --pink: #ec4899;
+            --bg-1: #ffffff; --bg-2: #f9fafb; --bg-3: #f3f4f6;
+            --text-1: #111827; --text-2: #6b7280; --text-3: #9ca3af; --border: #e5e7eb;
+        }
+        html.dark {
+            --bg-1: #1e293b; --bg-2: #0f172a; --bg-3: #334155;
+            --text-1: #f1f5f9; --text-2: #94a3b8; --text-3: #64748b; --border: #334155;
+        }
+        body { background: var(--bg-2); color: var(--text-1); transition: background .3s, color .3s; }
+        .gradient-teal { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); }
+        .card { background: var(--bg-1); border: 1px solid var(--border); border-radius: 1rem; transition: background .3s, border-color .3s; }
+        .surface { background: var(--bg-1); }
+        .soft { background: var(--bg-2); }
+        .text-soft { color: var(--text-2); }
+        .text-faint { color: var(--text-3); }
+        .badge { display: inline-flex; align-items: center; padding: .25rem .75rem; border-radius: 9999px; font-size: .75rem; font-weight: 700; }
+        .badge-primary { background: rgba(13,148,136,.15); color: var(--primary); }
+        .badge-success { background: rgba(16,185,129,.15); color: var(--secondary); }
+        .badge-warning { background: rgba(245,158,11,.15); color: var(--accent); }
+        .badge-danger { background: rgba(239,68,68,.12); color: #dc2626; }
+        .badge-gray { background: var(--bg-3); color: var(--text-2); }
+        .badge-purple { background: rgba(139,92,246,.15); color: var(--purple); }
+        .nav-item { display: flex; align-items: center; padding: .75rem 1rem; margin: .25rem .5rem; border-radius: .75rem; transition: all .2s; cursor: pointer; color: var(--text-2); font-size: .875rem; }
+        .nav-item:hover { background: var(--bg-2); }
+        .nav-item.active { background: linear-gradient(135deg, rgba(13,148,136,.12) 0%, rgba(16,185,129,.12) 100%); color: var(--primary); font-weight: 600; }
+        .nav-locked { opacity: .55; cursor: not-allowed; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: #fff; padding: .65rem 1.25rem; border-radius: .75rem; font-weight: 600; transition: all .3s; border: none; cursor: pointer; font-size: .875rem; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(13,148,136,.3); }
+        .btn-outline { border: 2px solid var(--border); padding: .6rem 1.25rem; border-radius: .75rem; font-weight: 600; color: var(--text-2); background: var(--bg-1); cursor: pointer; transition: all .2s; font-size: .875rem; }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+        .input-field { width: 100%; padding: .7rem 1rem; border: 2px solid var(--border); border-radius: .75rem; transition: all .3s; font-size: .875rem; background: var(--bg-1); color: var(--text-1); }
+        .input-field:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(13,148,136,.1); }
+        .sidebar { background: var(--bg-1); border-right: 1px solid var(--border); }
+        .tab { padding: .7rem 1.25rem; cursor: pointer; font-weight: 600; font-size: .875rem; color: var(--text-2); border-bottom: 3px solid transparent; }
+        .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .role-item { padding: .8rem 1rem; border: 2px solid var(--border); border-radius: .9rem; margin-bottom: .5rem; cursor: pointer; transition: all .15s; background: var(--bg-1); }
+        .role-item:hover { border-color: var(--primary); }
+        .role-item.active { border-color: var(--primary); background: rgba(13,148,136,.06); }
+        .perm { display: inline-flex; align-items: center; border: 2px solid var(--border); border-radius: .6rem; padding: .4rem .75rem; margin: 0 .4rem .4rem 0; font-size: .75rem; font-weight: 600; color: var(--text-2); cursor: pointer; user-select: none; background: var(--bg-1); }
+        .perm.on { border-color: var(--primary); background: rgba(13,148,136,.08); color: var(--primary); }
+        .chip { border: 2px solid var(--border); border-radius: .6rem; padding: .45rem .9rem; font-size: .8rem; cursor: pointer; user-select: none; color: var(--text-2); background: var(--bg-1); }
+        .chip.on { border-color: var(--primary); background: rgba(13,148,136,.08); color: var(--primary); font-weight: 600; }
+        .lang-btn { padding: .3rem .7rem; font-size: .75rem; font-weight: 700; color: var(--text-2); background: transparent; border: none; cursor: pointer; }
+        .lang-btn.on { background: var(--primary); color: #fff; }
+        .theme-btn { width: 36px; height: 34px; border-radius: .5rem; border: 2px solid var(--border); background: var(--bg-1); cursor: pointer; font-size: .95rem; display: inline-flex; align-items: center; justify-content: center; }
+        .menu-pop { display: flex; align-items: center; gap: .6rem; width: 100%; text-align: left; padding: .55rem .8rem; border-radius: .6rem; font-size: .85rem; color: var(--text-1); background: transparent; cursor: pointer; }
+        .menu-pop:hover { background: var(--bg-2); }
+    </style>
+</head>
+<body>
+<aside class="sidebar fixed top-0 left-0 w-64 h-screen z-20 overflow-y-auto">
+    <div class="flex items-center space-x-3 p-5 border-b" style="border-color: var(--border);">
+        <div class="w-10 h-10 rounded-xl gradient-teal text-white flex items-center justify-center font-bold">E</div>
+        <div><p class="font-bold text-sm">EduCenter LMS</p><p class="text-xs text-faint" data-i18n="org_name"></p></div>
+    </div>
+    <nav class="p-2 pt-3">
+        <div class="nav-item" onclick="go('dashboard')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg><span data-i18n="nav_dashboard"></span></div>
+        <p class="px-3 pt-2 pb-1 text-xs font-bold uppercase text-faint" data-i18n="grp_admin"></p>
+        <div class="nav-item" onclick="go('org')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg><span data-i18n="nav_org"></span></div>
+        <div class="nav-item" onclick="go('license')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><span data-i18n="nav_license"></span></div>
+        <div class="nav-item active"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg><span data-i18n="nav_users"></span></div>
+        <p class="px-3 pt-3 pb-1 text-xs font-bold uppercase text-faint" data-i18n="grp_biz"></p>
+        <div class="nav-item" onclick="go('academic')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg><span data-i18n="nav_academic"></span></div>
+        <div class="nav-item" onclick="go('enroll')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg><span data-i18n="nav_enroll"></span></div>
+        <div class="nav-item" onclick="go('finance')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg><span data-i18n="nav_finance"></span></div>
+        <div class="nav-item" onclick="go('reports')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg><span data-i18n="nav_reports"></span></div>
+        <p class="px-3 pt-3 pb-1 text-xs font-bold uppercase text-faint" data-i18n="grp_addon"></p>
+        <div class="nav-item nav-locked"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg><span data-i18n="nav_crm"></span><span class="ml-auto badge badge-warning" data-i18n="not_activated"></span></div>
+        <div class="nav-item nav-locked"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span data-i18n="nav_hrm"></span><span class="ml-auto badge badge-warning" data-i18n="not_activated"></span></div>
+    </nav>
+</aside>
+
+<div class="ml-64 min-h-screen">
+    <div class="surface border-b sticky top-0 z-10" style="border-color: var(--border);">
+        <div class="px-8 py-4 flex items-center justify-between">
+            <div><h2 class="text-xl font-bold" data-i18n="page_users"></h2><p class="text-sm text-soft" data-i18n="page_sub"></p></div>
+            <div class="flex items-center space-x-3">
+                <select class="text-sm px-3 py-2 rounded-lg border surface" style="border-color: var(--border);" onchange="toast(t('toast_branch'))">
+                    <option data-i18n="all_branches"></option>
+                    <option data-i18n="br_hn"></option>
+                    <option data-i18n="br_hcm"></option>
+                </select>
+                <button id="themeBtn" class="theme-btn" onclick="toggleTheme()" title="Dark/Light">🌙</button>
+                <button id="langBtn" class="theme-btn !w-auto px-3" onclick="toggleLang()" title="Language">🌐 EN</button>
+                <div class="relative" id="userMenu">
+                    <button onclick="toggleUserMenu(event)" class="flex items-center gap-2.5 rounded-xl border px-2.5 py-1.5 transition hover:border-teal-600" style="border-color: var(--border); background: var(--bg-1);">
+                        <div class="w-8 h-8 rounded-lg gradient-teal text-white flex items-center justify-center text-xs font-bold flex-none">NV</div>
+                        <div class="text-left leading-tight hidden sm:block">
+                            <p class="text-xs font-bold" data-i18n="user_name"></p>
+                            <p class="text-[10px] text-faint" data-i18n="user_role"></p>
+                        </div>
+                    </button>
+                    <div id="userDropdown" class="hidden absolute right-0 top-[52px] card shadow-xl w-56 p-2 z-30">
+                        <div class="px-3 py-2.5 mb-1 border-b" style="border-color: var(--border);">
+                            <p class="text-sm font-bold" data-i18n="user_name"></p>
+                            <p class="text-xs text-faint" data-i18n="user_role"></p>
+                        </div>
+                        <button class="menu-pop" onclick="demoMenu('user_profile')"><span>👤</span><span data-i18n="user_profile"></span></button>
+                        <button class="menu-pop" onclick="demoMenu('user_settings')"><span>⚙️</span><span data-i18n="user_settings"></span></button>
+                        <button class="menu-pop" onclick="demoMenu('user_password')"><span>🔑</span><span data-i18n="user_password"></span></button>
+                        <div class="border-t my-1" style="border-color: var(--border);"></div>
+                        <button class="menu-pop" style="color: #dc2626;" onclick="demoMenu('user_logout')"><span>🚪</span><span data-i18n="user_logout"></span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-8">
+        <div class="card overflow-hidden">
+            <div class="flex border-b px-6 pt-2" style="border-color: var(--border);">
+                <div class="tab active" id="tabUsers" onclick="switchTab('users')"><span data-i18n="tab_users"></span></div>
+                <div class="tab" id="tabRoles" onclick="switchTab('roles')"><span data-i18n="tab_roles"></span></div>
+            </div>
+
+            <!-- ===== USERS ===== -->
+            <div id="paneUsers" class="p-6">
+                <div class="flex flex-wrap gap-3 mb-5">
+                    <input class="input-field !w-64" data-i18n-ph="ph_search">
+                    <select class="input-field !w-44"><option data-i18n="role_all"></option><option data-i18n="role_oa"></option><option data-i18n="role_bm"></option><option data-i18n="role_t"></option><option data-i18n="role_s"></option><option data-i18n="role_fo"></option></select>
+                    <select class="input-field !w-44"><option data-i18n="br_all"></option><option data-i18n="br_hn"></option><option data-i18n="br_hcm"></option></select>
+                    <select class="input-field !w-44"><option data-i18n="st_all"></option><option data-i18n="st_active"></option><option data-i18n="st_locked"></option></select>
+                    <span class="flex-1"></span>
+                    <button class="btn-primary" onclick="openModal('userModal')">+ <span data-i18n="btn_new_user"></span></button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm" id="usersTable"></table>
+                </div>
+                <div class="flex items-center justify-between mt-4 text-sm text-soft">
+                    <span id="totalLabel"></span><span>‹ 1 2 3 ›</span>
+                </div>
+                <p class="text-xs mt-4 text-faint" data-i18n="audit_note"></p>
+            </div>
+
+            <!-- ===== ROLES ===== -->
+            <div id="paneRoles" class="hidden p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <div id="roleList"></div>
+                    <div class="lg:col-span-3">
+                        <h3 class="text-lg font-bold mb-1" id="roleTitle"></h3>
+                        <p class="text-sm mb-5 text-soft" id="roleDesc"></p>
+                        <p class="text-xs font-bold uppercase mb-2 text-faint" data-i18n="grp_org"></p>
+                        <div class="mb-4"><span class="perm on">org:read</span><span class="perm on">org:update</span><span class="perm on">branch:create</span><span class="perm on">branch:update</span><span class="perm on">branch:read</span></div>
+                        <p class="text-xs font-bold uppercase mb-2 text-faint" data-i18n="grp_users"></p>
+                        <div class="mb-4"><span class="perm on">user:create</span><span class="perm on">user:update</span><span class="perm on">user:delete</span><span class="perm on">role:manage</span><span class="perm on">scope:grant</span></div>
+                        <p class="text-xs font-bold uppercase mb-2 text-faint" data-i18n="grp_acad"></p>
+                        <div class="mb-4"><span class="perm on">program:create</span><span class="perm on">program:update</span><span class="perm on">class:create</span><span class="perm on">class:update</span><span class="perm on">schedule:manage</span><span class="perm on">enrollment:create</span></div>
+                        <p class="text-xs font-bold uppercase mb-2 text-faint" data-i18n="grp_fin"></p>
+                        <div class="mb-4"><span class="perm on">invoice:read</span><span class="perm on">invoice:create</span><span class="perm on">payment:record</span><span class="perm on">refund:create</span><span class="perm on">report:export</span></div>
+                        <p class="text-xs font-bold uppercase mb-2 text-faint" data-i18n="grp_lic"></p>
+                        <div class="mb-5"><span class="perm on">license:activate</span><span class="perm on">license:read</span></div>
+                        <div class="flex justify-end space-x-3">
+                            <button class="btn-outline" onclick="toast(t('toast_reset'))" data-i18n="undo"></button>
+                            <button class="btn-primary" onclick="toast(t('toast_saved'))" data-i18n="save"></button>
+                        </div>
+                        <p class="text-xs mt-4 text-faint" data-i18n="perm_note"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Tạo user -->
+<div id="userModal" class="hidden fixed inset-0 z-50 flex items-start justify-center pt-16 overflow-y-auto" style="background: rgba(0,0,0,.45);">
+    <div class="card p-8 w-full max-w-lg mb-10">
+        <div class="flex items-center justify-between mb-6"><h3 class="text-lg font-bold" data-i18n="modal_new_user"></h3><button class="text-xl text-faint" onclick="closeModal('userModal')">✕</button></div>
+        <div class="grid grid-cols-2 gap-4">
+            <div><label class="block text-sm font-semibold mb-1.5" data-i18n="f_name"></label><input class="input-field" data-i18n-ph="ph_name"></div>
+            <div><label class="block text-sm font-semibold mb-1.5" data-i18n="f_email"></label><input class="input-field" placeholder="a.nguyen@edu.vn"></div>
+            <div><label class="block text-sm font-semibold mb-1.5" data-i18n="f_pass"></label><input class="input-field" type="password" value="******"></div>
+            <div><label class="block text-sm font-semibold mb-1.5" data-i18n="f_branch"></label><select class="input-field"><option data-i18n="br_hn"></option><option data-i18n="br_hcm"></option></select></div>
+        </div>
+        <label class="block text-sm font-semibold mb-2 mt-4" data-i18n="f_roles"></label>
+        <div class="flex flex-wrap gap-2 mb-1">
+            <span class="chip" onclick="this.classList.toggle('on')" data-i18n="role_t"></span>
+            <span class="chip" onclick="this.classList.toggle('on')" data-i18n="role_fo"></span>
+            <span class="chip" onclick="this.classList.toggle('on')" data-i18n="role_am"></span>
+            <span class="chip" onclick="this.classList.toggle('on')" data-i18n="role_bm"></span>
+        </div>
+        <p class="text-xs mb-4 text-faint" data-i18n="hint_multi_role"></p>
+        <label class="block text-sm font-semibold mb-1.5" data-i18n="f_scope"></label>
+        <select class="input-field"><option data-i18n="scope_branch_hn"></option><option data-i18n="scope_classes"></option><option data-i18n="scope_students"></option></select>
+        <p class="text-xs mt-2 mb-4 text-faint" data-i18n="hint_scope"></p>
+        <div class="flex justify-end space-x-3">
+            <button class="btn-outline" onclick="closeModal('userModal')" data-i18n="cancel"></button>
+            <button class="btn-primary" onclick="closeModal('userModal');toast(t('toast_created'))" data-i18n="create"></button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Cấp scope -->
+<div id="scopeModal" class="hidden fixed inset-0 z-50 flex items-start justify-center pt-16 overflow-y-auto" style="background: rgba(0,0,0,.45);">
+    <div class="card p-8 w-full max-w-lg mb-10">
+        <div class="flex items-center justify-between mb-6"><h3 class="text-lg font-bold" data-i18n="modal_scope"></h3><button class="text-xl text-faint" onclick="closeModal('scopeModal')">✕</button></div>
+        <label class="block text-sm font-semibold mb-1.5" data-i18n="scope_type"></label>
+        <select class="input-field mb-4"><option data-i18n="scope_branch"></option><option data-i18n="scope_class"></option><option data-i18n="scope_student"></option></select>
+        <label class="block text-sm font-semibold mb-1.5" data-i18n="scope_object"></label>
+        <select class="input-field mb-4"><option data-i18n="br_hcm"></option><option data-i18n="br_hn"></option></select>
+        <div class="grid grid-cols-2 gap-4">
+            <div><label class="block text-sm font-semibold mb-1.5" data-i18n="from"></label><input type="date" value="2026-09-01" class="input-field"></div>
+            <div><label class="block text-sm font-semibold mb-1.5" data-i18n="to"></label><input type="date" value="2027-08-31" class="input-field"></div>
+        </div>
+        <label class="block text-sm font-semibold mb-1.5 mt-4" data-i18n="f_reason"></label>
+        <input class="input-field mb-5" data-i18n-ph="ph_reason">
+        <div class="flex justify-end space-x-3">
+            <button class="btn-outline" onclick="closeModal('scopeModal')" data-i18n="cancel"></button>
+            <button class="btn-primary" onclick="closeModal('scopeModal');toast(t('toast_scope_granted'))" data-i18n="grant"></button>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="hidden fixed top-20 right-8 z-50 card px-5 py-3.5 text-sm font-semibold shadow-xl" style="border-left: 4px solid var(--primary);"></div>
+
+<script>
+    var I18N = {
+        vi: {
+            org_name: 'Trung tâm Ngoại ngữ ABC',
+            grp_admin: 'Quản trị', grp_biz: 'Nghiệp vụ', grp_addon: 'Addon',
+            nav_dashboard: 'Dashboard', nav_org: 'Tổ chức & Chi nhánh', nav_license: 'License',
+            nav_users: 'Người dùng & Vai trò', nav_academic: 'Đào tạo', nav_enroll: 'Học viên & Ghi danh',
+            nav_finance: 'Tài chính', nav_reports: 'Báo cáo', nav_crm: 'Tuyển sinh & CRM', nav_hrm: 'Nhân sự & Lương',
+            not_activated: 'Chưa kích hoạt',
+            user_name: 'Nguyễn Văn Admin', user_role: 'Organization Admin',
+            user_profile: 'Hồ sơ', user_settings: 'Cài đặt', user_password: 'Đổi mật khẩu', user_logout: 'Đăng xuất',
+            all_branches: 'Tất cả chi nhánh', br_hn: 'Chi nhánh Hà Nội', br_hcm: 'Chi nhánh TP.HCM',
+            page_users: 'Người dùng & Vai trò', page_sub: 'Quản lý tài khoản, phân quyền theo module và scope chi nhánh',
+            tab_users: '👤 Người dùng (42)', tab_roles: '🛡️ Vai trò & Quyền',
+            ph_search: '🔍 Tìm theo tên / email...',
+            role_all: 'Vai trò: Tất cả', role_oa: 'Organization Admin', role_bm: 'Branch Manager', role_t: 'Teacher',
+            role_s: 'Student', role_fo: 'Finance Officer', role_am: 'Academic Manager',
+            br_all: 'Chi nhánh: Tất cả', st_all: 'Trạng thái: Tất cả', st_active: 'Hoạt động', st_locked: 'Khóa',
+            btn_new_user: 'Tạo người dùng',
+            col_user: 'Người dùng', col_role: 'Vai trò', col_scope: 'Chi nhánh (scope)', col_status: 'Trạng thái',
+            col_last: 'Đăng nhập gần nhất', col_actions: 'Thao tác',
+            st_ok: '● Hoạt động', st_off: 'Đã khóa',
+            btn_details: 'Chi tiết', btn_scope: 'Cấp scope',
+            scope_all: 'Tất cả chi nhánh', scope_hn_classes: 'Hà Nội — lớp: EN-B1-26',
+            scope_hcm_classes: 'TP.HCM — lớp: IT-Python-09, EN-B1-26',
+            total_label: 'Tổng 42 người dùng',
+            audit_note: '🔒 Mọi thay đổi vai trò / scope đều được ghi vào audit log (giữ 7 năm — NFR-011).',
+            role_oa_d: 'Tất cả quyền trên toàn hệ thống', role_bm_d: 'Quyền trong chi nhánh được gán',
+            role_am_d: 'Chương trình, lớp, lịch học', role_t_d: 'Lớp được phân công',
+            role_fo_d: 'Hóa đơn, thanh toán, báo cáo', role_s_d: 'Lớp của mình, tiến độ',
+            role_sa_d: 'Hạ tầng kỹ thuật', role_ac_d: 'Addon CRM — chưa kích hoạt',
+            role_oa: 'Organization Admin', role_sa: 'System Admin', role_ac: 'Admission Consultant',
+            scope_txt: 'Toàn bộ chi nhánh', scope_br: 'Phạm vi chi nhánh', scope_acad: 'Đào tạo', scope_teach: 'Giảng dạy',
+            scope_fin: 'Tài chính theo branch', scope_study: 'Học tập', scope_tech: 'Kỹ thuật', addon_tag: 'addon',
+            grp_org: '🏢 Organization', grp_users: '👥 Users', grp_acad: '📚 Academic', grp_fin: '💰 Finance', grp_lic: '🔑 License',
+            undo: 'Hoàn tác', save: 'Lưu thay đổi', perm_note: 'ℹ️ Bấm vào quyền để bật/tắt (demo). Vai trò hệ thống (Organization Admin) không cho bỏ quyền lõi.',
+            modal_new_user: '+ Tạo người dùng', f_name: 'Họ tên *', f_email: 'Email *', f_pass: 'Mật khẩu tạm *', f_branch: 'Chi nhánh *',
+            ph_name: 'Nguyễn Văn A', f_roles: 'Vai trò *',
+            hint_multi_role: 'Có thể chọn nhiều vai trò. Vai trò addon (CRM, HRM) chỉ xuất hiện khi addon được kích hoạt.',
+            f_scope: 'Phạm vi truy cập (scope)',
+            scope_branch_hn: 'Toàn chi nhánh: Hà Nội', scope_classes: 'Chỉ lớp được chỉ định', scope_students: 'Chỉ học viên được chỉ định',
+            hint_scope: 'Backend sẽ kiểm tra scope trên mọi read/write/export — không chỉ ẩn menu (FR-004).',
+            cancel: 'Hủy', create: 'Tạo người dùng',
+            modal_scope: '📌 Cấp phạm vi truy cập — Lê Văn Giang',
+            scope_type: 'Loại scope', scope_branch: 'Chi nhánh', scope_class: 'Lớp học', scope_student: 'Học viên cụ thể',
+            scope_object: 'Đối tượng', from: 'Hiệu lực từ', to: 'Hiệu lực đến', f_reason: 'Lý do (audit)', ph_reason: 'Chuyển công tác, quản lý thêm chi nhánh...', grant: 'Cấp scope',
+            toast_branch: 'Đã chuyển phạm vi chi nhánh (demo)',
+            toast_reset: 'Demo: reset thay đổi', toast_saved: '✅ Đã lưu quyền cho vai trò — audit event được tạo',
+            toast_created: '✅ Đã tạo người dùng (demo) — email mời được gửi',
+            toast_scope_granted: '✅ Đã cấp scope — hiệu lực từ 2026-09-01, được ghi audit',
+            toast_demo: 'Demo: '
+        },
+        en: {
+            org_name: 'ABC Language Center',
+            grp_admin: 'Administration', grp_biz: 'Operations', grp_addon: 'Addons',
+            nav_dashboard: 'Dashboard', nav_org: 'Organization & Branches', nav_license: 'License',
+            nav_users: 'Users & Roles', nav_academic: 'Academic', nav_enroll: 'Students & Enrollment',
+            nav_finance: 'Finance', nav_reports: 'Reports', nav_crm: 'Admissions & CRM', nav_hrm: 'HR & Payroll',
+            not_activated: 'Not activated',
+            user_name: 'Nguyen Van Admin', user_role: 'Organization Admin',
+            user_profile: 'Profile', user_settings: 'Settings', user_password: 'Change password', user_logout: 'Log out',
+            all_branches: 'All branches', br_hn: 'Hanoi branch', br_hcm: 'HCMC branch',
+            page_users: 'Users & Roles', page_sub: 'Manage accounts, module permissions and branch scopes',
+            tab_users: '👤 Users (42)', tab_roles: '🛡️ Roles & Permissions',
+            ph_search: '🔍 Search by name / email...',
+            role_all: 'Role: All', role_oa: 'Organization Admin', role_bm: 'Branch Manager', role_t: 'Teacher',
+            role_s: 'Student', role_fo: 'Finance Officer', role_am: 'Academic Manager',
+            br_all: 'Branch: All', st_all: 'Status: All', st_active: 'Active', st_locked: 'Locked',
+            btn_new_user: 'New user',
+            col_user: 'User', col_role: 'Role', col_scope: 'Branch (scope)', col_status: 'Status',
+            col_last: 'Last login', col_actions: 'Actions',
+            st_ok: '● Active', st_off: 'Locked',
+            btn_details: 'Details', btn_scope: 'Grant scope',
+            scope_all: 'All branches', scope_hn_classes: 'Hanoi — class: EN-B1-26',
+            scope_hcm_classes: 'HCMC — classes: IT-Python-09, EN-B1-26',
+            total_label: '42 users total',
+            audit_note: '🔒 Any role / scope change is written to the audit log (kept 7 years — NFR-011).',
+            role_oa_d: 'Full permissions across the system', role_bm_d: 'Permissions within granted branch',
+            role_am_d: 'Programs, classes, schedules', role_t_d: 'Assigned classes',
+            role_fo_d: 'Invoices, payments, reports', role_s_d: 'Own classes, progress',
+            role_sa_d: 'Technical infrastructure', role_ac_d: 'CRM addon — not activated',
+            role_oa: 'Organization Admin', role_sa: 'System Admin', role_ac: 'Admission Consultant',
+            scope_txt: 'All branches', scope_br: 'Branch scope', scope_acad: 'Academic', scope_teach: 'Teaching',
+            scope_fin: 'Finance by branch', scope_study: 'Learning', scope_tech: 'Technical', addon_tag: 'addon',
+            grp_org: '🏢 Organization', grp_users: '👥 Users', grp_acad: '📚 Academic', grp_fin: '💰 Finance', grp_lic: '🔑 License',
+            undo: 'Undo', save: 'Save changes', perm_note: 'ℹ️ Click a permission to toggle (demo). System roles (Organization Admin) cannot drop core permissions.',
+            modal_new_user: '+ New user', f_name: 'Full name *', f_email: 'Email *', f_pass: 'Temp password *', f_branch: 'Branch *',
+            ph_name: 'Nguyen Van A', f_roles: 'Roles *',
+            hint_multi_role: 'Multiple roles allowed. Addon roles (CRM, HRM) only appear once the addon is activated.',
+            f_scope: 'Access scope',
+            scope_branch_hn: 'Whole branch: Hanoi', scope_classes: 'Assigned classes only', scope_students: 'Assigned students only',
+            hint_scope: 'Backend enforces scope on every read/write/export — not just menu hiding (FR-004).',
+            cancel: 'Cancel', create: 'Create user',
+            modal_scope: '📌 Grant access scope — Le Van Giang',
+            scope_type: 'Scope type', scope_branch: 'Branch', scope_class: 'Class', scope_student: 'Specific student',
+            scope_object: 'Object', from: 'Valid from', to: 'Valid until', f_reason: 'Reason (audit)', ph_reason: 'Transfer, managing additional branch...', grant: 'Grant scope',
+            toast_branch: 'Branch scope switched (demo)',
+            toast_reset: 'Demo: reset changes', toast_saved: '✅ Permissions saved — audit event created',
+            toast_created: '✅ User created (demo) — invitation email sent',
+            toast_scope_granted: '✅ Scope granted — valid from 2026-09-01, audited',
+            toast_demo: 'Demo: '
+        }
+    };
+
+    var LANG = localStorage.getItem('ec-lang') || 'vi';
+    var THEME = localStorage.getItem('ec-theme') || 'light';
+    var currentRole = 0;
+    function t(k) { return (I18N[LANG] && I18N[LANG][k] !== undefined) ? I18N[LANG][k] : k; }
+
+    function applyTheme() {
+        document.documentElement.classList.toggle('dark', THEME === 'dark');
+        var b = document.getElementById('themeBtn'); if (b) b.textContent = THEME === 'dark' ? '☀️' : '🌙';
+    }
+    function toggleTheme() { THEME = THEME === 'dark' ? 'light' : 'dark'; localStorage.setItem('ec-theme', THEME); applyTheme(); }
+    function toggleLang() { setLang(LANG === 'vi' ? 'en' : 'vi'); }
+    function updateLangBtns() {
+        var b = document.getElementById('langBtn'); if (b) b.textContent = '🌐 ' + (LANG === 'vi' ? 'EN' : 'VI');
+    }
+    function setLang(l) {
+        LANG = l; localStorage.setItem('ec-lang', l);
+        document.documentElement.lang = l;
+        document.querySelectorAll('[data-i18n]').forEach(function (el) { el.textContent = I18N[l][el.getAttribute('data-i18n')]; });
+        document.querySelectorAll('[data-i18n-ph]').forEach(function (el) { el.placeholder = I18N[l][el.getAttribute('data-i18n-ph')] || ''; });
+        updateLangBtns(); renderUsers(); renderRoles(); renderRoleDetail();
+    }
+
+    var toastTimer = null;
+    function toast(msg) {
+        var el = document.getElementById('toast');
+        el.textContent = msg; el.classList.remove('hidden');
+        clearTimeout(toastTimer); toastTimer = setTimeout(function () { el.classList.add('hidden'); }, 2600);
+    }
+    function go(p) { toast(t('toast_demo') + p + ' — users'); }
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+    function switchTab(x) {
+        document.getElementById('tabUsers').classList.toggle('active', x === 'users');
+        document.getElementById('tabRoles').classList.toggle('active', x === 'roles');
+        document.getElementById('paneUsers').classList.toggle('hidden', x !== 'users');
+        document.getElementById('paneRoles').classList.toggle('hidden', x !== 'roles');
+    }
+
+    var USERS = [
+        { n: 'Nguyễn Văn Admin', e: 'admin@edu.vn', role: 'role_oa', badge: 'badge-primary', scope: 'scope_all', on: true, last: 'today_1' },
+        { n: 'Trần Thị Lan', e: 'lan.tran@edu.vn', role: 'role_bm', badge: 'badge-success', scope: 'br_hn', on: true, last: 'yesterday' },
+        { n: 'Lê Văn Giang', e: 'giang.le@edu.vn', role: 'role_t', badge: 'badge-purple', scope: 'scope_hcm_classes', on: true, last: 'today_2', grant: true },
+        { n: 'Phạm Thu Trang', e: 'trang.pham@edu.vn', role: 'role_fo', badge: 'badge-warning', scope: 'br_hn', on: true, last: '2d' },
+        { n: 'Hoàng Minh Đức', e: 'duc.hoang@student.edu.vn', role: 'role_s', badge: 'badge-gray', scope: 'scope_hn_classes', on: false, last: '12d' }
+    ];
+    var LAST = { today_1: 'Hôm nay 08:12', today_2: 'Hôm nay 07:55', yesterday: 'Hôm qua 17:40', '2d': '2 ngày trước', '12d': '12 ngày trước' };
+    var LAST_EN = { today_1: 'Today 08:12', today_2: 'Today 07:55', yesterday: 'Yesterday 17:40', '2d': '2 days ago', '12d': '12 days ago' };
+    function renderUsers() {
+        var h = '<thead><tr class="text-left text-soft" style="border-bottom: 1px solid var(--border);">' +
+            '<th class="py-2.5 px-3 font-semibold"><input type="checkbox"></th>' +
+            ['col_user', 'col_role', 'col_scope', 'col_status', 'col_last', 'col_actions'].map(function (k) { return '<th class="py-2.5 px-3 font-semibold">' + t(k) + '</th>'; }).join('') +
+            '</tr></thead><tbody>';
+        USERS.forEach(function (u) {
+            var lastMap = LANG === 'vi' ? LAST : LAST_EN;
+            h += '<tr class="border-b" style="border-color: var(--border);">' +
+                '<td class="py-3 px-3"><input type="checkbox"></td>' +
+                '<td class="py-3 px-3"><b>' + u.n + '</b><br><span class="text-xs text-faint">' + u.e + '</span></td>' +
+                '<td class="py-3 px-3"><span class="badge ' + u.badge + '">' + t(u.role) + '</span></td>' +
+                '<td class="py-3 px-3">' + t(u.scope) + '</td>' +
+                '<td class="py-3 px-3">' + (u.on ? '<span class="badge badge-success">' + t('st_ok') + '</span>' : '<span class="badge badge-danger">' + t('st_off') + '</span>') + '</td>' +
+                '<td class="py-3 px-3">' + lastMap[u.last] + '</td>' +
+                '<td class="py-3 px-3 text-right space-x-1">' +
+                (u.grant ? '<button class="btn-outline text-xs px-3 py-1" onclick="openModal(\'scopeModal\')">' + t('btn_scope') + '</button>' : '') +
+                '<button class="btn-outline text-xs px-3 py-1" onclick="toast(t(\'toast_demo\') + t(\'btn_details\'))">' + t('btn_details') + '</button></td></tr>';
+        });
+        h += '</tbody>';
+        document.getElementById('usersTable').innerHTML = h;
+        document.getElementById('totalLabel').textContent = t('total_label');
+    }
+
+    var ROLES = [
+        { k: 'role_oa', d: 'role_oa_d', s: 'scope_txt' },
+        { k: 'role_bm', d: 'role_bm_d', s: 'scope_br' },
+        { k: 'role_am', d: 'role_am_d', s: 'scope_acad' },
+        { k: 'role_t', d: 'role_t_d', s: 'scope_teach' },
+        { k: 'role_fo', d: 'role_fo_d', s: 'scope_fin' },
+        { k: 'role_s', d: 'role_s_d', s: 'scope_study' },
+        { k: 'role_sa', d: 'role_sa_d', s: 'scope_tech' },
+        { k: 'role_ac', d: 'role_ac_d', s: 'scope_txt', addon: true }
+    ];
+    function renderRoles() {
+        var box = document.getElementById('roleList'); var h = '';
+        ROLES.forEach(function (r, i) {
+            h += '<div class="role-item' + (i === currentRole ? ' active' : '') + '" onclick="selectRole(' + i + ')">' +
+                '<b class="block text-sm">' + t(r.k) + (r.addon ? ' <span class="badge badge-purple ml-1">' + t('addon_tag') + '</span>' : '') + '</b>' +
+                '<span class="text-xs text-faint">' + t(r.s) + '</span></div>';
+        });
+        box.innerHTML = h;
+    }
+    function renderRoleDetail() {
+        var r = ROLES[currentRole];
+        document.getElementById('roleTitle').textContent = '🛡️ ' + t(r.k);
+        document.getElementById('roleDesc').textContent = t(r.d);
+    }
+    function selectRole(i) { currentRole = i; renderRoles(); renderRoleDetail(); }
+
+    document.addEventListener('click', function (e) {
+        if (e.target.classList && e.target.classList.contains('perm')) e.target.classList.toggle('on');
+    });
+
+    /* ===== user menu (popup) ===== */
+    function toggleUserMenu(e) {
+        e.stopPropagation();
+        document.getElementById('userDropdown').classList.toggle('hidden');
+    }
+    document.addEventListener('click', function (e) {
+        var d = document.getElementById('userDropdown');
+        if (d && !d.classList.contains('hidden') && !e.target.closest('#userMenu')) d.classList.add('hidden');
+    });
+    function demoMenu(key) {
+        var d = document.getElementById('userDropdown'); if (d) d.classList.add('hidden');
+        toast(t(key));
+    }
+
+    applyTheme(); setLang(LANG);
+</script>
+</body>
+</html>

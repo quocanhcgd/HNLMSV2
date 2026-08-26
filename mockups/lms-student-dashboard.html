@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - EduCenter LMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+
+        :root {
+            --primary: #0d9488;
+            --primary-light: #5eead4;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --purple: #8b5cf6;
+            --pink: #ec4899;
+            --bg-1: #ffffff;
+            --bg-2: #f9fafb;
+            --bg-3: #f3f4f6;
+            --text-1: #111827;
+            --text-2: #6b7280;
+            --text-3: #9ca3af;
+            --border: #e5e7eb;
+        }
+
+        body { background: var(--bg-2); color: var(--text-1); }
+
+        .gradient-teal {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+
+        .card {
+            background: var(--bg-1);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+        }
+
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+
+        .sidebar {
+            background: var(--bg-1);
+            border-right: 1px solid var(--border);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            margin: 0.25rem 0.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-2);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(13,148,136,0.1) 0%, rgba(16,185,129,0.1) 100%);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .course-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .course-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .badge-primary { background: rgba(13,148,136,0.15); color: var(--primary); }
+        .badge-success { background: rgba(16,185,129,0.15); color: var(--secondary); }
+        .badge-warning { background: rgba(245,158,11,0.15); color: var(--accent); }
+        .badge-purple { background: rgba(139,92,246,0.15); color: var(--purple); }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="fixed left-0 top-0 bottom-0 w-64 sidebar">
+        <!-- Logo -->
+        <div class="p-6 border-b" style="border-color: var(--border);">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl gradient-teal flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold" style="color: var(--primary);">EduCenter</h1>
+                    <p class="text-xs" style="color: var(--text-3);">LMS Platform</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="p-4">
+            <div class="nav-item active">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                </svg>
+                <span>Dashboard</span>
+            </div>
+
+            <div class="nav-item">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+                <span>My Courses</span>
+            </div>
+
+            <div class="nav-item">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span>Assignments</span>
+                <span class="ml-auto w-6 h-6 rounded-full gradient-teal text-white text-xs flex items-center justify-center">3</span>
+            </div>
+
+            <div class="nav-item">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                <span>Progress</span>
+            </div>
+
+            <div class="nav-item">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                </svg>
+                <span>Certificates</span>
+            </div>
+
+            <hr class="my-4" style="border-color: var(--border);">
+
+            <div class="nav-item">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                <span>Settings</span>
+            </div>
+        </nav>
+
+        <!-- User Profile -->
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t" style="border-color: var(--border);">
+            <div class="flex items-center space-x-3">
+                <img src="https://ui-avatars.com/api/?name=Nguyen+Van+A&background=0d9488&color=fff" class="w-10 h-10 rounded-xl">
+                <div class="flex-1">
+                    <p class="font-semibold text-sm" style="color: var(--text-1);">Nguyen Van A</p>
+                    <p class="text-xs" style="color: var(--text-3);">Student</p>
+                </div>
+                <button class="p-2 rounded-lg hover:bg-gray-100">
+                    <svg class="w-5 h-5" style="color: var(--text-3);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 min-h-screen">
+        <!-- Top Bar -->
+        <div class="bg-white border-b sticky top-0 z-10" style="border-color: var(--border);">
+            <div class="px-8 py-4 flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold" style="color: var(--text-1);">Student Dashboard</h2>
+                    <p class="text-sm" style="color: var(--text-2);">Welcome back! Here's your learning progress</p>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <!-- Search -->
+                    <div class="relative">
+                        <input type="text" placeholder="Search courses..." class="pl-10 pr-4 py-2 rounded-lg border" style="border-color: var(--border); background: var(--bg-2);">
+                        <svg class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2" style="color: var(--text-3);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+
+                    <!-- Notifications -->
+                    <button class="relative p-2 rounded-lg hover:bg-gray-100">
+                        <svg class="w-6 h-6" style="color: var(--text-2);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                        </svg>
+                        <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div class="p-8">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-4 gap-6 mb-8">
+                <!-- Enrolled Courses -->
+                <div class="card p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-14 h-14 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, rgba(13,148,136,0.2) 0%, rgba(16,185,129,0.2) 100%);">
+                            <svg class="w-7 h-7" style="color: var(--primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                            </svg>
+                        </div>
+                        <span class="badge badge-success">+2 New</span>
+                    </div>
+                    <h3 class="text-3xl font-bold mb-1" style="color: var(--text-1);">8</h3>
+                    <p class="text-sm" style="color: var(--text-2);">Enrolled Courses</p>
+                </div>
+
+                <!-- Completed -->
+                <div class="card p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-14 h-14 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, rgba(139,92,246,0.2) 0%, rgba(236,72,153,0.2) 100%);">
+                            <svg class="w-7 h-7" style="color: var(--purple);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <span class="badge badge-purple">75%</span>
+                    </div>
+                    <h3 class="text-3xl font-bold mb-1" style="color: var(--text-1);">6</h3>
+                    <p class="text-sm" style="color: var(--text-2);">Completed</p>
+                </div>
+
+                <!-- Pending Assignments -->
+                <div class="card p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-14 h-14 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, rgba(245,158,11,0.2) 0%, rgba(251,146,60,0.2) 100%);">
+                            <svg class="w-7 h-7" style="color: var(--accent);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <span class="badge badge-warning">Due Soon</span>
+                    </div>
+                    <h3 class="text-3xl font-bold mb-1" style="color: var(--text-1);">3</h3>
+                    <p class="text-sm" style="color: var(--text-2);">Pending Assignments</p>
+                </div>
+
+                <!-- Average Grade -->
+                <div class="card p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-14 h-14 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(5,150,105,0.2) 100%);">
+                            <svg class="w-7 h-7" style="color: var(--secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                            </svg>
+                        </div>
+                        <span class="badge badge-success">↑ 3.2%</span>
+                    </div>
+                    <h3 class="text-3xl font-bold mb-1" style="color: var(--text-1);">8.7</h3>
+                    <p class="text-sm" style="color: var(--text-2);">Average Grade</p>
+                </div>
+            </div>
+
+            <!-- My Courses -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold" style="color: var(--text-1);">Continue Learning</h3>
+                    <a href="#" class="text-sm font-semibold" style="color: var(--primary);">View All →</a>
+                </div>
+
+                <div class="grid grid-cols-3 gap-6">
+                    <!-- Course Card 1 -->
+                    <div class="card course-card">
+                        <img src="https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=400&h=200&fit=crop" class="w-full h-40 object-cover rounded-t-xl">
+                        <div class="p-5">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="badge badge-primary">🔥 In Progress</span>
+                                <span class="text-sm font-bold" style="color: var(--primary);">68%</span>
+                            </div>
+                            <h4 class="font-bold text-lg mb-2" style="color: var(--text-1);">Advanced Mathematics</h4>
+                            <p class="text-sm mb-4" style="color: var(--text-2);">Prof. Tran Van B • 12 lessons</p>
+
+                            <!-- Progress Bar -->
+                            <div class="w-full h-2 rounded-full mb-4" style="background: var(--bg-3);">
+                                <div class="h-2 rounded-full gradient-teal" style="width: 68%;"></div>
+                            </div>
+
+                            <button class="w-full py-2.5 rounded-lg font-semibold gradient-teal text-white">
+                                Continue
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Course Card 2 -->
+                    <div class="card course-card">
+                        <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400&h=200&fit=crop" class="w-full h-40 object-cover rounded-t-xl">
+                        <div class="p-5">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="badge badge-primary">🔥 In Progress</span>
+                                <span class="text-sm font-bold" style="color: var(--primary);">42%</span>
+                            </div>
+                            <h4 class="font-bold text-lg mb-2" style="color: var(--text-1);">Computer Science 101</h4>
+                            <p class="text-sm mb-4" style="color: var(--text-2);">Dr. Nguyen Thi C • 15 lessons</p>
+
+                            <div class="w-full h-2 rounded-full mb-4" style="background: var(--bg-3);">
+                                <div class="h-2 rounded-full gradient-teal" style="width: 42%;"></div>
+                            </div>
+
+                            <button class="w-full py-2.5 rounded-lg font-semibold gradient-teal text-white">
+                                Continue
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Course Card 3 -->
+                    <div class="card course-card">
+                        <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&h=200&fit=crop" class="w-full h-40 object-cover rounded-t-xl">
+                        <div class="p-5">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="badge badge-warning">⏰ Not Started</span>
+                                <span class="text-sm font-bold" style="color: var(--text-3);">0%</span>
+                            </div>
+                            <h4 class="font-bold text-lg mb-2" style="color: var(--text-1);">English Literature</h4>
+                            <p class="text-sm mb-4" style="color: var(--text-2);">Ms. Le Thi D • 10 lessons</p>
+
+                            <div class="w-full h-2 rounded-full mb-4" style="background: var(--bg-3);">
+                                <div class="h-2 rounded-full gradient-teal" style="width: 0%;"></div>
+                            </div>
+
+                            <button class="w-full py-2.5 rounded-lg font-semibold border-2" style="border-color: var(--primary); color: var(--primary);">
+                                Start Course
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Assignments -->
+            <div>
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold" style="color: var(--text-1);">Upcoming Assignments</h3>
+                    <a href="#" class="text-sm font-semibold" style="color: var(--primary);">View All →</a>
+                </div>
+
+                <div class="card">
+                    <div class="divide-y" style="border-color: var(--border);">
+                        <!-- Assignment 1 -->
+                        <div class="p-5 flex items-center justify-between hover:bg-gray-50 transition">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, rgba(245,158,11,0.2) 0%, rgba(251,146,60,0.2) 100%);">
+                                    <svg class="w-6 h-6" style="color: var(--accent);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold mb-1" style="color: var(--text-1);">Calculus Problem Set #5</h4>
+                                    <p class="text-sm" style="color: var(--text-2);">Advanced Mathematics • Due: Aug 28, 2026</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <span class="badge badge-warning">Due in 3 days</span>
+                                <button class="px-4 py-2 rounded-lg font-semibold gradient-teal text-white">
+                                    Start
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Assignment 2 -->
+                        <div class="p-5 flex items-center justify-between hover:bg-gray-50 transition">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, rgba(139,92,246,0.2) 0%, rgba(236,72,153,0.2) 100%);">
+                                    <svg class="w-6 h-6" style="color: var(--purple);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold mb-1" style="color: var(--text-1);">Python Programming Project</h4>
+                                    <p class="text-sm" style="color: var(--text-2);">Computer Science 101 • Due: Aug 30, 2026</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <span class="badge badge-warning">Due in 5 days</span>
+                                <button class="px-4 py-2 rounded-lg font-semibold gradient-teal text-white">
+                                    Start
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Assignment 3 -->
+                        <div class="p-5 flex items-center justify-between hover:bg-gray-50 transition">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, rgba(13,148,136,0.2) 0%, rgba(16,185,129,0.2) 100%);">
+                                    <svg class="w-6 h-6" style="color: var(--primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold mb-1" style="color: var(--text-1);">Essay: Shakespeare Analysis</h4>
+                                    <p class="text-sm" style="color: var(--text-2);">English Literature • Due: Sep 2, 2026</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <span class="badge badge-primary">Due in 8 days</span>
+                                <button class="px-4 py-2 rounded-lg font-semibold gradient-teal text-white">
+                                    Start
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

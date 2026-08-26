@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered LMS - System Operation Visualization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .tab-button:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Architecture Layers */
+        .architecture {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .layer {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .layer-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .components {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .component {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .component:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .component-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .component-desc {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        /* Data Flow */
+        .flow-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .flow-step {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-left: 5px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .flow-step::before {
+            content: '';
+            position: absolute;
+            left: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 25px;
+            height: 25px;
+            background: #667eea;
+            border-radius: 50%;
+            border: 4px solid white;
+        }
+
+        .flow-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .flow-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .flow-desc {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .arrow-down {
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 30px solid #667eea;
+            margin: 10px auto;
+        }
+
+        /* User Journey */
+        .journey-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .journey-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+
+        .journey-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+        }
+
+        .journey-role {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .journey-steps {
+            list-style: none;
+        }
+
+        .journey-steps li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .journey-steps li:last-child {
+            border-bottom: none;
+        }
+
+        /* AI Integration */
+        .ai-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .ai-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .ai-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ai-features {
+            list-style: none;
+        }
+
+        .ai-features li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .ai-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        /* Database Schema Visual */
+        .db-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .db-table {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            min-width: 200px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .db-table-header {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .db-table-body {
+            padding: 15px;
+        }
+
+        .db-field {
+            padding: 5px 0;
+            font-size: 0.9em;
+            color: #666;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .db-field:last-child {
+            border-bottom: none;
+        }
+
+        .pk {
+            color: #f5576c;
+            font-weight: bold;
+        }
+
+        .fk {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        /* Security & Scale */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .info-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .info-list {
+            list-style: none;
+        }
+
+        .info-list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .info-list li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        /* Deployment */
+        .deployment-diagram {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            padding: 40px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+        }
+
+        .deployment-node {
+            text-align: center;
+            padding: 25px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            min-width: 150px;
+            transition: all 0.3s;
+        }
+
+        .deployment-node:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .deployment-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .deployment-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #667eea;
+        }
+
+        .deployment-desc {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        /* Legend */
+        .legend {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            border-left: 4px solid #667eea;
+        }
+
+        .legend-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .legend-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .components {
+                grid-template-columns: 1fr;
+            }
+
+            .journey-grid, .ai-grid, .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 AI-Powered LMS System</h1>
+        <p class="subtitle">Sơ đồ vận hành hệ thống tổng thể</p>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('architecture')">🏗️ Kiến trúc hệ thống</button>
+            <button class="tab-button" onclick="showTab('dataflow')">🔄 Luồng dữ liệu</button>
+            <button class="tab-button" onclick="showTab('journey')">👥 Hành trình người dùng</button>
+            <button class="tab-button" onclick="showTab('ai')">🤖 Tích hợp AI</button>
+            <button class="tab-button" onclick="showTab('database')">🗄️ Cơ sở dữ liệu</button>
+            <button class="tab-button" onclick="showTab('security')">🔒 Bảo mật & Quy mô</button>
+            <button class="tab-button" onclick="showTab('deployment')">🚀 Triển khai</button>
+        </div>
+
+        <!-- Tab 1: Architecture -->
+        <div id="architecture" class="tab-content active">
+            <div class="architecture">
+                <div class="layer">
+                    <div class="layer-title">🎨 PRESENTATION LAYER (Frontend)</div>
+                    <div class="components">
+                        <div class="component">
+                            <div class="component-name">Web Application</div>
+                            <div class="component-desc">React 19 + TypeScript + Vite</div>
+                        </div>
+                        <div class="component">
+                            <div class="component-name">UI Components</div>
+                            <div class="component-desc">shadcn/ui + Tailwind CSS</div>
+                        </div>
+                        <div class="component">
+                            <div class="component-name">State Management</div>
+                            <div class="component-desc">Zustand + React Query</div>
+                        </div>
+                        <div class="component">
+                            <div class="component-name">Real-time Updates</div>
+                            <div class="component-desc">Socket.IO Client</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow-down"></div>
+
+                <div class="layer">
+                    <div class="layer-title">⚙️ APPLICATION LAYER (Backend)</div>
+                    <div class="components">
+                        <div class="component">
+                            <div class="component-name">API Gateway</div>
+                            <div class="component-desc">NestJS REST + GraphQL</div>
+                        </div>
+                        <div class="component">
+                            <div class="component-name">Authentication</div>
+                            <div class="component-desc">JWT + Passport + RBAC</div>
+                        </div>
+                        <div class="component">
+                            <div class="component-name">Business Logic</div>
+                            <div class="component-desc">Services + Use Cases</div>
+                        </div>
+                        <div class="component">
+                            <div class="component-name">WebSocket Server</div>
+                            <div class="component-desc">Socket.IO + Redis Adapter</div>
+                        </div>
+                        <div class="component">
+                            <div class="component-name">Background Jobs</div>
+                            <div class="component-desc">BullMQ + Redis</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow-down"></div>
+
+                <div class="layer">
+                    <div class="layer-title">🤖 AI/ML LAYER</div>
+                    <div class="components">
+                        <div class="component">
+                            <div class="component-name">Auto-Grading Engine</div>
+                            <div class="component-desc">GPT-4 + Claude Sonnet</div>
+                        </div>
+                        <div class="component">
+                            <div class="component-name">Content Generation</div>
+                            <div class="component-desc">AI Quiz/Exercise Creator</div>
+                        </div>
+                        <div class="component">
+                            <div class="component-name">Recommendation Engine</div>
+                            <div class="component-desc">Vector Search + pgvector</div>
+                        </div>
+                        <div class="component">
+                            <div class="component-name">Sentiment Analysis</div>
+                            <div class="component-desc">Message Routing + Priority</div>
+                        </div>
+                        <div class="component">
+                            <div class="component-name">Predictive Analytics</div>
+                            <div class="component-desc">Student Performance Prediction</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow-down"></div>
+
+                <div class="layer">
+                    <div class="layer-title">💾 DATA LAYER</div>
+                    <div class="components">
+                        <div class="component">
+                            <div class="component-name">PostgreSQL 15+</div>
+                            <div class="component-desc">Primary Database + pgvector</div>
+                        </div>
+                        <div class="component">
+                            <div class="component-name">Redis</div>
+                            <div class="component-desc">Cache + Sessions + Queue</div>
+                        </div>
+                        <div class="component">
+                            <div class="component-name">S3/MinIO</div>
+                            <div class="component-desc">File Storage (Videos, Docs)</div>
+                        </div>
+                        <div class="component">
+                            <div class="component-name">Elasticsearch</div>
+                            <div class="component-desc">Full-text Search (Optional)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow-down"></div>
+
+                <div class="layer">
+                    <div class="layer-title">🛠️ INFRASTRUCTURE LAYER</div>
+                    <div class="components">
+                        <div class="component">
+                            <div class="component-name">Load Balancer</div>
+                            <div class="component-desc">Nginx / AWS ALB</div>
+                        </div>
+                        <div class="component">
+                            <div class="component-name">Container Orchestration</div>
+                            <div class="component-desc">Docker + Kubernetes</div>
+                        </div>
+                        <div class="component">
+                            <div class="component-name">Monitoring</div>
+                            <div class="component-desc">Prometheus + Grafana</div>
+                        </div>
+                        <div class="component">
+                            <div class="component-name">Logging</div>
+                            <div class="component-desc">ELK Stack / CloudWatch</div>
+                        </div>
+                        <div class="component">
+                            <div class="component-name">CI/CD</div>
+                            <div class="component-desc">GitHub Actions / GitLab CI</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Data Flow -->
+        <div id="dataflow" class="tab-content">
+            <div class="flow-container">
+                <div class="flow-step">
+                    <div class="flow-title">
+                        <span class="flow-number">1</span>
+                        User Request (Client)
+                    </div>
+                    <div class="flow-desc">
+                        <strong>Người dùng tương tác:</strong> Click button, submit form, upload file từ Web App (React)<br>
+                        <strong>Ví dụ:</strong> Teacher tạo Assignment mới, Student nộp bài, Parent gửi tin nhắn
+                    </div>
+                </div>
+
+                <div class="arrow-down"></div>
+
+                <div class="flow-step">
+                    <div class="flow-title">
+                        <span class="flow-number">2</span>
+                        API Gateway (NestJS)
+                    </div>
+                    <div class="flow-desc">
+                        <strong>Request được xử lý:</strong><br>
+                        • Kiểm tra Authentication (JWT token valid?)<br>
+                        • Kiểm tra Authorization (User có quyền không?)<br>
+                        • Validate input data (Schema validation)<br>
+                        • Rate limiting (Chống spam)
+                    </div>
+                </div>
+
+                <div class="arrow-down"></div>
+
+                <div class="flow-step">
+                    <div class="flow-title">
+                        <span class="flow-number">3</span>
+                        Business Logic Layer
+                    </div>
+                    <div class="flow-desc">
+                        <strong>Xử lý nghiệp vụ:</strong><br>
+                        • Service layer thực thi business rules<br>
+                        • Gọi AI services nếu cần (auto-grading, recommendations)<br>
+                        • Trigger background jobs (email, notifications)<br>
+                        • Transaction management
+                    </div>
+                </div>
+
+                <div class="arrow-down"></div>
+
+                <div class="flow-step">
+                    <div class="flow-title">
+                        <span class="flow-number">4</span>
+                        Database Operations
+                    </div>
+                    <div class="flow-desc">
+                        <strong>Lưu/đọc dữ liệu:</strong><br>
+                        • PostgreSQL: Lưu structured data (users, classes, grades)<br>
+                        • Redis: Cache hot data, store sessions<br>
+                        • S3/MinIO: Upload files (videos, documents)<br>
+                        • pgvector: Store embeddings cho AI recommendations
+                    </div>
+                </div>
+
+                <div class="arrow-down"></div>
+
+                <div class="flow-step">
+                    <div class="flow-title">
+                        <span class="flow-number">5</span>
+                        AI Processing (Async)
+                    </div>
+                    <div class="flow-desc">
+                        <strong>AI xử lý trong background:</strong><br>
+                        • Auto-grading: GPT-4/Claude đánh giá bài essay<br>
+                        • Content generation: Tạo quiz từ tài liệu<br>
+                        • Recommendations: Vector search tìm nội dung liên quan<br>
+                        • Sentiment analysis: Phân tích message priority<br>
+                        • Job được xử lý bởi BullMQ workers
+                    </div>
+                </div>
+
+                <div class="arrow-down"></div>
+
+                <div class="flow-step">
+                    <div class="flow-title">
+                        <span class="flow-number">6</span>
+                        Real-time Updates
+                    </div>
+                    <div class="flow-desc">
+                        <strong>Push updates đến clients:</strong><br>
+                        • WebSocket (Socket.IO) emit events<br>
+                        • "grade_ready" → Student nhận notification<br>
+                        • "new_message" → Parent/Teacher nhận tin nhắn real-time<br>
+                        • "notification" → All users nhận alerts
+                    </div>
+                </div>
+
+                <div class="arrow-down"></div>
+
+                <div class="flow-step">
+                    <div class="flow-title">
+                        <span class="flow-number">7</span>
+                        Response to Client
+                    </div>
+                    <div class="flow-desc">
+                        <strong>Trả kết quả về:</strong><br>
+                        • JSON response với data<br>
+                        • UI update automatically (React Query cache invalidation)<br>
+                        • Show success/error toast notifications<br>
+                        • Loading states removed
+                    </div>
+                </div>
+            </div>
+
+            <div class="legend">
+                <div class="legend-title">📖 Chú thích:</div>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #667eea;"></div>
+                        <span>Synchronous (đồng bộ)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #f5576c;"></div>
+                        <span>Asynchronous (bất đồng bộ)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #4fd1c5;"></div>
+                        <span>Real-time (WebSocket)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: User Journey -->
+        <div id="journey" class="tab-content">
+            <div class="journey-grid">
+                <div class="journey-card">
+                    <div class="journey-role">👨‍🏫 Teacher Journey</div>
+                    <ul class="journey-steps">
+                        <li>1. Login → Dashboard</li>
+                        <li>2. View assigned classes</li>
+                        <li>3. Create content/assignments</li>
+                        <li>4. AI suggests quiz questions</li>
+                        <li>5. Students submit work</li>
+                        <li>6. AI auto-grades submissions</li>
+                        <li>7. Review & adjust grades</li>
+                        <li>8. Publish grades</li>
+                        <li>9. View analytics & insights</li>
+                        <li>10. Communicate with parents</li>
+                    </ul>
+                </div>
+
+                <div class="journey-card">
+                    <div class="journey-role">👨‍🎓 Student Journey</div>
+                    <ul class="journey-steps">
+                        <li>1. Login → Dashboard</li>
+                        <li>2. View enrolled classes</li>
+                        <li>3. Access learning materials</li>
+                        <li>4. AI recommends next content</li>
+                        <li>5. Complete assignments</li>
+                        <li>6. Submit work</li>
+                        <li>7. Get instant AI feedback</li>
+                        <li>8. Receive final grade</li>
+                        <li>9. Track progress</li>
+                        <li>10. Ask AI learning assistant</li>
+                    </ul>
+                </div>
+
+                <div class="journey-card">
+                    <div class="journey-role">👨‍💼 Branch Manager</div>
+                    <ul class="journey-steps">
+                        <li>1. Login → Executive dashboard</li>
+                        <li>2. View branch performance</li>
+                        <li>3. Monitor student enrollment</li>
+                        <li>4. Review financial reports</li>
+                        <li>5. AI revenue forecasting</li>
+                        <li>6. Manage staff</li>
+                        <li>7. Handle parent complaints</li>
+                        <li>8. AI sentiment analysis</li>
+                        <li>9. Export reports</li>
+                        <li>10. Make strategic decisions</li>
+                    </ul>
+                </div>
+
+                <div class="journey-card">
+                    <div class="journey-role">👨‍👩‍👧 Parent Journey</div>
+                    <ul class="journey-steps">
+                        <li>1. Login → Dashboard</li>
+                        <li>2. View child's progress</li>
+                        <li>3. Check grades & attendance</li>
+                        <li>4. View schedule</li>
+                        <li>5. Message teachers</li>
+                        <li>6. Get real-time notifications</li>
+                        <li>7. Pay tuition online</li>
+                        <li>8. View invoices</li>
+                        <li>9. Request meetings</li>
+                        <li>10. Provide feedback</li>
+                    </ul>
+                </div>
+
+                <div class="journey-card">
+                    <div class="journey-role">📚 Librarian Journey</div>
+                    <ul class="journey-steps">
+                        <li>1. Login → Digital Library</li>
+                        <li>2. Upload new materials</li>
+                        <li>3. AI auto-tags content</li>
+                        <li>4. AI generates summaries</li>
+                        <li>5. Review AI suggestions</li>
+                        <li>6. Organize by categories</li>
+                        <li>7. Monitor usage analytics</li>
+                        <li>8. AI recommendations active</li>
+                        <li>9. Handle access requests</li>
+                        <li>10. Generate usage reports</li>
+                    </ul>
+                </div>
+
+                <div class="journey-card">
+                    <div class="journey-role">💰 Admission Consultant</div>
+                    <ul class="journey-steps">
+                        <li>1. Login → CRM dashboard</li>
+                        <li>2. View leads (AI scored)</li>
+                        <li>3. AI prioritizes hot leads</li>
+                        <li>4. Contact prospects</li>
+                        <li>5. AI suggests programs</li>
+                        <li>6. Schedule tours</li>
+                        <li>7. Follow-up automation</li>
+                        <li>8. Convert to enrollment</li>
+                        <li>9. Track conversion rates</li>
+                        <li>10. AI sales insights</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: AI Integration -->
+        <div id="ai" class="tab-content">
+            <div class="ai-grid">
+                <div class="ai-card">
+                    <div class="ai-title">🎯 Auto-Grading System</div>
+                    <ul class="ai-features">
+                        <li>Essay grading (GPT-4/Claude)</li>
+                        <li>Speaking assessment (Whisper + GPT)</li>
+                        <li>Code evaluation (GPT-4 Code Interpreter)</li>
+                        <li>Multiple choice (rule-based + AI)</li>
+                        <li>Rubric-based scoring</li>
+                        <li>Detailed feedback generation</li>
+                        <li>Teacher review & override</li>
+                        <li>Grade calibration across teachers</li>
+                    </ul>
+                </div>
+
+                <div class="ai-card">
+                    <div class="ai-title">📝 Content Generation</div>
+                    <ul class="ai-features">
+                        <li>Quiz questions from documents</li>
+                        <li>Exercise variations</li>
+                        <li>Study guides & summaries</li>
+                        <li>Flashcards generation</li>
+                        <li>Practice problems</li>
+                        <li>Rubric creation</li>
+                        <li>Lesson plan suggestions</li>
+                        <li>Difficulty level adjustment</li>
+                    </ul>
+                </div>
+
+                <div class="ai-card">
+                    <div class="ai-title">🎓 Personalized Learning</div>
+                    <ul class="ai-features">
+                        <li>Content recommendations (vector search)</li>
+                        <li>Adaptive learning paths</li>
+                        <li>Competency gap identification</li>
+                        <li>Next-best-action suggestions</li>
+                        <li>Learning style detection</li>
+                        <li>Pace adjustment</li>
+                        <li>Remedial content suggestions</li>
+                        <li>Challenge problems for advanced</li>
+                    </ul>
+                </div>
+
+                <div class="ai-card">
+                    <div class="ai-title">💬 Communication Hub AI</div>
+                    <ul class="ai-features">
+                        <li>Sentiment analysis on messages</li>
+                        <li>Auto-routing to right person</li>
+                        <li>Priority scoring (urgent/normal)</li>
+                        <li>Smart response suggestions</li>
+                        <li>Language translation</li>
+                        <li>Intent classification</li>
+                        <li>Auto-escalation triggers</li>
+                        <li>Response time prediction</li>
+                    </ul>
+                </div>
+
+                <div class="ai-card">
+                    <div class="ai-title">📊 Predictive Analytics</div>
+                    <ul class="ai-features">
+                        <li>Student success prediction</li>
+                        <li>Dropout risk identification</li>
+                        <li>Revenue forecasting</li>
+                        <li>Enrollment trend analysis</li>
+                        <li>Teacher effectiveness scoring</li>
+                        <li>Resource allocation optimization</li>
+                        <li>Payment delay prediction</li>
+                        <li>Churn risk for students</li>
+                    </ul>
+                </div>
+
+                <div class="ai-card">
+                    <div class="ai-title">📚 Digital Library AI</div>
+                    <ul class="ai-features">
+                        <li>Auto-tagging & categorization</li>
+                        <li>Content summarization</li>
+                        <li>Key concepts extraction</li>
+                        <li>Similar content detection</li>
+                        <li>Quality scoring</li>
+                        <li>Reading level assessment</li>
+                        <li>Image & video OCR</li>
+                        <li>Semantic search (pgvector)</li>
+                    </ul>
+                </div>
+
+                <div class="ai-card">
+                    <div class="ai-title">🤖 AI Learning Assistant</div>
+                    <ul class="ai-features">
+                        <li>24/7 Q&A chatbot</li>
+                        <li>Concept explanations</li>
+                        <li>Step-by-step problem solving</li>
+                        <li>Study tips & techniques</li>
+                        <li>Practice problem generation</li>
+                        <li>Progress tracking insights</li>
+                        <li>Motivational support</li>
+                        <li>Context-aware responses</li>
+                    </ul>
+                </div>
+
+                <div class="ai-card">
+                    <div class="ai-title">💼 Sales & CRM AI</div>
+                    <ul class="ai-features">
+                        <li>Lead scoring & prioritization</li>
+                        <li>Program recommendations</li>
+                        <li>Next best action suggestions</li>
+                        <li>Conversion probability</li>
+                        <li>Optimal contact time prediction</li>
+                        <li>Objection handling scripts</li>
+                        <li>Follow-up automation</li>
+                        <li>Sales forecasting</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 5: Database -->
+        <div id="database" class="tab-content">
+            <h2 style="text-align: center; margin-bottom: 30px; color: #667eea;">Core Database Tables (30+ total)</h2>
+            <div class="db-container">
+                <div class="db-table">
+                    <div class="db-table-header">👤 users</div>
+                    <div class="db-table-body">
+                        <div class="db-field pk">id (PK)</div>
+                        <div class="db-field fk">organization_id (FK)</div>
+                        <div class="db-field fk">branch_id (FK)</div>
+                        <div class="db-field">email</div>
+                        <div class="db-field">password_hash</div>
+                        <div class="db-field">role</div>
+                        <div class="db-field">full_name</div>
+                        <div class="db-field">phone</div>
+                        <div class="db-field">status</div>
+                        <div class="db-field">created_at</div>
+                    </div>
+                </div>
+
+                <div class="db-table">
+                    <div class="db-table-header">🏢 organizations</div>
+                    <div class="db-table-body">
+                        <div class="db-field pk">id (PK)</div>
+                        <div class="db-field">name</div>
+                        <div class="db-field">slug</div>
+                        <div class="db-field">logo_url</div>
+                        <div class="db-field">subscription_tier</div>
+                        <div class="db-field">ai_quota_monthly</div>
+                        <div class="db-field">settings (JSONB)</div>
+                        <div class="db-field">created_at</div>
+                    </div>
+                </div>
+
+                <div class="db-table">
+                    <div class="db-table-header">🏪 branches</div>
+                    <div class="db-table-body">
+                        <div class="db-field pk">id (PK)</div>
+                        <div class="db-field fk">organization_id (FK)</div>
+                        <div class="db-field">name</div>
+                        <div class="db-field">address</div>
+                        <div class="db-field">phone</div>
+                        <div class="db-field">email</div>
+                        <div class="db-field fk">manager_id (FK)</div>
+                        <div class="db-field">status</div>
+                    </div>
+                </div>
+
+                <div class="db-table">
+                    <div class="db-table-header">📚 classes</div>
+                    <div class="db-table-body">
+                        <div class="db-field pk">id (PK)</div>
+                        <div class="db-field fk">branch_id (FK)</div>
+                        <div class="db-field">name</div>
+                        <div class="db-field">code</div>
+                        <div class="db-field fk">teacher_id (FK)</div>
+                        <div class="db-field">learning_mode</div>
+                        <div class="db-field">capacity</div>
+                        <div class="db-field">start_date</div>
+                        <div class="db-field">end_date</div>
+                    </div>
+                </div>
+
+                <div class="db-table">
+                    <div class="db-table-header">📖 content</div>
+                    <div class="db-table-body">
+                        <div class="db-field pk">id (PK)</div>
+                        <div class="db-field fk">organization_id (FK)</div>
+                        <div class="db-field">title</div>
+                        <div class="db-field">type</div>
+                        <div class="db-field">file_url</div>
+                        <div class="db-field">ai_summary</div>
+                        <div class="db-field">ai_tags (JSONB)</div>
+                        <div class="db-field">embedding (vector)</div>
+                    </div>
+                </div>
+
+                <div class="db-table">
+                    <div class="db-table-header">📝 assignments</div>
+                    <div class="db-table-body">
+                        <div class="db-field pk">id (PK)</div>
+                        <div class="db-field fk">class_id (FK)</div>
+                        <div class="db-field">title</div>
+                        <div class="db-field">type</div>
+                        <div class="db-field">instructions (JSON)</div>
+                        <div class="db-field">due_date</div>
+                        <div class="db-field">max_points</div>
+                        <div class="db-field">ai_grading_enabled</div>
+                    </div>
+                </div>
+
+                <div class="db-table">
+                    <div class="db-table-header">✍️ submissions</div>
+                    <div class="db-table-body">
+                        <div class="db-field pk">id (PK)</div>
+                        <div class="db-field fk">assignment_id (FK)</div>
+                        <div class="db-field fk">student_id (FK)</div>
+                        <div class="db-field">content (JSON)</div>
+                        <div class="db-field">submitted_at</div>
+                        <div class="db-field">ai_score</div>
+                        <div class="db-field">final_score</div>
+                        <div class="db-field">ai_feedback (JSON)</div>
+                    </div>
+                </div>
+
+                <div class="db-table">
+                    <div class="db-table-header">📊 grades</div>
+                    <div class="db-table-body">
+                        <div class="db-field pk">id (PK)</div>
+                        <div class="db-field fk">submission_id (FK)</div>
+                        <div class="db-field">score</div>
+                        <div class="db-field">feedback</div>
+                        <div class="db-field">graded_by</div>
+                        <div class="db-field">graded_at</div>
+                        <div class="db-field">status</div>
+                    </div>
+                </div>
+
+                <div class="db-table">
+                    <div class="db-table-header">💬 messages</div>
+                    <div class="db-table-body">
+                        <div class="db-field pk">id (PK)</div>
+                        <div class="db-field fk">sender_id (FK)</div>
+                        <div class="db-field fk">recipient_id (FK)</div>
+                        <div class="db-field">content</div>
+                        <div class="db-field">ai_sentiment</div>
+                        <div class="db-field">ai_priority</div>
+                        <div class="db-field">ai_category</div>
+                        <div class="db-field">read_at</div>
+                    </div>
+                </div>
+
+                <div class="db-table">
+                    <div class="db-table-header">💰 invoices</div>
+                    <div class="db-table-body">
+                        <div class="db-field pk">id (PK)</div>
+                        <div class="db-field fk">student_id (FK)</div>
+                        <div class="db-field">amount</div>
+                        <div class="db-field">due_date</div>
+                        <div class="db-field">paid_at</div>
+                        <div class="db-field">status</div>
+                        <div class="db-field">ai_risk_score</div>
+                    </div>
+                </div>
+
+                <div class="db-table">
+                    <div class="db-table-header">📈 analytics_events</div>
+                    <div class="db-table-body">
+                        <div class="db-field pk">id (PK)</div>
+                        <div class="db-field fk">user_id (FK)</div>
+                        <div class="db-field">event_type</div>
+                        <div class="db-field">event_data (JSONB)</div>
+                        <div class="db-field">timestamp</div>
+                        <div class="db-field">session_id</div>
+                    </div>
+                </div>
+
+                <div class="db-table">
+                    <div class="db-table-header">🔔 notifications</div>
+                    <div class="db-table-body">
+                        <div class="db-field pk">id (PK)</div>
+                        <div class="db-field fk">user_id (FK)</div>
+                        <div class="db-field">type</div>
+                        <div class="db-field">title</div>
+                        <div class="db-field">content</div>
+                        <div class="db-field">read_at</div>
+                        <div class="db-field">created_at</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="legend" style="margin-top: 30px;">
+                <div class="legend-title">🔗 Relationships:</div>
+                <p style="color: #666; margin-top: 10px;">
+                    • <strong class="pk">PK</strong> = Primary Key (Khóa chính)<br>
+                    • <strong class="fk">FK</strong> = Foreign Key (Khóa ngoại, liên kết với bảng khác)<br>
+                    • <strong>JSONB</strong> = Flexible structured data (PostgreSQL native JSON)<br>
+                    • <strong>vector</strong> = AI embeddings cho pgvector search<br>
+                    • Total: 30+ tables covering all business domains
+                </p>
+            </div>
+        </div>
+
+        <!-- Tab 6: Security & Scale -->
+        <div id="security" class="tab-content">
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-title">🔒 Security Measures</div>
+                    <ul class="info-list">
+                        <li>JWT authentication (access + refresh tokens)</li>
+                        <li>Role-based access control (RBAC)</li>
+                        <li>Row-level security (Organization/Branch scoped)</li>
+                        <li>Password hashing (bcrypt)</li>
+                        <li>SQL injection prevention (ORM)</li>
+                        <li>XSS protection (sanitization)</li>
+                        <li>CSRF tokens</li>
+                        <li>Rate limiting (Redis-based)</li>
+                        <li>HTTPS only (TLS 1.3)</li>
+                        <li>Audit logs for sensitive actions</li>
+                        <li>2FA for admin accounts (optional)</li>
+                        <li>IP whitelisting for admin panel</li>
+                    </ul>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-title">📈 Scalability Strategy</div>
+                    <ul class="info-list">
+                        <li>Horizontal scaling (multiple backend instances)</li>
+                        <li>Database read replicas</li>
+                        <li>Redis cluster for distributed cache</li>
+                        <li>CDN for static assets (CloudFront/Cloudflare)</li>
+                        <li>Load balancer (Nginx/AWS ALB)</li>
+                        <li>Database connection pooling</li>
+                        <li>Background job queue (BullMQ)</li>
+                        <li>WebSocket sticky sessions</li>
+                        <li>Table partitioning (by organization)</li>
+                        <li>Microservices separation (future)</li>
+                        <li>Auto-scaling based on load</li>
+                        <li>Database sharding (if needed)</li>
+                    </ul>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-title">⚡ Performance Optimization</div>
+                    <ul class="info-list">
+                        <li>Redis caching (hot data, sessions)</li>
+                        <li>Database query optimization (indexes)</li>
+                        <li>Lazy loading (pagination)</li>
+                        <li>Image optimization & compression</li>
+                        <li>Video transcoding (adaptive bitrate)</li>
+                        <li>GraphQL DataLoader (N+1 prevention)</li>
+                        <li>Server-side rendering (SSR) for SEO</li>
+                        <li>Code splitting & lazy imports</li>
+                        <li>Service worker (offline support)</li>
+                        <li>Database connection reuse</li>
+                        <li>Batch API requests</li>
+                        <li>Compression (Gzip/Brotli)</li>
+                    </ul>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-title">🔍 Monitoring & Observability</div>
+                    <ul class="info-list">
+                        <li>Application metrics (Prometheus)</li>
+                        <li>Dashboards (Grafana)</li>
+                        <li>Error tracking (Sentry)</li>
+                        <li>Log aggregation (ELK/CloudWatch)</li>
+                        <li>Uptime monitoring (Pingdom/UptimeRobot)</li>
+                        <li>API response time tracking</li>
+                        <li>Database performance monitoring</li>
+                        <li>AI API usage & cost tracking</li>
+                        <li>User analytics (Mixpanel/Amplitude)</li>
+                        <li>Real-time alerts (PagerDuty/Slack)</li>
+                        <li>Health check endpoints</li>
+                        <li>Distributed tracing (Jaeger)</li>
+                    </ul>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-title">💾 Backup & Recovery</div>
+                    <ul class="info-list">
+                        <li>Daily database backups (automated)</li>
+                        <li>Point-in-time recovery (PostgreSQL WAL)</li>
+                        <li>S3 versioning for files</li>
+                        <li>Backup retention (30 days)</li>
+                        <li>Regular restore testing</li>
+                        <li>Disaster recovery plan</li>
+                        <li>Multi-region backup storage</li>
+                        <li>Configuration backup (IaC)</li>
+                        <li>RTO: 2 hours, RPO: 15 minutes</li>
+                        <li>Hot standby database (optional)</li>
+                        <li>Application-level soft deletes</li>
+                        <li>Audit trail preservation</li>
+                    </ul>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-title">🌍 Multi-tenancy Isolation</div>
+                    <ul class="info-list">
+                        <li>Schema-based isolation (organization_id)</li>
+                        <li>All queries scoped by tenant</li>
+                        <li>Row-level security policies</li>
+                        <li>Tenant-specific API quotas</li>
+                        <li>Isolated file storage paths</li>
+                        <li>Per-tenant feature flags</li>
+                        <li>Tenant-specific caching</li>
+                        <li>Analytics data separation</li>
+                        <li>Custom domain support (future)</li>
+                        <li>White-label branding (future)</li>
+                        <li>Tenant migration tools</li>
+                        <li>Resource limit enforcement</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 7: Deployment -->
+        <div id="deployment" class="tab-content">
+            <h2 style="text-align: center; margin-bottom: 30px; color: #667eea;">Deployment Architecture</h2>
+            <div class="deployment-diagram">
+                <div class="deployment-node">
+                    <div class="deployment-icon">🌐</div>
+                    <div class="deployment-title">DNS/CDN</div>
+                    <div class="deployment-desc">Cloudflare/Route53<br>Static assets delivery</div>
+                </div>
+
+                <div class="deployment-node">
+                    <div class="deployment-icon">⚖️</div>
+                    <div class="deployment-title">Load Balancer</div>
+                    <div class="deployment-desc">Nginx/AWS ALB<br>SSL termination</div>
+                </div>
+
+                <div class="deployment-node">
+                    <div class="deployment-icon">📦</div>
+                    <div class="deployment-title">Frontend</div>
+                    <div class="deployment-desc">React App (Vercel/S3+CloudFront)<br>Static hosting</div>
+                </div>
+
+                <div class="deployment-node">
+                    <div class="deployment-icon">🖥️</div>
+                    <div class="deployment-title">Backend API</div>
+                    <div class="deployment-desc">NestJS (Docker)<br>Auto-scaled instances</div>
+                </div>
+
+                <div class="deployment-node">
+                    <div class="deployment-icon">🔌</div>
+                    <div class="deployment-title">WebSocket</div>
+                    <div class="deployment-desc">Socket.IO (Sticky sessions)<br>Real-time server</div>
+                </div>
+
+                <div class="deployment-node">
+                    <div class="deployment-icon">⚙️</div>
+                    <div class="deployment-title">Workers</div>
+                    <div class="deployment-desc">BullMQ Workers<br>Background jobs</div>
+                </div>
+
+                <div class="deployment-node">
+                    <div class="deployment-icon">🗄️</div>
+                    <div class="deployment-title">PostgreSQL</div>
+                    <div class="deployment-desc">Primary + Read Replicas<br>pgvector enabled</div>
+                </div>
+
+                <div class="deployment-node">
+                    <div class="deployment-icon">⚡</div>
+                    <div class="deployment-title">Redis</div>
+                    <div class="deployment-desc">Cache + Queue + Sessions<br>Redis Cluster</div>
+                </div>
+
+                <div class="deployment-node">
+                    <div class="deployment-icon">📁</div>
+                    <div class="deployment-title">Object Storage</div>
+                    <div class="deployment-desc">S3/MinIO<br>Files & media</div>
+                </div>
+
+                <div class="deployment-node">
+                    <div class="deployment-icon">🤖</div>
+                    <div class="deployment-title">AI Services</div>
+                    <div class="deployment-desc">OpenAI API<br>Anthropic Claude</div>
+                </div>
+
+                <div class="deployment-node">
+                    <div class="deployment-icon">📊</div>
+                    <div class="deployment-title">Monitoring</div>
+                    <div class="deployment-desc">Prometheus/Grafana<br>Sentry error tracking</div>
+                </div>
+
+                <div class="deployment-node">
+                    <div class="deployment-icon">🔍</div>
+                    <div class="deployment-title">Logging</div>
+                    <div class="deployment-desc">ELK Stack<br>Centralized logs</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 40px;">
+                <h3 style="color: #667eea; margin-bottom: 20px; text-align: center;">Deployment Options</h3>
+                <div class="info-grid">
+                    <div class="info-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        <div class="info-title">☁️ Cloud (Recommended)</div>
+                        <ul class="info-list">
+                            <li><strong>AWS:</strong> EC2, RDS, S3, CloudFront, ALB</li>
+                            <li><strong>Cost:</strong> ~$500-1500/month (small-medium)</li>
+                            <li><strong>Pros:</strong> Fully managed, auto-scaling, global CDN</li>
+                            <li><strong>Setup time:</strong> 1-2 days</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                        <div class="info-title">🐳 Docker + VPS</div>
+                        <ul class="info-list">
+                            <li><strong>Provider:</strong> DigitalOcean, Linode, Vultr</li>
+                            <li><strong>Cost:</strong> ~$100-300/month</li>
+                            <li><strong>Pros:</strong> Cost-effective, full control</li>
+                            <li><strong>Setup time:</strong> 2-3 days</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                        <div class="info-title">☸️ Kubernetes (Scale)</div>
+                        <ul class="info-list">
+                            <li><strong>Platform:</strong> EKS, GKE, DigitalOcean K8s</li>
+                            <li><strong>Cost:</strong> ~$800-2000/month</li>
+                            <li><strong>Pros:</strong> Enterprise-grade, massive scale</li>
+                            <li><strong>Setup time:</strong> 1 week</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

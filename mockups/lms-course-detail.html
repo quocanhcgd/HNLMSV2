@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Detail - EduCenter LMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+
+        :root {
+            --primary: #0d9488;
+            --primary-light: #5eead4;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --purple: #8b5cf6;
+            --bg-1: #ffffff;
+            --bg-2: #f9fafb;
+            --text-1: #111827;
+            --text-2: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        body { background: var(--bg-2); color: var(--text-1); }
+
+        .gradient-teal {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+
+        .card {
+            background: var(--bg-1);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+        }
+
+        .lesson-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .lesson-item:hover {
+            background: var(--bg-2);
+            border-color: var(--primary);
+        }
+
+        .lesson-item.completed {
+            background: rgba(16,185,129,0.05);
+        }
+
+        .lesson-item.active {
+            background: rgba(13,148,136,0.1);
+            border-color: var(--primary);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .badge-primary { background: rgba(13,148,136,0.15); color: var(--primary); }
+        .badge-success { background: rgba(16,185,129,0.15); color: var(--secondary); }
+
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
+            color: var(--text-2);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .tab-button:hover {
+            color: var(--text-1);
+        }
+
+        .tab-button.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen">
+        <!-- Top Navigation -->
+        <div class="bg-white border-b sticky top-0 z-10" style="border-color: var(--border);">
+            <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <a href="#" class="p-2 rounded-lg hover:bg-gray-100">
+                        <svg class="w-6 h-6" style="color: var(--text-2);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                    </a>
+                    <div>
+                        <h1 class="text-xl font-bold" style="color: var(--text-1);">Advanced Mathematics</h1>
+                        <p class="text-sm" style="color: var(--text-2);">Prof. Tran Van B • 12 Lessons</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <div class="flex items-center space-x-2 px-4 py-2 rounded-lg" style="background: rgba(13,148,136,0.1);">
+                        <svg class="w-5 h-5" style="color: var(--primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        <span class="font-semibold" style="color: var(--primary);">68% Complete</span>
+                    </div>
+
+                    <button class="px-4 py-2 rounded-lg font-semibold gradient-teal text-white">
+                        Continue Learning
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Course Header -->
+        <div class="gradient-teal text-white">
+            <div class="max-w-7xl mx-auto px-6 py-12">
+                <div class="grid grid-cols-3 gap-8">
+                    <div class="col-span-2">
+                        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/20 mb-4">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                            </svg>
+                            <span class="text-sm font-semibold">4.8 (245 reviews)</span>
+                        </div>
+
+                        <h2 class="text-4xl font-bold mb-4">Advanced Mathematics</h2>
+                        <p class="text-lg opacity-90 mb-6">Master calculus, linear algebra, and advanced mathematical concepts with practical applications and AI-powered assistance.</p>
+
+                        <div class="flex items-center space-x-6">
+                            <div class="flex items-center space-x-2">
+                                <img src="https://ui-avatars.com/api/?name=Tran+Van+B&background=fff&color=0d9488" class="w-10 h-10 rounded-full">
+                                <div>
+                                    <p class="font-semibold">Prof. Tran Van B</p>
+                                    <p class="text-sm opacity-75">Senior Lecturer</p>
+                                </div>
+                            </div>
+
+                            <div class="h-8 w-px bg-white/30"></div>
+
+                            <div>
+                                <p class="text-2xl font-bold">12</p>
+                                <p class="text-sm opacity-75">Lessons</p>
+                            </div>
+
+                            <div>
+                                <p class="text-2xl font-bold">8</p>
+                                <p class="text-sm opacity-75">Assignments</p>
+                            </div>
+
+                            <div>
+                                <p class="text-2xl font-bold">245</p>
+                                <p class="text-sm opacity-75">Students</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card p-6">
+                        <h3 class="font-bold text-lg mb-4" style="color: var(--text-1);">Your Progress</h3>
+                        <div class="relative mb-6">
+                            <svg class="w-32 h-32 mx-auto">
+                                <circle cx="64" cy="64" r="56" fill="none" stroke="#e5e7eb" stroke-width="8"/>
+                                <circle cx="64" cy="64" r="56" fill="none" stroke="url(#gradient)" stroke-width="8"
+                                        stroke-dasharray="352" stroke-dashoffset="113" transform="rotate(-90 64 64)"/>
+                                <defs>
+                                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#0d9488"/>
+                                        <stop offset="100%" style="stop-color:#10b981"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-3xl font-bold" style="color: var(--primary);">68%</span>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex justify-between text-sm">
+                                <span style="color: var(--text-2);">Completed</span>
+                                <span class="font-semibold" style="color: var(--text-1);">8/12 lessons</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span style="color: var(--text-2);">Time spent</span>
+                                <span class="font-semibold" style="color: var(--text-1);">14.5 hours</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span style="color: var(--text-2);">Your grade</span>
+                                <span class="font-semibold" style="color: var(--secondary);">8.9/10</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="bg-white border-b" style="border-color: var(--border);">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="flex space-x-8">
+                    <button class="tab-button active">Lessons</button>
+                    <button class="tab-button">Assignments</button>
+                    <button class="tab-button">Materials</button>
+                    <button class="tab-button">Discussion</button>
+                    <button class="tab-button">Grades</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="max-w-7xl mx-auto px-6 py-8">
+            <div class="grid grid-cols-3 gap-8">
+                <!-- Left: Lessons List -->
+                <div class="col-span-2 space-y-6">
+                    <!-- Module 1 -->
+                    <div class="card p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold" style="color: var(--text-1);">Module 1: Calculus Fundamentals</h3>
+                            <span class="badge badge-success">✓ Completed</span>
+                        </div>
+
+                        <div class="space-y-2">
+                            <!-- Lesson 1 -->
+                            <div class="lesson-item completed">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center mr-4" style="background: rgba(16,185,129,0.2);">
+                                    <svg class="w-5 h-5" style="color: var(--secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-semibold" style="color: var(--text-1);">1.1 Introduction to Limits</h4>
+                                    <p class="text-sm" style="color: var(--text-2);">Video • 12 min</p>
+                                </div>
+                                <button class="px-4 py-2 rounded-lg font-semibold text-sm" style="border: 2px solid var(--secondary); color: var(--secondary);">
+                                    Review
+                                </button>
+                            </div>
+
+                            <!-- Lesson 2 -->
+                            <div class="lesson-item completed">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center mr-4" style="background: rgba(16,185,129,0.2);">
+                                    <svg class="w-5 h-5" style="color: var(--secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-semibold" style="color: var(--text-1);">1.2 Derivatives and Applications</h4>
+                                    <p class="text-sm" style="color: var(--text-2);">Video • 18 min</p>
+                                </div>
+                                <button class="px-4 py-2 rounded-lg font-semibold text-sm" style="border: 2px solid var(--secondary); color: var(--secondary);">
+                                    Review
+                                </button>
+                            </div>
+
+                            <!-- Lesson 3 -->
+                            <div class="lesson-item completed">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center mr-4" style="background: rgba(16,185,129,0.2);">
+                                    <svg class="w-5 h-5" style="color: var(--secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-semibold" style="color: var(--text-1);">1.3 Integration Techniques</h4>
+                                    <p class="text-sm" style="color: var(--text-2);">Video • 22 min</p>
+                                </div>
+                                <button class="px-4 py-2 rounded-lg font-semibold text-sm" style="border: 2px solid var(--secondary); color: var(--secondary);">
+                                    Review
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Module 2 -->
+                    <div class="card p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold" style="color: var(--text-1);">Module 2: Linear Algebra</h3>
+                            <span class="badge badge-primary">⏱ In Progress</span>
+                        </div>
+
+                        <div class="space-y-2">
+                            <!-- Lesson 4 (Active) -->
+                            <div class="lesson-item active">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center mr-4 gradient-teal">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-semibold" style="color: var(--text-1);">2.1 Matrices and Vectors</h4>
+                                    <p class="text-sm" style="color: var(--text-2);">Video • 16 min • 8:30 remaining</p>
+                                    <div class="w-full h-1.5 rounded-full mt-2" style="background: var(--bg-2);">
+                                        <div class="h-1.5 rounded-full gradient-teal" style="width: 47%;"></div>
+                                    </div>
+                                </div>
+                                <button class="px-4 py-2 rounded-lg font-semibold text-sm gradient-teal text-white">
+                                    Continue
+                                </button>
+                            </div>
+
+                            <!-- Lesson 5 (Locked) -->
+                            <div class="lesson-item opacity-50">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center mr-4" style="background: var(--bg-2);">
+                                    <svg class="w-5 h-5" style="color: var(--text-2);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-semibold" style="color: var(--text-1);">2.2 Eigenvalues and Eigenvectors</h4>
+                                    <p class="text-sm" style="color: var(--text-2);">Video • 20 min • Locked</p>
+                                </div>
+                            </div>
+
+                            <!-- Lesson 6 (Locked) -->
+                            <div class="lesson-item opacity-50">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center mr-4" style="background: var(--bg-2);">
+                                    <svg class="w-5 h-5" style="color: var(--text-2);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-semibold" style="color: var(--text-1);">2.3 Linear Transformations</h4>
+                                    <p class="text-sm" style="color: var(--text-2);">Video • 15 min • Locked</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Module 3 -->
+                    <div class="card p-6 opacity-75">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold" style="color: var(--text-1);">Module 3: Advanced Topics</h3>
+                            <span class="badge" style="background: var(--bg-2); color: var(--text-2);">🔒 Locked</span>
+                        </div>
+                        <p class="text-sm" style="color: var(--text-2);">Complete Module 2 to unlock this module</p>
+                    </div>
+                </div>
+
+                <!-- Right: Course Info -->
+                <div class="space-y-6">
+                    <!-- Instructor -->
+                    <div class="card p-6">
+                        <h3 class="font-bold text-lg mb-4" style="color: var(--text-1);">Instructor</h3>
+                        <div class="flex items-start space-x-3 mb-4">
+                            <img src="https://ui-avatars.com/api/?name=Tran+Van+B&background=0d9488&color=fff&size=64" class="w-16 h-16 rounded-xl">
+                            <div>
+                                <h4 class="font-semibold" style="color: var(--text-1);">Prof. Tran Van B</h4>
+                                <p class="text-sm" style="color: var(--text-2);">Senior Lecturer</p>
+                                <p class="text-xs mt-1" style="color: var(--text-3);">Mathematics Department</p>
+                            </div>
+                        </div>
+                        <p class="text-sm mb-4" style="color: var(--text-2);">
+                            25+ years of teaching experience in advanced mathematics. PhD from MIT.
+                        </p>
+                        <button class="w-full py-2 rounded-lg font-semibold text-sm" style="border: 2px solid var(--primary); color: var(--primary);">
+                            Message Instructor
+                        </button>
+                    </div>
+
+                    <!-- Upcoming Assignments -->
+                    <div class="card p-6">
+                        <h3 class="font-bold text-lg mb-4" style="color: var(--text-1);">Upcoming Assignments</h3>
+                        <div class="space-y-3">
+                            <div class="p-3 rounded-lg" style="background: rgba(245,158,11,0.1); border-left: 3px solid var(--accent);">
+                                <h4 class="font-semibold text-sm mb-1" style="color: var(--text-1);">Problem Set #5</h4>
+                                <p class="text-xs" style="color: var(--text-2);">Due: Aug 28, 2026</p>
+                            </div>
+                            <div class="p-3 rounded-lg" style="background: rgba(13,148,136,0.1); border-left: 3px solid var(--primary);">
+                                <h4 class="font-semibold text-sm mb-1" style="color: var(--text-1);">Midterm Exam</h4>
+                                <p class="text-xs" style="color: var(--text-2);">Due: Sep 5, 2026</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Course Materials -->
+                    <div class="card p-6">
+                        <h3 class="font-bold text-lg mb-4" style="color: var(--text-1);">Course Materials</h3>
+                        <div class="space-y-2">
+                            <a href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50">
+                                <svg class="w-5 h-5" style="color: var(--primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                </svg>
+                                <span class="text-sm font-medium" style="color: var(--text-1);">Syllabus.pdf</span>
+                            </a>
+                            <a href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50">
+                                <svg class="w-5 h-5" style="color: var(--primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                </svg>
+                                <span class="text-sm font-medium" style="color: var(--text-1);">Lecture Notes.pdf</span>
+                            </a>
+                            <a href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50">
+                                <svg class="w-5 h-5" style="color: var(--primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                <span class="text-sm font-medium" style="color: var(--text-1);">Practice Problems.zip</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

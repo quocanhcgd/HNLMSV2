@@ -1,0 +1,24 @@
+{
+	"nodes":[
+		{"id":"overview","type":"text","text":"# 🏢 LMS System Architecture\n\n**Model**: On-Premise Self-Hosted\n**Tech Stack**: React + NestJS + PostgreSQL\n**Target**: 500-1500 students per installation","x":0,"y":-400,"width":600,"height":150,"color":"5"},
+		{"id":"frontend","type":"text","text":"## 🎨 Frontend Layer\n\n**Stack**:\n- React 19\n- Ant Design Pro\n- Vite 5.x\n- TanStack Query\n- Zustand\n\n**Apps**:\n- Admin Portal (org/branch management)\n- Teacher Portal (teaching tools)\n- Student Portal (learning)\n\n**Deployment**: Nginx static files","x":-600,"y":-100,"width":300,"height":400,"color":"1"},
+		{"id":"backend","type":"text","text":"## ⚙️ Backend Layer\n\n**Stack**:\n- Node.js 20 LTS\n- NestJS 10.x\n- TypeORM\n- class-validator\n\n**Modules**:\n- Auth & Authorization\n- Academic Management\n- Finance & Billing\n- User Management\n- Content Management\n- Reporting\n\n**API**: RESTful + OpenAPI 3.0","x":0,"y":-100,"width":300,"height":400,"color":"2"},
+		{"id":"database","type":"text","text":"## 🗄️ Database Layer\n\n**Primary**: PostgreSQL 15+\n- Organizations & Branches\n- Users & Roles\n- Academic Data\n- Financial Records\n- Audit Logs\n\n**Cache**: Redis 7+\n- Session storage\n- Query cache\n- Job queue (BullMQ)\n\n**Storage**: Local filesystem\n- Learning content\n- Student documents\n- Receipts","x":400,"y":-100,"width":300,"height":450,"color":"3"},
+		{"id":"integrations","type":"text","text":"## 🔌 External Integrations\n\n**Payment Gateways**:\n- VNPay (primary)\n- Momo\n- Plugin architecture for more\n\n**Email/SMS**:\n- Transactional emails\n- Notifications\n- Receipts\n\n**Meeting Platforms** (addon):\n- Zoom\n- Google Meet\n- MS Teams","x":800,"y":-100,"width":300,"height":400,"color":"4"},
+		{"id":"worker","type":"text","text":"## 🔄 Background Worker\n\n**Jobs**:\n- Email/SMS sending\n- Payment reconciliation\n- Report generation\n- Backup automation\n- Data exports\n\n**Queue**: BullMQ (Redis)\n**Scheduler**: node-cron","x":-600,"y":400,"width":300,"height":300,"color":"2"},
+		{"id":"security","type":"text","text":"## 🔒 Security Layer\n\n**Authentication**:\n- JWT tokens\n- Refresh tokens\n- Password hashing (bcrypt)\n\n**Authorization**:\n- Role-based access (RBAC)\n- Branch-level scoping\n- Permission checks\n\n**License**:\n- RSA-2048 signature\n- Offline validation\n- Constraint enforcement","x":0,"y":400,"width":300,"height":350,"color":"1"},
+		{"id":"monitoring","type":"text","text":"## 📊 Monitoring\n\n**Logs**: journalctl\n**Process**: systemd\n**Health Checks**: /api/health\n**Metrics**: Optional Prometheus\n\n**Backups**:\n- Daily database backup\n- Weekly full backup\n- 30-day retention","x":400,"y":400,"width":300,"height":300,"color":"3"},
+		{"id":"deployment","type":"text","text":"## 📦 Deployment\n\n**Format**: .deb package\n**OS**: Debian 12 / Ubuntu 22.04\n**Services**:\n- lms-web.service (frontend)\n- lms-api.service (backend)\n- lms-worker.service (jobs)\n\n**Installation**: \n`sudo dpkg -i lms-base-v1.0.0.deb`\n`sudo lms-setup wizard`\n\n**Update**: New .deb package","x":800,"y":400,"width":300,"height":350,"color":"4"},
+		{"id":"data-flow","type":"text","text":"## 🔄 Request Flow\n\n1. User → Browser\n2. → Nginx (reverse proxy)\n3. → React App (SPA)\n4. → API calls to NestJS\n5. → Auth middleware (JWT)\n6. → Authorization guards\n7. → Business logic\n8. → Database query\n9. → Response to client\n10. → UI update","x":-600,"y":800,"width":400,"height":350,"color":"5"},
+		{"id":"scalability","type":"text","text":"## 📈 Scale Considerations\n\n**Current Target**:\n- 500-1500 students\n- 50 concurrent users\n- 2-5 branches\n\n**Can Scale To**:\n- 5000+ students (same server)\n- 200+ concurrent (w/ load balancer)\n- Multiple servers (if needed)\n\n**Bottlenecks**:\n- Database (solved w/ indexes)\n- File storage (use S3 if >500GB)","x":200,"y":800,"width":400,"height":350,"color":"6"},
+		{"id":"tech-decisions","type":"file","file":"Project Overview.md","x":700,"y":850,"width":300,"height":150,"color":"5"}
+	],
+	"edges":[
+		{"id":"e1","fromNode":"frontend","toNode":"backend","fromSide":"right","toSide":"left","label":"API Calls"},
+		{"id":"e2","fromNode":"backend","toNode":"database","fromSide":"right","toSide":"left","label":"ORM Queries"},
+		{"id":"e3","fromNode":"backend","toNode":"integrations","fromSide":"right","toSide":"left","label":"Webhooks"},
+		{"id":"e4","fromNode":"backend","toNode":"worker","fromSide":"bottom","toSide":"top","label":"Enqueue Jobs"},
+		{"id":"e5","fromNode":"worker","toNode":"database","fromSide":"right","toSide":"bottom","label":"Read/Write"},
+		{"id":"e6","fromNode":"security","toNode":"backend","fromSide":"top","toSide":"bottom","label":"Middleware"}
+	]
+}

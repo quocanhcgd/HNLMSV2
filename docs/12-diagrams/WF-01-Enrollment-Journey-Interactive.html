@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WF-01: Enrollment Journey - Interactive Diagram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #f7fafc;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .workflow-canvas {
+            position: relative;
+            min-height: 1200px;
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 40px;
+            overflow-x: auto;
+        }
+
+        .phase-section {
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .phase-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .phase-number {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+
+        .steps-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px 0;
+        }
+
+        .step-node {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 220px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            border: 3px solid transparent;
+        }
+
+        .step-node:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .step-node.active {
+            border-color: #667eea;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .step-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .step-desc {
+            color: #718096;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .step-actor {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background: #edf2f7;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            color: #4a5568;
+            display: inline-block;
+        }
+
+        .connector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 0;
+        }
+
+        .arrow {
+            color: #cbd5e0;
+            font-size: 2rem;
+        }
+
+        .decision-node {
+            background: #fef5e7;
+            border: 3px dashed #f39c12;
+        }
+
+        .decision-node .step-icon {
+            color: #f39c12;
+        }
+
+        .start-node {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            color: white;
+        }
+
+        .start-node .step-title,
+        .start-node .step-desc {
+            color: white;
+        }
+
+        .end-node {
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+        }
+
+        .info-panel {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            width: 350px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 25px;
+            max-height: 80vh;
+            overflow-y: auto;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .info-panel.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .info-panel h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .info-panel .detail {
+            margin-bottom: 15px;
+        }
+
+        .info-panel .label {
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 5px;
+        }
+
+        .info-panel .value {
+            color: #718096;
+            line-height: 1.6;
+        }
+
+        .close-panel {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #a0aec0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .close-panel:hover {
+            background: #edf2f7;
+            color: #2d3748;
+        }
+
+        .metrics {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .info-panel {
+                width: calc(100% - 40px);
+                right: 20px;
+            }
+
+            .steps-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 WF-01: Enrollment Journey</h1>
+        <p class="subtitle">Interactive workflow visualization - Click on steps to see details</p>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #667eea;"></div>
+                <span>System Action</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ffd4e5;"></div>
+                <span>Consultant</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #d4f5d4;"></div>
+                <span>Finance</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #f39c12;"></div>
+                <span>Decision Point</span>
+            </div>
+        </div>
+
+        <div class="workflow-canvas">
+            <!-- Phase 1: Lead Capture -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <span class="phase-number">Phase 1</span>
+                    Lead Capture (Day 0)
+                </div>
+                <div class="steps-container">
+                    <div class="step-node start-node" data-step="start">
+                        <div class="step-icon">🚀</div>
+                        <div class="step-title">Lead Capture</div>
+                        <div class="step-desc">Potential customer shows interest</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node decision-node" data-step="contact-method">
+                        <div class="step-icon">❓</div>
+                        <div class="step-title">Contact Method?</div>
+                        <div class="step-desc">How did they reach us?</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node" data-step="create-lead" style="background: #ffd4e5;">
+                        <div class="step-icon">📝</div>
+                        <div class="step-title">Create Lead Record</div>
+                        <div class="step-desc">Capture information in system</div>
+                        <div class="step-actor">👤 Receptionist</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node" data-step="assign" style="background: #e1f0ff;">
+                        <div class="step-icon">🎯</div>
+                        <div class="step-title">Auto-Assign Consultant</div>
+                        <div class="step-desc">Based on availability & workload</div>
+                        <div class="step-actor">🤖 System</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 2: Consultation -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <span class="phase-number">Phase 2</span>
+                    Consultation (Day 0-2)
+                </div>
+                <div class="steps-container">
+                    <div class="step-node" data-step="consult" style="background: #ffd4e5;">
+                        <div class="step-icon">💬</div>
+                        <div class="step-title">Consultation</div>
+                        <div class="step-desc">Understand needs, explain programs</div>
+                        <div class="step-actor">👤 Consultant</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node decision-node" data-step="consult-outcome">
+                        <div class="step-icon">❓</div>
+                        <div class="step-title">Consultation Outcome?</div>
+                        <div class="step-desc">Qualified / Follow-up / Lost</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 3: Assessment -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <span class="phase-number">Phase 3</span>
+                    Assessment (Day 2-3) - Optional
+                </div>
+                <div class="steps-container">
+                    <div class="step-node" data-step="take-test" style="background: #fff4e1;">
+                        <div class="step-icon">📝</div>
+                        <div class="step-title">Entrance Test</div>
+                        <div class="step-desc">Evaluate proficiency level</div>
+                        <div class="step-actor">👤 Teacher</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node" data-step="grade-test" style="background: #fff4e1;">
+                        <div class="step-icon">🎓</div>
+                        <div class="step-title">Grade Test</div>
+                        <div class="step-desc">Score and determine level</div>
+                        <div class="step-actor">👤 Teacher</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node decision-node" data-step="test-result">
+                        <div class="step-icon">❓</div>
+                        <div class="step-title">Test Result?</div>
+                        <div class="step-desc">Pass / Fail / Remedial</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node" data-step="level-place" style="background: #fff4e1;">
+                        <div class="step-icon">🎯</div>
+                        <div class="step-title">Level Placement</div>
+                        <div class="step-desc">Assign to appropriate level</div>
+                        <div class="step-actor">👤 Academic Manager</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 4: Enrollment & Payment -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <span class="phase-number">Phase 4</span>
+                    Enrollment & Payment (Day 3-5)
+                </div>
+                <div class="steps-container">
+                    <div class="step-node" data-step="select-class" style="background: #ffd4e5;">
+                        <div class="step-icon">📚</div>
+                        <div class="step-title">Select Class</div>
+                        <div class="step-desc">Choose schedule and teacher</div>
+                        <div class="step-actor">👤 Consultant + Lead</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node decision-node" data-step="check-capacity">
+                        <div class="step-icon">❓</div>
+                        <div class="step-title">Class Full?</div>
+                        <div class="step-desc">Check availability</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node" data-step="create-enroll" style="background: #e1f0ff;">
+                        <div class="step-icon">✅</div>
+                        <div class="step-title">Create Enrollment</div>
+                        <div class="step-desc">Official enrollment record</div>
+                        <div class="step-actor">👤 Consultant</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node" data-step="gen-invoice" style="background: #d4f5d4;">
+                        <div class="step-icon">💰</div>
+                        <div class="step-title">Generate Invoice</div>
+                        <div class="step-desc">Auto-create invoice with fees</div>
+                        <div class="step-actor">🤖 System</div>
+                    </div>
+                </div>
+
+                <div class="steps-container" style="margin-top: 20px;">
+                    <div class="step-node decision-node" data-step="payment-method">
+                        <div class="step-icon">💳</div>
+                        <div class="step-title">Payment Method?</div>
+                        <div class="step-desc">Online / Cash / Transfer</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node" data-step="record-payment" style="background: #d4f5d4;">
+                        <div class="step-icon">✓</div>
+                        <div class="step-title">Record Payment</div>
+                        <div class="step-desc">Update invoice status</div>
+                        <div class="step-actor">👤 Finance Officer</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node" data-step="issue-receipt" style="background: #d4f5d4;">
+                        <div class="step-icon">🧾</div>
+                        <div class="step-title">Issue Receipt</div>
+                        <div class="step-desc">Generate official receipt</div>
+                        <div class="step-actor">🤖 System</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 5: Activation -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <span class="phase-number">Phase 5</span>
+                    Activation & Onboarding (Day 5-7)
+                </div>
+                <div class="steps-container">
+                    <div class="step-node" data-step="activate" style="background: #e1f0ff;">
+                        <div class="step-icon">🎉</div>
+                        <div class="step-title">Activate Enrollment</div>
+                        <div class="step-desc">Status: Active</div>
+                        <div class="step-actor">🤖 System</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node" data-step="send-welcome" style="background: #e1f0ff;">
+                        <div class="step-icon">📨</div>
+                        <div class="step-title">Send Welcome Email</div>
+                        <div class="step-desc">Login credentials + class info</div>
+                        <div class="step-actor">🤖 System</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node" data-step="notify-teacher" style="background: #fff4e1;">
+                        <div class="step-icon">👨‍🏫</div>
+                        <div class="step-title">Notify Teacher</div>
+                        <div class="step-desc">New student in class</div>
+                        <div class="step-actor">🤖 System</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node" data-step="grant-access" style="background: #e1f0ff;">
+                        <div class="step-icon">🔑</div>
+                        <div class="step-title">Grant LMS Access</div>
+                        <div class="step-desc">Student can login to portal</div>
+                        <div class="step-actor">🤖 System</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node end-node" data-step="complete">
+                        <div class="step-icon">✅</div>
+                        <div class="step-title">Student Active</div>
+                        <div class="step-desc">Journey complete! Ready to learn</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="metrics">
+            <h3 style="margin-bottom: 15px; color: #2d3748;">📊 Key Metrics</h3>
+            <div class="metric-row">
+                <span class="metric-label">Average Cycle Time</span>
+                <span class="metric-value">5-7 days</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Lead to Student Conversion</span>
+                <span class="metric-value">40%</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Payment Success Rate</span>
+                <span class="metric-value">98%</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">First Class Show-up Rate</span>
+                <span class="metric-value">95%</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-panel" id="infoPanel">
+        <button class="close-panel" onclick="closePanel()">×</button>
+        <h3 id="panelTitle">Step Details</h3>
+        <div id="panelContent"></div>
+    </div>
+
+    <script>
+        const stepDetails = {
+            'start': {
+                title: '🚀 Lead Capture',
+                actor: 'Lead, Receptionist, or System',
+                duration: '< 5 minutes',
+                description: 'Potential customer expresses interest through various channels: website form, phone call, walk-in visit, or referral.',
+                actions: [
+                    'Capture contact information (name, phone, email)',
+                    'Record source (how they found us)',
+                    'Note interested program',
+                    'Create lead record in system'
+                ],
+                nextSteps: 'Lead is automatically assigned to a consultant based on availability and workload distribution rules.'
+            },
+            'contact-method': {
+                title: '❓ Contact Method Decision',
+                actor: 'System',
+                duration: 'Instant',
+                description: 'System categorizes how the lead contacted us to track marketing effectiveness.',
+                options: [
+                    'Website Form: Auto-captured',
+                    'Phone Call: Manual entry by receptionist',
+                    'Walk-in: Manual entry by receptionist',
+                    'Referral: Tagged by referring student'
+                ],
+                nextSteps: 'Different channels may have different auto-response templates.'
+            },
+            'create-lead': {
+                title: '📝 Create Lead Record',
+                actor: 'Receptionist or System',
+                duration: '2-3 minutes',
+                description: 'All lead information is captured in a structured format for tracking and follow-up.',
+                dataCapture: [
+                    'Full name (required)',
+                    'Phone number (required)',
+                    'Email (optional but recommended)',
+                    'Interested program',
+                    'Source/Channel',
+                    'Notes/Comments',
+                    'Preferred contact time'
+                ],
+                nextSteps: 'Lead automatically assigned to consultant.'
+            },
+            'assign': {
+                title: '🎯 Auto-Assign Consultant',
+                actor: 'System (Automated)',
+                duration: 'Instant',
+                description: 'System uses round-robin or workload-based algorithm to assign lead to the most appropriate consultant.',
+                rules: [
+                    'Check consultant availability',
+                    'Balance workload across team',
+                    'Consider consultant specialization',
+                    'Respect consultant working hours'
+                ],
+                nextSteps: 'Consultant receives notification to contact lead within 24 hours.'
+            },
+            'consult': {
+                title: '💬 Consultation',
+                actor: 'Admission Consultant',
+                duration: '30-60 minutes',
+                description: 'Consultant meets with lead (in-person or video call) to understand needs and explain program options.',
+                keyPoints: [
+                    'Understand student background and goals',
+                    'Explain program structure and benefits',
+                    'Discuss schedule options and pricing',
+                    'Address concerns and questions',
+                    'Assess interest level and fit'
+                ],
+                nextSteps: 'Consultant qualifies lead or schedules follow-up.'
+            },
+            'consult-outcome': {
+                title: '❓ Consultation Outcome',
+                actor: 'Admission Consultant',
+                duration: 'Immediate after consultation',
+                description: 'Consultant categorizes the lead based on consultation results.',
+                outcomes: [
+                    '✅ Qualified: Ready to proceed to assessment/enrollment',
+                    '📅 Follow-up: Needs time to decide, schedule callback',
+                    '❌ Unqualified: Not interested or not a good fit'
+                ],
+                metrics: 'Target qualification rate: 60%'
+            },
+            'take-test': {
+                title: '📝 Entrance Test',
+                actor: 'Teacher or Academic Manager',
+                duration: '60-90 minutes',
+                description: 'Student takes a placement test to determine appropriate class level.',
+                testComponents: [
+                    'Listening comprehension (20 min)',
+                    'Reading comprehension (20 min)',
+                    'Writing exercise (20 min)',
+                    'Speaking interview (10-15 min)'
+                ],
+                nextSteps: 'Teacher grades test within 24 hours.'
+            },
+            'grade-test': {
+                title: '🎓 Grade Test',
+                actor: 'Teacher',
+                duration: '30-45 minutes',
+                description: 'Teacher evaluates test performance and determines proficiency level.',
+                gradingCriteria: [
+                    'Listening: Comprehension accuracy',
+                    'Reading: Understanding and inference',
+                    'Writing: Grammar, vocabulary, structure',
+                    'Speaking: Fluency, pronunciation, confidence'
+                ],
+                nextSteps: 'Recommend appropriate class level.'
+            },
+            'test-result': {
+                title: '❓ Test Result Decision',
+                actor: 'Academic Manager',
+                duration: 'Immediate after grading',
+                description: 'Determine if student meets requirements for desired program level.',
+                outcomes: [
+                    'Pass: Meets requirements for chosen level',
+                    'Remedial: Needs prep course first',
+                    'Different Level: Better fit for lower/higher level'
+                ],
+                nextSteps: 'Proceed to class selection or recommend alternatives.'
+            },
+            'level-place': {
+                title: '🎯 Level Placement',
+                actor: 'Academic Manager',
+                duration: '5-10 minutes',
+                description: 'Match student to appropriate class level based on test results.',
+                levels: [
+                    'Beginner: 0-30% score',
+                    'Elementary: 31-50% score',
+                    'Intermediate: 51-75% score',
+                    'Advanced: 76-100% score'
+                ],
+                nextSteps: 'Show available classes for this level.'
+            },
+            'select-class': {
+                title: '📚 Select Class',
+                actor: 'Consultant + Lead',
+                duration: '10-15 minutes',
+                description: 'Lead chooses from available classes matching their level and preferences.',
+                factors: [
+                    'Schedule (day/time)',
+                    'Teacher preference',
+                    'Branch location',
+                    'Class size',
+                    'Start date'
+                ],
+                nextSteps: 'Check class capacity before confirming.'
+            },
+            'check-capacity': {
+                title: '❓ Class Capacity Check',
+                actor: 'System',
+                duration: 'Instant',
+                description: 'Verify selected class has available seats.',
+                outcomes: [
+                    'Available: Proceed to enrollment',
+                    'Full: Offer waitlist or alternative class',
+                    'Almost Full: Urgent enrollment recommended'
+                ],
+                nextSteps: 'Create enrollment if capacity available.'
+            },
+            'create-enroll': {
+                title: '✅ Create Enrollment',
+                actor: 'Consultant',
+                duration: '5 minutes',
+                description: 'Create official enrollment record linking student to class.',
+                dataRecorded: [
+                    'Student information',
+                    'Class assignment',
+                    'Enrollment date',
+                    'Expected start/end dates',
+                    'Status: Pending Payment'
+                ],
+                nextSteps: 'System auto-generates invoice.'
+            },
+            'gen-invoice': {
+                title: '💰 Generate Invoice',
+                actor: 'System (Automated)',
+                duration: 'Instant',
+                description: 'Create invoice with all applicable fees.',
+                feeComponents: [
+                    'Tuition fee (based on program)',
+                    'Registration fee',
+                    'Material fee',
+                    'Discount (if applicable)',
+                    'Total amount due'
+                ],
+                nextSteps: 'Present invoice to student for payment.'
+            },
+            'payment-method': {
+                title: '💳 Payment Method Decision',
+                actor: 'Student',
+                duration: '1-2 minutes',
+                description: 'Student chooses how to pay.',
+                options: [
+                    'Online (VNPay/Momo): Instant, convenient',
+                    'Cash: Immediate, at counter',
+                    'Bank Transfer: 1-2 days processing'
+                ],
+                nextSteps: 'Process payment through chosen method.'
+            },
+            'record-payment': {
+                title: '✓ Record Payment',
+                actor: 'Finance Officer or System',
+                duration: '2-5 minutes',
+                description: 'Verify and record payment transaction.',
+                verification: [
+                    'Check payment amount matches invoice',
+                    'Verify payment reference',
+                    'Update invoice status to Paid',
+                    'Link payment transaction to invoice'
+                ],
+                nextSteps: 'Generate official receipt.'
+            },
+            'issue-receipt': {
+                title: '🧾 Issue Receipt',
+                actor: 'System (Auto-generated)',
+                duration: 'Instant',
+                description: 'Generate PDF receipt for student records.',
+                receiptContains: [
+                    'Receipt number',
+                    'Payment date and amount',
+                    'Invoice reference',
+                    'Student and class details',
+                    'Official school stamp'
+                ],
+                nextSteps: 'Send receipt via email, activate enrollment.'
+            },
+            'activate': {
+                title: '🎉 Activate Enrollment',
+                actor: 'System (Triggered by payment)',
+                duration: 'Instant',
+                description: 'Change enrollment status from Pending to Active.',
+                systemActions: [
+                    'Update enrollment status',
+                    'Generate student credentials',
+                    'Add to class roster',
+                    'Set access permissions'
+                ],
+                nextSteps: 'Send welcome email with login info.'
+            },
+            'send-welcome': {
+                title: '📨 Send Welcome Email',
+                actor: 'System (Automated)',
+                duration: 'Instant',
+                description: 'Send comprehensive welcome email with all necessary information.',
+                emailContains: [
+                    'Login credentials (temporary password)',
+                    'Class schedule and location',
+                    'Teacher information',
+                    'First day instructions',
+                    'Portal quick start guide'
+                ],
+                nextSteps: 'Notify teacher of new student.'
+            },
+            'notify-teacher': {
+                title: '👨‍🏫 Notify Teacher',
+                actor: 'System',
+                duration: 'Instant',
+                description: 'Alert assigned teacher that new student joined class.',
+                notification: [
+                    'New student name and photo',
+                    'Student background/level',
+                    'Start date',
+                    'Contact information',
+                    'Link to student profile'
+                ],
+                nextSteps: 'Grant student access to LMS portal.'
+            },
+            'grant-access': {
+                title: '🔑 Grant LMS Access',
+                actor: 'System',
+                duration: 'Instant',
+                description: 'Enable student account and permissions in learning portal.',
+                accessGranted: [
+                    'Login to student portal',
+                    'View enrolled classes',
+                    'Access learning materials',
+                    'Submit assignments',
+                    'View grades and progress'
+                ],
+                nextSteps: 'Student is fully onboarded and ready to learn!'
+            },
+            'complete': {
+                title: '✅ Student Active',
+                actor: 'All',
+                duration: 'Journey complete',
+                description: 'Enrollment journey successfully completed. Student is now an active learner.',
+                achieved: [
+                    '✓ Lead converted to student',
+                    '✓ Payment completed',
+                    '✓ Access granted',
+                    '✓ Teacher notified',
+                    '✓ Ready for first class'
+                ],
+                nextWorkflow: 'WF-02: Teaching & Learning Cycle begins when student attends first class.'
+            }
+        };
+
+        // Add click handlers to all step nodes
+        document.querySelectorAll('.step-node').forEach(node => {
+            node.addEventListener('click', function() {
+                const stepId = this.getAttribute('data-step');
+                showStepDetails(stepId);
+
+                // Highlight active step
+                document.querySelectorAll('.step-node').forEach(n => n.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        function showStepDetails(stepId) {
+            const panel = document.getElementById('infoPanel');
+            const content = document.getElementById('panelContent');
+            const title = document.getElementById('panelTitle');
+            const details = stepDetails[stepId];
+
+            if (!details) return;
+
+            title.textContent = details.title;
+
+            let html = `
+                <div class="detail">
+                    <div class="label">👤 Actor</div>
+                    <div class="value">${details.actor}</div>
+                </div>
+                <div class="detail">
+                    <div class="label">⏱️ Duration</div>
+                    <div class="value">${details.duration}</div>
+                </div>
+                <div class="detail">
+                    <div class="label">📋 Description</div>
+                    <div class="value">${details.description}</div>
+                </div>
+            `;
+
+            // Add all other properties dynamically
+            for (const [key, value] of Object.entries(details)) {
+                if (['title', 'actor', 'duration', 'description'].includes(key)) continue;
+
+                if (Array.isArray(value)) {
+                    html += `
+                        <div class="detail">
+                            <div class="label">${formatKey(key)}</div>
+                            <div class="value">
+                                <ul style="margin: 5px 0; padding-left: 20px;">
+                                    ${value.map(item => `<li>${item}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                } else if (typeof value === 'string') {
+                    html += `
+                        <div class="detail">
+                            <div class="label">${formatKey(key)}</div>
+                            <div class="value">${value}</div>
+                        </div>
+                    `;
+                }
+            }
+
+            content.innerHTML = html;
+            panel.classList.add('show');
+        }
+
+        function formatKey(key) {
+            return key
+                .replace(/([A-Z])/g, ' $1')
+                .replace(/_/g, ' ')
+                .replace(/^./, str => str.toUpperCase());
+        }
+
+        function closePanel() {
+            document.getElementById('infoPanel').classList.remove('show');
+            document.querySelectorAll('.step-node').forEach(n => n.classList.remove('active'));
+        }
+
+        // Close panel when clicking outside
+        document.addEventListener('click', function(e) {
+            const panel = document.getElementById('infoPanel');
+            if (!e.target.closest('.step-node') && !e.target.closest('.info-panel')) {
+                panel.classList.remove('show');
+                document.querySelectorAll('.step-node').forEach(n => n.classList.remove('active'));
+            }
+        });
+    </script>
+</body>
+</html>

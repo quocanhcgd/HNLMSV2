@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WF-04: HR & Lương - Sơ đồ Tương tác</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .addon-badge {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .addon-badge span {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #f7fafc;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .workflow-canvas {
+            position: relative;
+            min-height: 1400px;
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 40px;
+            overflow-x: auto;
+        }
+
+        .phase-section {
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .phase-header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
+        }
+
+        .phase-number {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+
+        .steps-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px 0;
+        }
+
+        .step-node {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 200px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .step-node:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .step-node.active {
+            border-color: #f093fb;
+            box-shadow: 0 8px 25px rgba(240, 147, 251, 0.3);
+        }
+
+        .step-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .step-desc {
+            color: #718096;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .step-actor {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background: #edf2f7;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            color: #4a5568;
+            display: inline-block;
+        }
+
+        .connector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 0;
+        }
+
+        .arrow {
+            color: #cbd5e0;
+            font-size: 2rem;
+        }
+
+        .hr-node {
+            background: #fce4ec;
+            border-left: 4px solid #f5576c;
+        }
+
+        .employee-node {
+            background: #e1f5fe;
+            border-left: 4px solid #03a9f4;
+        }
+
+        .system-node {
+            background: #f0f0f0;
+            border-left: 4px solid #9e9e9e;
+        }
+
+        .decision-node {
+            background: #fff9c4;
+            border: 3px dashed #fbc02d;
+        }
+
+        .info-panel {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            width: 450px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 25px;
+            max-height: 85vh;
+            overflow-y: auto;
+            opacity: 0;
+            transform: translateX(500px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .info-panel.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .info-panel h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .info-panel .detail {
+            margin-bottom: 15px;
+        }
+
+        .info-panel .label {
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 5px;
+        }
+
+        .info-panel .value {
+            color: #718096;
+            line-height: 1.6;
+        }
+
+        .close-panel {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #a0aec0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .close-panel:hover {
+            background: #edf2f7;
+            color: #2d3748;
+        }
+
+        .metrics {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            color: #f093fb;
+            font-weight: 600;
+        }
+
+        .cycle-indicator {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .info-panel {
+                width: calc(100% - 40px);
+                right: 20px;
+            }
+
+            .steps-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💼 WF-04: HR & Lương</h1>
+        <p class="subtitle">Chu kỳ quản lý nhân sự và tính lương hàng tháng - Click để xem chi tiết</p>
+
+        <div class="addon-badge">
+            <span>🔒 Yêu cầu Addon: HRM & Payroll</span>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #f5576c;"></div>
+                <span>Quản lý HR</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #03a9f4;"></div>
+                <span>Nhân viên</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #9e9e9e;"></div>
+                <span>Hệ thống</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #fbc02d;"></div>
+                <span>Quyết định</span>
+            </div>
+        </div>
+
+        <div class="workflow-canvas">
+            <!-- Phase 1: Daily Attendance -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <span class="phase-number">Giai đoạn 1</span>
+                    Điểm danh hàng ngày
+                </div>
+                <div class="steps-container">
+                    <div class="step-node employee-node" data-step="check-in">
+                        <div class="step-icon">✓</div>
+                        <div class="step-title">Check-in</div>
+                        <div class="step-desc">Nhân viên điểm danh vào làm</div>
+                        <div class="step-actor">👤 Nhân viên</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node employee-node" data-step="work-day">
+                        <div class="step-icon">💼</div>
+                        <div class="step-title">Làm việc</div>
+                        <div class="step-desc">Thực hiện công việc trong ngày</div>
+                        <div class="step-actor">👤 Nhân viên</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node employee-node" data-step="log-hours">
+                        <div class="step-icon">⏱️</div>
+                        <div class="step-title">Ghi giờ giảng dạy</div>
+                        <div class="step-desc">Giáo viên ghi số giờ đã dạy</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node employee-node" data-step="check-out">
+                        <div class="step-icon">✓</div>
+                        <div class="step-title">Check-out</div>
+                        <div class="step-desc">Điểm danh tan làm</div>
+                        <div class="step-actor">👤 Nhân viên</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 2: Leave Management -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <span class="phase-number">Giai đoạn 2</span>
+                    Quản lý nghỉ phép
+                </div>
+                <div class="steps-container">
+                    <div class="step-node employee-node" data-step="leave-request">
+                        <div class="step-icon">📝</div>
+                        <div class="step-title">Xin nghỉ phép</div>
+                        <div class="step-desc">Nhân viên gửi đơn xin nghỉ</div>
+                        <div class="step-actor">👤 Nhân viên</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node hr-node" data-step="check-balance">
+                        <div class="step-icon">📊</div>
+                        <div class="step-title">Kiểm tra số ngày còn lại</div>
+                        <div class="step-desc">Xem phép năm còn bao nhiêu</div>
+                        <div class="step-actor">👔 Quản lý HR</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node decision-node" data-step="approve-leave">
+                        <div class="step-icon">❓</div>
+                        <div class="step-title">Phê duyệt?</div>
+                        <div class="step-desc">Chấp thuận hay từ chối</div>
+                        <div class="step-actor">👔 Quản lý</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node system-node" data-step="deduct-leave">
+                        <div class="step-icon">📉</div>
+                        <div class="step-title">Trừ phép</div>
+                        <div class="step-desc">Cập nhật số ngày phép còn lại</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node system-node" data-step="notify-employee">
+                        <div class="step-icon">📧</div>
+                        <div class="step-title">Thông báo kết quả</div>
+                        <div class="step-desc">Email thông báo cho nhân viên</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cycle-indicator">
+                🔄 Chu kỳ tháng - Quy trình tính lương
+            </div>
+
+            <!-- Phase 3: Month-end Payroll -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <span class="phase-number">Giai đoạn 3</span>
+                    Tính lương cuối tháng (Ngày 1-5)
+                </div>
+                <div class="steps-container">
+                    <div class="step-node hr-node" data-step="collect-data">
+                        <div class="step-icon">📋</div>
+                        <div class="step-title">Thu thập dữ liệu</div>
+                        <div class="step-desc">Điểm danh, giờ dạy, nghỉ phép</div>
+                        <div class="step-actor">💰 Nhân viên lương</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node hr-node" data-step="calculate-salary">
+                        <div class="step-icon">🧮</div>
+                        <div class="step-title">Tính lương</div>
+                        <div class="step-desc">Lương cơ bản + giờ dạy + thưởng</div>
+                        <div class="step-actor">💰 Nhân viên lương</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node hr-node" data-step="calculate-deductions">
+                        <div class="step-icon">📉</div>
+                        <div class="step-title">Tính khấu trừ</div>
+                        <div class="step-desc">BHXH, BHYT, thuế TNCN</div>
+                        <div class="step-actor">💰 Nhân viên lương</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node system-node" data-step="generate-payslip">
+                        <div class="step-icon">📄</div>
+                        <div class="step-title">Tạo phiếu lương</div>
+                        <div class="step-desc">PDF chi tiết thu nhập</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 4: Review & Approval -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <span class="phase-number">Giai đoạn 4</span>
+                    Duyệt và chi trả (Ngày 6-10)
+                </div>
+                <div class="steps-container">
+                    <div class="step-node hr-node" data-step="hr-review">
+                        <div class="step-icon">👀</div>
+                        <div class="step-title">HR kiểm tra</div>
+                        <div class="step-desc">Xem xét tính chính xác</div>
+                        <div class="step-actor">👔 Quản lý HR</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node decision-node" data-step="approval-decision">
+                        <div class="step-icon">❓</div>
+                        <div class="step-title">Phê duyệt?</div>
+                        <div class="step-desc">OK hay cần sửa</div>
+                        <div class="step-actor">👔 Quản lý HR</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node system-node" data-step="send-payslips">
+                        <div class="step-icon">📧</div>
+                        <div class="step-title">Gửi phiếu lương</div>
+                        <div class="step-desc">Email tới mọi nhân viên</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node hr-node" data-step="prepare-payment">
+                        <div class="step-icon">💰</div>
+                        <div class="step-title">Chuẩn bị chi trả</div>
+                        <div class="step-desc">File chuyển khoản ngân hàng</div>
+                        <div class="step-actor">💰 Kế toán</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node hr-node" data-step="bank-transfer">
+                        <div class="step-icon">🏦</div>
+                        <div class="step-title">Chuyển lương</div>
+                        <div class="step-desc">Chuyển khoản hàng loạt</div>
+                        <div class="step-actor">💰 Kế toán</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node system-node" data-step="confirm-paid">
+                        <div class="step-icon">✅</div>
+                        <div class="step-title">Xác nhận đã trả</div>
+                        <div class="step-desc">Đánh dấu hoàn tất</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="metrics">
+            <h3 style="margin-bottom: 15px; color: #2d3748;">📊 Chỉ số quan trọng</h3>
+            <div class="metric-row">
+                <span class="metric-label">Độ chính xác tính lương</span>
+                <span class="metric-value">99.9%</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Thời gian xử lý lương</span>
+                <span class="metric-value">8 ngày</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Trả lương đúng hạn</span>
+                <span class="metric-value">95%</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Phản hồi xin nghỉ</span>
+                <span class="metric-value">&lt;24h</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Tuân thủ luật lao động</span>
+                <span class="metric-value">100%</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-panel" id="infoPanel">
+        <button class="close-panel" onclick="closePanel()">×</button>
+        <h3 id="panelTitle">Chi tiết bước</h3>
+        <div id="panelContent"></div>
+    </div>
+
+    <script>
+        const stepDetails = {
+            'check-in': {
+                title: '✓ Check-in điểm danh',
+                actor: 'Nhân viên',
+                duration: '1 phút',
+                description: 'Nhân viên điểm danh khi đến văn phòng bằng hệ thống hoặc app.',
+                methods: [
+                    'Web: Đăng nhập LMS → Click "Check-in"',
+                    'App mobile: Mở app → Chấm công',
+                    'Vân tay/thẻ từ (nếu có)',
+                    'Thủ công: Ký vào sổ'
+                ],
+                recorded: [
+                    'Thời gian vào: 8:30 AM',
+                    'Trạng thái: Đúng giờ / Trễ',
+                    'Vị trí: (GPS nếu dùng app)'
+                ],
+                late: 'Trễ >15 phút được ghi nhận và ảnh hưởng đến lương.'
+            },
+            'work-day': {
+                title: '💼 Làm việc trong ngày',
+                actor: 'Nhân viên',
+                duration: '8 giờ (văn phòng)',
+                description: 'Thực hiện công việc được giao theo chức danh.',
+                roles: [
+                    '👨‍🏫 Giáo viên: Dạy học, chuẩn bị bài, chấm bài',
+                    '💰 Kế toán: Xử lý tài chính, báo cáo',
+                    '📞 Tư vấn: Tư vấn học viên, chuyển đổi lead',
+                    '🏢 Quản lý: Giám sát, điều phối'
+                ],
+                tracking: 'Giờ làm việc được tính từ check-in đến check-out.'
+            },
+            'log-hours': {
+                title: '⏱️ Ghi giờ giảng dạy',
+                actor: 'Giáo viên',
+                duration: '2 phút/buổi',
+                description: 'Giáo viên ghi lại số giờ đã dạy sau mỗi buổi học.',
+                process: [
+                    'Sau buổi học, vào LMS',
+                    'Điểm danh lớp học',
+                    'Hệ thống tự động ghi giờ dạy',
+                    'Giáo viên xác nhận',
+                    'Lưu vào bảng công'
+                ],
+                calculation: `
+Ví dụ tháng 9:
+- Buổi 1: 1.5 giờ (Thứ 2)
+- Buổi 2: 1.5 giờ (Thứ 4)
+- Buổi 3: 1.5 giờ (Thứ 6)
+... (8 tuần)
+Tổng: 36 giờ × 150,000 VND = 5,400,000 VND
+                `,
+                important: 'Giờ dạy này sẽ được dùng để tính lương cuối tháng.'
+            },
+            'check-out': {
+                title: '✓ Check-out tan làm',
+                actor: 'Nhân viên',
+                duration: '1 phút',
+                description: 'Điểm danh khi kết thúc ngày làm việc.',
+                methods: 'Tương tự check-in: Web, app, vân tay, hoặc thủ công.',
+                recorded: [
+                    'Thời gian ra: 17:30',
+                    'Tổng giờ làm: 8 giờ (đã trừ nghỉ trưa)',
+                    'Trạng thái: Đủ giờ / Thiếu'
+                ],
+                earlyLeave: 'Ra sớm >30 phút cần có phép, nếu không sẽ bị trừ lương.'
+            },
+            'leave-request': {
+                title: '📝 Xin nghỉ phép',
+                actor: 'Nhân viên',
+                duration: '5 phút',
+                description: 'Nhân viên gửi đơn xin nghỉ qua hệ thống.',
+                form: [
+                    'Loại phép: Phép năm / Ốm / Không lương',
+                    'Từ ngày: 15/09/2024',
+                    'Đến ngày: 20/09/2024',
+                    'Số ngày: 5 ngày',
+                    'Lý do: Nghỉ gia đình',
+                    'Gửi đến: Quản lý trực tiếp'
+                ],
+                balance: 'Hệ thống hiển thị số ngày phép còn lại: 8 ngày',
+                timing: 'Nên xin trước ít nhất 3 ngày làm việc.'
+            },
+            'check-balance': {
+                title: '📊 Kiểm tra số phép còn lại',
+                actor: 'Quản lý HR',
+                duration: '1 phút',
+                description: 'HR kiểm tra nhân viên còn đủ ngày phép không.',
+                check: `
+Nhân viên: Nguyễn Văn B
+Phép năm được hưởng: 12 ngày/năm
+Đã sử dụng: 4 ngày
+Còn lại: 8 ngày
+Xin nghỉ: 5 ngày
+→ Đủ phép ✓
+                `,
+                insufficient: 'Nếu không đủ phép năm, có thể chuyển sang nghỉ không lương.'
+            },
+            'approve-leave': {
+                title: '❓ Phê duyệt nghỉ phép',
+                actor: 'Quản lý',
+                duration: '5-10 phút',
+                description: 'Quản lý xem xét và quyết định chấp thuận hay từ chối.',
+                considerations: [
+                    'Có đủ phép không?',
+                    'Thời điểm có phù hợp không?',
+                    'Công việc có ai thay thế không?',
+                    'Đã thông báo đủ sớm chưa?'
+                ],
+                decision: [
+                    '✅ Chấp thuận: Trừ phép và thông báo',
+                    '❌ Từ chối: Nêu lý do, đề xuất khác',
+                    '⏸️ Hoãn: Yêu cầu chọn ngày khác'
+                ],
+                response: 'Phản hồi trong vòng 24 giờ.'
+            },
+            'deduct-leave': {
+                title: '📉 Trừ phép tự động',
+                actor: 'Hệ thống',
+                duration: 'Tức thì',
+                description: 'Khi phê duyệt, hệ thống tự động trừ số ngày phép.',
+                calculation: `
+Trước:  8 ngày phép còn lại
+Trừ:   -5 ngày (nghỉ 15-20/09)
+Sau:    3 ngày phép còn lại
+                `,
+                attendance: 'Tự động đánh dấu điểm danh các ngày nghỉ = "Phép năm"',
+                salary: 'Nghỉ phép năm vẫn được hưởng lương đầy đủ.'
+            },
+            'notify-employee': {
+                title: '📧 Thông báo kết quả',
+                actor: 'Hệ thống',
+                duration: 'Tức thì',
+                description: 'Gửi email thông báo quyết định cho nhân viên.',
+                approved: `
+Chúc mừng! Đơn xin nghỉ của bạn đã được duyệt.
+
+Từ: 15/09/2024
+Đến: 20/09/2024
+Loại: Phép năm
+
+Phép còn lại: 3 ngày
+
+Chúc bạn nghỉ ngơi tốt!
+                `,
+                rejected: 'Nêu lý do từ chối rõ ràng và đề xuất giải pháp thay thế.'
+            },
+            'collect-data': {
+                title: '📋 Thu thập dữ liệu tháng',
+                actor: 'Nhân viên lương',
+                duration: '2-3 giờ',
+                description: 'Thu thập tất cả dữ liệu cần thiết để tính lương.',
+                data: [
+                    '📊 Điểm danh: Số ngày làm việc thực tế',
+                    '⏱️ Giờ dạy: Tổng giờ giảng dạy (giáo viên)',
+                    '🏖️ Nghỉ phép: Phép năm, ốm, không lương',
+                    '🎁 Thưởng: KPI, dự án hoàn thành',
+                    '📉 Phạt: Đi trễ, vi phạm quy định'
+                ],
+                verification: 'Đối chiếu với các bộ phận liên quan để đảm bảo chính xác.',
+                deadline: 'Hoàn thành trước ngày 3 của tháng sau.'
+            },
+            'calculate-salary': {
+                title: '🧮 Tính lương',
+                actor: 'Nhân viên lương',
+                duration: '10 phút/người',
+                description: 'Tính tổng thu nhập dựa trên các thành phần.',
+                components: [
+                    '💵 Lương cơ bản: Theo hợp đồng',
+                    '⏱️ Lương giờ: Giờ dạy × đơn giá',
+                    '🎁 Phụ cấp: Đi lại, ăn trưa, điện thoại',
+                    '🏆 Thưởng: Hiệu suất, KPI',
+                    '💰 Làm thêm: Ngoài giờ, cuối tuần'
+                ],
+                example: `
+Giáo viên Nguyễn Văn B:
+
+Lương cơ bản:        8,000,000 VND
+Giờ dạy (80h × 150K): 12,000,000 VND
+Thưởng hiệu suất:    2,000,000 VND
+─────────────────────────────────
+TỔNG THU NHẬP:      22,000,000 VND
+                `
+            },
+            'calculate-deductions': {
+                title: '📉 Tính khấu trừ',
+                actor: 'Nhân viên lương',
+                duration: '5 phút/người',
+                description: 'Tính các khoản bảo hiểm và thuế theo quy định.',
+                deductions: [
+                    '🏥 BHXH (8%): Bảo hiểm xã hội',
+                    '💊 BHYT (1.5%): Bảo hiểm y tế',
+                    '💼 BHTN (1%): Bảo hiểm thất nghiệp',
+                    '💰 Thuế TNCN: Thuế thu nhập cá nhân'
+                ],
+                calculation: `
+Tổng thu nhập:      22,000,000 VND
+
+Bảo hiểm:
+- BHXH (8%):         1,760,000 VND
+- BHYT (1.5%):         330,000 VND
+- BHTN (1%):           220,000 VND
+Tổng BHXH:           2,310,000 VND
+
+Thu nhập tính thuế:
+22,000,000 - 2,310,000 - 11,000,000 = 8,690,000 VND
+
+Thuế TNCN:
+- Bậc 1 (5M × 5%):     250,000 VND
+- Bậc 2 (3.69M × 10%): 369,000 VND
+Tổng thuế:             619,000 VND
+                `,
+                vietnam: 'Tuân thủ 100% luật lao động Việt Nam.'
+            },
+            'generate-payslip': {
+                title: '📄 Tạo phiếu lương',
+                actor: 'Hệ thống',
+                duration: 'Tức thì',
+                description: 'Tự động tạo phiếu lương PDF chi tiết cho mỗi nhân viên.',
+                content: [
+                    'Thông tin nhân viên',
+                    'Tháng lương',
+                    'Thu nhập chi tiết',
+                    'Khấu trừ chi tiết',
+                    'Lương thực nhận',
+                    'Thông tin chuyển khoản'
+                ],
+                net: `
+─────────────────────────────────
+LƯƠNG THỰC NHẬN:    18,071,000 VND
+─────────────────────────────────
+
+Ngày trả: 10/10/2024
+Tài khoản: VCB 1234567890
+                `,
+                confidential: '⚠️ Phiếu lương là tài liệu mật, chỉ gửi cho từng người.'
+            },
+            'hr-review': {
+                title: '👀 HR kiểm tra',
+                actor: 'Quản lý HR',
+                duration: '1-2 giờ',
+                description: 'HR xem xét tất cả phiếu lương trước khi phê duyệt.',
+                checks: [
+                    '✓ Số liệu điểm danh chính xác',
+                    '✓ Giờ dạy khớp với lịch',
+                    '✓ Phép đã trừ đúng',
+                    '✓ Thưởng/phạt hợp lý',
+                    '✓ Thuế tính đúng',
+                    '✓ Không có số âm',
+                    '✓ Tổng số tiền hợp lý'
+                ],
+                distribution: 'Xem phân bố lương: Có ai bất thường không?',
+                questions: 'Liên hệ Nhân viên lương nếu có thắc mắc.'
+            },
+            'approval-decision': {
+                title: '❓ Quyết định phê duyệt',
+                actor: 'Quản lý HR',
+                duration: '30 phút',
+                description: 'Quyết định chấp thuận hoặc yêu cầu chỉnh sửa.',
+                approve: [
+                    '✅ Mọi thứ chính xác → Phê duyệt',
+                    '❌ Có sai sót → Trả lại sửa',
+                    '⚠️ Cần kiểm tra thêm → Đình hoãn'
+                ],
+                signoff: 'Khi duyệt = chịu trách nhiệm về tính chính xác.',
+                timeline: 'Phải duyệt trước ngày 8 để kịp trả lương ngày 10.'
+            },
+            'send-payslips': {
+                title: '📧 Gửi phiếu lương',
+                actor: 'Hệ thống',
+                duration: 'Tức thì',
+                description: 'Gửi phiếu lương PDF qua email riêng cho từng nhân viên.',
+                email: `
+Chủ đề: Phiếu lương tháng 9/2024
+
+Kính gửi Anh/Chị,
+
+Phiếu lương tháng 9 đã sẵn sàng.
+
+Lương thực nhận: 18,071,000 VND
+Ngày trả: 10/10/2024
+
+File đính kèm: Payslip_Sep2024_NguyenVanB.pdf
+
+Thắc mắc xin liên hệ HR.
+                `,
+                security: 'Email riêng tư, không gửi chung.',
+                timing: 'Gửi ngày 8, trả lương ngày 10 = 2 ngày để hỏi nếu có thắc mắc.'
+            },
+            'prepare-payment': {
+                title: '💰 Chuẩn bị chi trả',
+                actor: 'Kế toán',
+                duration: '30 phút',
+                description: 'Tạo file chuyển khoản hàng loạt cho ngân hàng.',
+                file: [
+                    'Format: CSV hoặc Excel',
+                    'Cột: STK, Tên, Số tiền, Nội dung',
+                    'Kiểm tra: Không thiếu người, số tiền đúng'
+                ],
+                example: `
+STK,Tên,Số tiền,Nội dung
+1234567890,Nguyen Van B,18071000,Luong T9/2024
+9876543210,Tran Thi C,15230000,Luong T9/2024
+...
+                `,
+                total: 'Tổng: 243,000,000 VND cho 25 nhân viên',
+                verify: 'Kiểm tra kỹ trước khi upload lên ngân hàng.'
+            },
+            'bank-transfer': {
+                title: '🏦 Chuyển lương hàng loạt',
+                actor: 'Kế toán',
+                duration: '30 phút',
+                description: 'Upload file và thực hiện chuyển khoản qua ngân hàng.',
+                process: [
+                    'Đăng nhập Internet Banking doanh nghiệp',
+                    'Chọn "Chuyển khoản hàng loạt"',
+                    'Upload file CSV',
+                    'Kiểm tra danh sách',
+                    'Xác nhận với OTP',
+                    'Ngân hàng xử lý (1-2 giờ)',
+                    'Nhận kết quả'
+                ],
+                security: [
+                    '⚠️ Cần 2 người ủy quyền',
+                    '⚠️ Kiểm tra kỹ số tiền',
+                    '⚠️ Lưu chứng từ giao dịch'
+                ],
+                timing: 'Chuyển sáng ngày 10 → Nhân viên nhận trưa/chiều cùng ngày.'
+            },
+            'confirm-paid': {
+                title: '✅ Xác nhận đã trả lương',
+                actor: 'Hệ thống',
+                duration: 'Tức thì',
+                description: 'Đánh dấu chu kỳ lương đã hoàn tất.',
+                actions: [
+                    'Cập nhật Payslip.status = "paid"',
+                    'Ghi log chi trả',
+                    'Lưu file chứng từ ngân hàng',
+                    'Đóng chu kỳ lương tháng này',
+                    'Không thể sửa đổi nữa'
+                ],
+                archive: 'Dữ liệu lương được lưu trữ vĩnh viễn để audit.',
+                next: 'Bắt đầu thu thập dữ liệu cho tháng tiếp theo.'
+            }
+        };
+
+        // Add click handlers
+        document.querySelectorAll('.step-node').forEach(node => {
+            node.addEventListener('click', function() {
+                const stepId = this.getAttribute('data-step');
+                if (stepId) {
+                    showStepDetails(stepId);
+                    document.querySelectorAll('.step-node').forEach(n => n.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        function showStepDetails(stepId) {
+            const panel = document.getElementById('infoPanel');
+            const content = document.getElementById('panelContent');
+            const title = document.getElementById('panelTitle');
+            const details = stepDetails[stepId];
+
+            if (!details) return;
+
+            title.textContent = details.title;
+
+            let html = `
+                <div class="detail">
+                    <div class="label">👤 Người thực hiện</div>
+                    <div class="value">${details.actor}</div>
+                </div>
+                <div class="detail">
+                    <div class="label">⏱️ Thời gian</div>
+                    <div class="value">${details.duration}</div>
+                </div>
+                <div class="detail">
+                    <div class="label">📋 Mô tả</div>
+                    <div class="value">${details.description}</div>
+                </div>
+            `;
+
+            for (const [key, value] of Object.entries(details)) {
+                if (['title', 'actor', 'duration', 'description'].includes(key)) continue;
+
+                const label = formatKey(key);
+                if (Array.isArray(value)) {
+                    html += `
+                        <div class="detail">
+                            <div class="label">${label}</div>
+                            <div class="value">
+                                <ul style="margin: 5px 0; padding-left: 20px;">
+                                    ${value.map(item => `<li>${item}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                } else if (typeof value === 'string') {
+                    html += `
+                        <div class="detail">
+                            <div class="label">${label}</div>
+                            <div class="value" style="white-space: pre-line;">${value}</div>
+                        </div>
+                    `;
+                }
+            }
+
+            content.innerHTML = html;
+            panel.classList.add('show');
+        }
+
+        function formatKey(key) {
+            const translations = {
+                'methods': '📱 Phương thức',
+                'recorded': '📊 Ghi nhận',
+                'late': '⚠️ Đi trễ',
+                'roles': '👥 Vai trò',
+                'tracking': '⏱️ Theo dõi',
+                'process': '⚙️ Quy trình',
+                'calculation': '🧮 Tính toán',
+                'important': '⚠️ Quan trọng',
+                'earlyLeave': '⚠️ Về sớm',
+                'form': '📝 Mẫu đơn',
+                'balance': '📊 Số dư phép',
+                'timing': '⏰ Thời gian',
+                'check': '✓ Kiểm tra',
+                'insufficient': '⚠️ Không đủ phép',
+                'considerations': '🤔 Cân nhắc',
+                'decision': '🎯 Quyết định',
+                'response': '⏱️ Phản hồi',
+                'attendance': '📊 Điểm danh',
+                'salary': '💰 Lương',
+                'approved': '✅ Đã duyệt',
+                'rejected': '❌ Từ chối',
+                'data': '📊 Dữ liệu',
+                'verification': '✓ Xác minh',
+                'deadline': '⏰ Hạn chót',
+                'components': '🧩 Thành phần',
+                'example': '📝 Ví dụ',
+                'deductions': '📉 Khấu trừ',
+                'vietnam': '🇻🇳 Quy định VN',
+                'content': '📄 Nội dung',
+                'net': '💰 Thực nhận',
+                'confidential': '🔒 Bảo mật',
+                'checks': '✓ Kiểm tra',
+                'distribution': '📊 Phân bố',
+                'questions': '❓ Thắc mắc',
+                'approve': '✅ Phê duyệt',
+                'signoff': '✍️ Ký duyệt',
+                'timeline': '⏱️ Thời gian',
+                'email': '📧 Email',
+                'security': '🔒 Bảo mật',
+                'file': '📄 File',
+                'total': '💰 Tổng cộng',
+                'verify': '✓ Xác minh',
+                'actions': '🎬 Hành động',
+                'archive': '📦 Lưu trữ',
+                'next': '➡️ Tiếp theo'
+            };
+            return translations[key] || key;
+        }
+
+        function closePanel() {
+            document.getElementById('infoPanel').classList.remove('show');
+            document.querySelectorAll('.step-node').forEach(n => n.classList.remove('active'));
+        }
+
+        document.addEventListener('click', function(e) {
+            const panel = document.getElementById('infoPanel');
+            if (!e.target.closest('.step-node') && !e.target.closest('.info-panel')) {
+                panel.classList.remove('show');
+                document.querySelectorAll('.step-node').forEach(n => n.classList.remove('active'));
+            }
+        });
+    </script>
+</body>
+</html>

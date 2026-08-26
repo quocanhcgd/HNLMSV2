@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WF-05: Online & Hybrid Learning - Sơ đồ Tương tác</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 15px 30px;
+            border: 3px solid #e2e8f0;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .mode-btn.offline {
+            border-color: #ff9800;
+        }
+
+        .mode-btn.online {
+            border-color: #2196f3;
+        }
+
+        .mode-btn.hybrid {
+            border-color: #9c27b0;
+        }
+
+        .mode-btn.flexible {
+            border-color: #4caf50;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #f7fafc;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .workflow-canvas {
+            position: relative;
+            min-height: 800px;
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 40px;
+            overflow-x: auto;
+        }
+
+        .phase-section {
+            margin-bottom: 50px;
+            display: none;
+        }
+
+        .phase-section.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .phase-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .steps-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px 0;
+            align-items: flex-start;
+        }
+
+        .step-node {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 220px;
+            flex: 1;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .step-node:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .step-node.active {
+            border-color: #667eea;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .step-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .step-desc {
+            color: #718096;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .step-actor {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background: #edf2f7;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            color: #4a5568;
+            display: inline-block;
+        }
+
+        .connector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #cbd5e0;
+            min-width: 40px;
+        }
+
+        .offline-node {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+        }
+
+        .online-node {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+
+        .hybrid-node {
+            background: #f3e5f5;
+            border-left: 4px solid #9c27b0;
+        }
+
+        .decision-node {
+            background: #fff9c4;
+            border: 3px dashed #fbc02d;
+        }
+
+        .emergency-node {
+            background: #ffebee;
+            border: 3px solid #f44336;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3); }
+            50% { box-shadow: 0 8px 30px rgba(244, 67, 54, 0.5); }
+        }
+
+        .info-panel {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            width: 450px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 25px;
+            max-height: 85vh;
+            overflow-y: auto;
+            opacity: 0;
+            transform: translateX(500px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .info-panel.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .info-panel h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .info-panel .detail {
+            margin-bottom: 15px;
+        }
+
+        .info-panel .label {
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 5px;
+        }
+
+        .info-panel .value {
+            color: #718096;
+            line-height: 1.6;
+        }
+
+        .close-panel {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #a0aec0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .close-panel:hover {
+            background: #edf2f7;
+            color: #2d3748;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 30px 0;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .comparison-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .comparison-table tr:hover {
+            background: #f7fafc;
+        }
+
+        .check {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .cross {
+            color: #f44336;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .info-panel {
+                width: calc(100% - 40px);
+                right: 20px;
+            }
+
+            .steps-container {
+                flex-direction: column;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎥 WF-05: Online & Hybrid Learning</h1>
+        <p class="subtitle">Hệ thống học linh hoạt - Offline, Online, Hybrid & Flexible - Click để khám phá</p>
+
+        <div class="mode-selector">
+            <button class="mode-btn offline active" data-mode="offline">
+                🏢 Offline<br><small>Lớp truyền thống</small>
+            </button>
+            <button class="mode-btn online" data-mode="online">
+                🎥 Online<br><small>Video conferencing</small>
+            </button>
+            <button class="mode-btn hybrid" data-mode="hybrid">
+                🔀 Hybrid<br><small>Kết hợp cả hai</small>
+            </button>
+            <button class="mode-btn flexible" data-mode="flexible">
+                ⚡ Flexible<br><small>Học viên tự chọn</small>
+            </button>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ff9800;"></div>
+                <span>Offline</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #2196f3;"></div>
+                <span>Online</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #9c27b0;"></div>
+                <span>Hybrid</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #f44336;"></div>
+                <span>Emergency</span>
+            </div>
+        </div>
+
+        <div class="workflow-canvas">
+            <!-- Offline Mode -->
+            <div class="phase-section active" data-mode="offline">
+                <div class="phase-header">
+                    🏢 Offline Mode - Lớp học truyền thống tại trung tâm
+                </div>
+
+                <div class="steps-container">
+                    <div class="step-node offline-node" data-step="offline-setup">
+                        <div class="step-icon">🚪</div>
+                        <div class="step-title">Giao phòng học</div>
+                        <div class="step-desc">Phân bổ phòng học vật lý</div>
+                        <div class="step-actor">👔 Academic Manager</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node offline-node" data-step="offline-teacher-arrive">
+                        <div class="step-icon">👨‍🏫</div>
+                        <div class="step-title">Giáo viên đến lớp</div>
+                        <div class="step-desc">Check-in và chuẩn bị</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node offline-node" data-step="offline-attendance">
+                        <div class="step-icon">✓</div>
+                        <div class="step-title">Điểm danh</div>
+                        <div class="step-desc">Kiểm tra sĩ số học viên</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node offline-node" data-step="offline-teach">
+                        <div class="step-icon">📚</div>
+                        <div class="step-title">Giảng dạy</div>
+                        <div class="step-desc">Buổi học diễn ra</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node offline-node" data-step="offline-end">
+                        <div class="step-icon">⏰</div>
+                        <div class="step-title">Kết thúc</div>
+                        <div class="step-desc">Ghi chú và tổng kết</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+                </div>
+
+                <div class="phase-header" style="margin-top: 30px; background: linear-gradient(135deg, #f44336 0%, #e91e63 100%);">
+                    ⚠️ Emergency Mode Switch - Chuyển khẩn cấp sang Online
+                </div>
+
+                <div class="steps-container">
+                    <div class="step-node emergency-node" data-step="emergency-trigger">
+                        <div class="step-icon">🚨</div>
+                        <div class="step-title">Sự kiện khẩn cấp</div>
+                        <div class="step-desc">COVID-19, thiên tai, v.v.</div>
+                        <div class="step-actor">⚠️ Emergency</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node emergency-node" data-step="emergency-decide">
+                        <div class="step-icon">❗</div>
+                        <div class="step-title">Quyết định chuyển</div>
+                        <div class="step-desc">Branch Manager quyết định</div>
+                        <div class="step-actor">👔 Branch Manager</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node online-node" data-step="emergency-setup">
+                        <div class="step-icon">⚡</div>
+                        <div class="step-title">Setup online nhanh</div>
+                        <div class="step-desc">Tạo meeting room tự động</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node online-node" data-step="emergency-notify">
+                        <div class="step-icon">📢</div>
+                        <div class="step-title">Thông báo khẩn</div>
+                        <div class="step-desc">Email, SMS, push notification</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node online-node" data-step="emergency-continue">
+                        <div class="step-icon">▶️</div>
+                        <div class="step-title">Tiếp tục online</div>
+                        <div class="step-desc">Học như bình thường</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên & 👥 Học viên</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Online Mode -->
+            <div class="phase-section" data-mode="online">
+                <div class="phase-header">
+                    🎥 Online Mode - Học hoàn toàn qua video conferencing
+                </div>
+
+                <div class="steps-container">
+                    <div class="step-node online-node" data-step="online-setup">
+                        <div class="step-icon">🌐</div>
+                        <div class="step-title">Chọn platform</div>
+                        <div class="step-desc">Zoom, Google Meet, MS Teams</div>
+                        <div class="step-actor">👔 Academic Manager</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node online-node" data-step="online-create-meeting">
+                        <div class="step-icon">📹</div>
+                        <div class="step-title">Tạo meeting room</div>
+                        <div class="step-desc">Recurring meeting với lịch</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node online-node" data-step="online-send-link">
+                        <div class="step-icon">🔗</div>
+                        <div class="step-title">Gửi link học</div>
+                        <div class="step-desc">Email + SMS cho học viên</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node online-node" data-step="online-teacher-login">
+                        <div class="step-icon">🔑</div>
+                        <div class="step-title">Giáo viên vào trước</div>
+                        <div class="step-desc">10 phút trước để test</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+                </div>
+
+                <div class="steps-container" style="margin-top: 20px;">
+                    <div class="step-node online-node" data-step="online-start-record">
+                        <div class="step-icon">🔴</div>
+                        <div class="step-title">Bắt đầu recording</div>
+                        <div class="step-desc">Ghi lại buổi học</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node online-node" data-step="online-attendance">
+                        <div class="step-icon">✓</div>
+                        <div class="step-title">Điểm danh tự động</div>
+                        <div class="step-desc">Sync từ meeting platform</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node online-node" data-step="online-teach">
+                        <div class="step-icon">📚</div>
+                        <div class="step-title">Giảng dạy online</div>
+                        <div class="step-desc">Chia sẻ màn hình, tương tác</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node online-node" data-step="online-save">
+                        <div class="step-icon">💾</div>
+                        <div class="step-title">Lưu recording</div>
+                        <div class="step-desc">Process và upload</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node online-node" data-step="online-available">
+                        <div class="step-icon">📺</div>
+                        <div class="step-title">Có sẵn xem lại</div>
+                        <div class="step-desc">Học viên có thể xem lại</div>
+                        <div class="step-actor">👥 Học viên</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hybrid Mode -->
+            <div class="phase-section" data-mode="hybrid">
+                <div class="phase-header">
+                    🔀 Hybrid Mode - Kết hợp Online và Offline theo lịch
+                </div>
+
+                <div class="steps-container">
+                    <div class="step-node hybrid-node" data-step="hybrid-setup">
+                        <div class="step-icon">⚙️</div>
+                        <div class="step-title">Thiết lập hybrid</div>
+                        <div class="step-desc">Định nghĩa lịch học</div>
+                        <div class="step-actor">👔 Academic Manager</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node hybrid-node" data-step="hybrid-schedule">
+                        <div class="step-icon">📅</div>
+                        <div class="step-title">Lịch hybrid</div>
+                        <div class="step-desc">T2,T4,T6: Online | T3,T5: Offline</div>
+                        <div class="step-actor">👔 Academic Manager</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node hybrid-node" data-step="hybrid-notify">
+                        <div class="step-icon">📧</div>
+                        <div class="step-title">Thông báo lịch</div>
+                        <div class="step-desc">Gửi lịch chi tiết cho học viên</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+                </div>
+
+                <div class="phase-header" style="margin-top: 30px;">
+                    📆 Buổi học theo lịch
+                </div>
+
+                <div class="steps-container">
+                    <div class="step-node decision-node" data-step="hybrid-check-day">
+                        <div class="step-icon">❓</div>
+                        <div class="step-title">Kiểm tra ngày</div>
+                        <div class="step-desc">Hôm nay online hay offline?</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+
+                    <div class="connector">↓</div>
+
+                    <div style="display: flex; gap: 40px; width: 100%;">
+                        <div style="flex: 1;">
+                            <div class="step-node online-node" data-step="hybrid-online-day">
+                                <div class="step-icon">🎥</div>
+                                <div class="step-title">Nếu online</div>
+                                <div class="step-desc">Theo quy trình online</div>
+                                <div class="step-actor">🤖 Hệ thống</div>
+                            </div>
+                        </div>
+
+                        <div style="flex: 1;">
+                            <div class="step-node offline-node" data-step="hybrid-offline-day">
+                                <div class="step-icon">🏢</div>
+                                <div class="step-title">Nếu offline</div>
+                                <div class="step-desc">Theo quy trình offline</div>
+                                <div class="step-actor">🤖 Hệ thống</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="phase-header" style="margin-top: 30px;">
+                    📊 Ví dụ lịch Hybrid
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Thứ</th>
+                            <th>Mode</th>
+                            <th>Địa điểm</th>
+                            <th>Ghi chú</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Thứ 2</td>
+                            <td>🎥 Online</td>
+                            <td>Zoom Meeting</td>
+                            <td>Học viên join từ nhà</td>
+                        </tr>
+                        <tr>
+                            <td>Thứ 3</td>
+                            <td>🏢 Offline</td>
+                            <td>Phòng 301</td>
+                            <td>Học tại trung tâm</td>
+                        </tr>
+                        <tr>
+                            <td>Thứ 4</td>
+                            <td>🎥 Online</td>
+                            <td>Zoom Meeting</td>
+                            <td>Học viên join từ nhà</td>
+                        </tr>
+                        <tr>
+                            <td>Thứ 5</td>
+                            <td>🏢 Offline</td>
+                            <td>Phòng 301</td>
+                            <td>Học tại trung tâm</td>
+                        </tr>
+                        <tr>
+                            <td>Thứ 6</td>
+                            <td>🎥 Online</td>
+                            <td>Zoom Meeting</td>
+                            <td>Học viên join từ nhà</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Flexible Mode -->
+            <div class="phase-section" data-mode="flexible">
+                <div class="phase-header">
+                    ⚡ Flexible Mode - Học viên tự chọn mỗi buổi
+                </div>
+
+                <div class="steps-container">
+                    <div class="step-node hybrid-node" data-step="flexible-setup">
+                        <div class="step-icon">🎯</div>
+                        <div class="step-title">Setup linh hoạt</div>
+                        <div class="step-desc">Chuẩn bị cả 2 options</div>
+                        <div class="step-actor">👔 Academic Manager</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node hybrid-node" data-step="flexible-prepare-both">
+                        <div class="step-icon">🔄</div>
+                        <div class="step-title">Chuẩn bị cả hai</div>
+                        <div class="step-desc">Phòng học + Meeting room</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node hybrid-node" data-step="flexible-notify">
+                        <div class="step-icon">📧</div>
+                        <div class="step-title">Thông báo tùy chọn</div>
+                        <div class="step-desc">Học viên biết có thể chọn</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+                </div>
+
+                <div class="phase-header" style="margin-top: 30px;">
+                    🗓️ 24 giờ trước buổi học
+                </div>
+
+                <div class="steps-container">
+                    <div class="step-node decision-node" data-step="flexible-remind">
+                        <div class="step-icon">⏰</div>
+                        <div class="step-title">Nhắc học viên chọn</div>
+                        <div class="step-desc">Email/SMS reminder</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node hybrid-node" data-step="flexible-student-choose">
+                        <div class="step-icon">✋</div>
+                        <div class="step-title">Học viên chọn</div>
+                        <div class="step-desc">Online hoặc Offline?</div>
+                        <div class="step-actor">👥 Học viên</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node hybrid-node" data-step="flexible-record">
+                        <div class="step-icon">📝</div>
+                        <div class="step-title">Ghi nhận lựa chọn</div>
+                        <div class="step-desc">Lưu vào database</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node hybrid-node" data-step="flexible-confirm">
+                        <div class="step-icon">✅</div>
+                        <div class="step-title">Xác nhận</div>
+                        <div class="step-desc">Gửi thông tin chi tiết</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+                </div>
+
+                <div class="phase-header" style="margin-top: 30px;">
+                    📊 Ngày học - Phân chia
+                </div>
+
+                <div class="steps-container">
+                    <div style="display: flex; gap: 40px; width: 100%;">
+                        <div style="flex: 1;">
+                            <div class="step-node online-node" data-step="flexible-online-group">
+                                <div class="step-icon">🎥</div>
+                                <div class="step-title">Nhóm Online</div>
+                                <div class="step-desc">Join Zoom meeting</div>
+                                <div class="step-actor">👥 Nhóm A</div>
+                            </div>
+                        </div>
+
+                        <div style="flex: 1;">
+                            <div class="step-node offline-node" data-step="flexible-offline-group">
+                                <div class="step-icon">🏢</div>
+                                <div class="step-title">Nhóm Offline</div>
+                                <div class="step-desc">Đến phòng 301</div>
+                                <div class="step-actor">👥 Nhóm B</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="connector" style="width: 100%; text-align: center; margin: 20px 0;">↓</div>
+
+                    <div class="step-node hybrid-node" data-step="flexible-teach-both">
+                        <div class="step-icon">👨‍🏫</div>
+                        <div class="step-title">Giáo viên dạy cả hai</div>
+                        <div class="step-desc">Tại phòng + Stream online đồng thời</div>
+                        <div class="step-actor">👨‍🏫 Giáo viên</div>
+                    </div>
+                </div>
+
+                <div class="phase-header" style="margin-top: 30px;">
+                    💡 Lợi ích Flexible Mode
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Stakeholder</th>
+                            <th>Lợi ích</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>👥 Học viên</td>
+                            <td>Linh hoạt tối đa, phù hợp lịch làm việc, thời tiết, sức khỏe</td>
+                        </tr>
+                        <tr>
+                            <td>👨‍🏫 Giáo viên</td>
+                            <td>Dạy một lần cho cả hai nhóm, không phải repeat</td>
+                        </tr>
+                        <tr>
+                            <td>🏢 Trung tâm</td>
+                            <td>Tăng student satisfaction, giảm absence rate</td>
+                        </tr>
+                        <tr>
+                            <td>💰 Doanh thu</td>
+                            <td>Thu hút thêm học viên bận rộn, xa trung tâm</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="phase-header" style="margin-top: 40px; background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);">
+            📊 So sánh các Mode
+        </div>
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Tiêu chí</th>
+                    <th>Offline</th>
+                    <th>Online</th>
+                    <th>Hybrid</th>
+                    <th>Flexible</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Cần phòng học</strong></td>
+                    <td><span class="check">✓</span> Luôn</td>
+                    <td><span class="cross">✗</span> Không</td>
+                    <td><span class="check">✓</span> Một phần</td>
+                    <td><span class="check">✓</span> Luôn (backup)</td>
+                </tr>
+                <tr>
+                    <td><strong>Cần meeting platform</strong></td>
+                    <td><span class="cross">✗</span> Không</td>
+                    <td><span class="check">✓</span> Luôn</td>
+                    <td><span class="check">✓</span> Một phần</td>
+                    <td><span class="check">✓</span> Luôn</td>
+                </tr>
+                <tr>
+                    <td><strong>Recording</strong></td>
+                    <td><span class="cross">✗</span> Không</td>
+                    <td><span class="check">✓</span> Có</td>
+                    <td><span class="check">✓</span> Buổi online</td>
+                    <td><span class="check">✓</span> Có (stream)</td>
+                </tr>
+                <tr>
+                    <td><strong>Linh hoạt cho học viên</strong></td>
+                    <td>Thấp</td>
+                    <td>Trung bình</td>
+                    <td>Cao</td>
+                    <td>Rất cao</td>
+                </tr>
+                <tr>
+                    <td><strong>Độ phức tạp setup</strong></td>
+                    <td>Thấp</td>
+                    <td>Trung bình</td>
+                    <td>Cao</td>
+                    <td>Rất cao</td>
+                </tr>
+                <tr>
+                    <td><strong>Chi phí vận hành</strong></td>
+                    <td>Cao (phòng)</td>
+                    <td>Thấp</td>
+                    <td>Trung bình</td>
+                    <td>Cao (cả hai)</td>
+                </tr>
+                <tr>
+                    <td><strong>Phù hợp khi nào?</strong></td>
+                    <td>Bình thường</td>
+                    <td>Lockdown, xa</td>
+                    <td>Kết hợp tốt nhất</td>
+                    <td>Premium service</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="info-panel" id="infoPanel">
+        <button class="close-panel" onclick="closePanel()">×</button>
+        <h3 id="panelTitle">Chi tiết bước</h3>
+        <div id="panelContent"></div>
+    </div>
+
+    <script>
+        const stepDetails = {
+            'offline-setup': {
+                title: '🚪 Giao phòng học',
+                actor: 'Academic Manager',
+                duration: '5 phút',
+                description: 'Phân bổ phòng học vật lý cho lớp',
+                details: `
+Kiểm tra:
+- Sức chứa phòng: Đủ cho số học viên
+- Thiết bị: Máy chiếu, bảng, ghế
+- Lịch trống: Không conflict với lớp khác
+- Vị trí: Thuận tiện cho học viên
+
+Hệ thống tự động detect conflict và suggest phòng phù hợp.
+                `
+            },
+            'offline-teacher-arrive': {
+                title: '👨‍🏫 Giáo viên đến lớp',
+                actor: 'Giáo viên',
+                duration: '10 phút trước giờ',
+                description: 'Giáo viên check-in và chuẩn bị',
+                details: `
+Chuẩn bị:
+✓ Giáo án, tài liệu
+✓ Kiểm tra thiết bị (projector, speaker)
+✓ Viết bảng outline bài học
+✓ Chuẩn bị handouts (nếu có)
+
+Giáo viên check-in qua app hoặc receptionist ghi nhận.
+                `
+            },
+            'offline-attendance': {
+                title: '✓ Điểm danh offline',
+                actor: 'Giáo viên',
+                duration: '5 phút',
+                description: 'Kiểm tra sĩ số học viên có mặt',
+                details: `
+Phương thức điểm danh:
+1. Manual: Giáo viên gọi tên
+2. QR Code: Học viên scan QR
+3. RFID: Chạm thẻ
+4. Face Recognition: Camera AI (future)
+
+Hệ thống ghi nhận:
+- Có mặt
+- Vắng (có phép / không phép)
+- Đến trễ (ghi thời gian)
+                `
+            },
+            'offline-teach': {
+                title: '📚 Giảng dạy offline',
+                actor: 'Giáo viên',
+                duration: '90 phút',
+                description: 'Buổi học diễn ra tại lớp',
+                details: `
+Quy trình chuẩn:
+1. Warm-up (5-10 phút)
+2. Review bài cũ (10 phút)
+3. Present bài mới (30 phút)
+4. Practice (30 phút)
+5. Production (10 phút)
+6. Wrap-up (5 phút)
+
+Tương tác trực tiếp, hands-on activities, group work.
+                `
+            },
+            'offline-end': {
+                title: '⏰ Kết thúc buổi học',
+                actor: 'Giáo viên',
+                duration: '5 phút',
+                description: 'Ghi chú và tổng kết buổi học',
+                details: `
+Giáo viên ghi nhận:
+- Nội dung đã cover
+- Bài tập về nhà
+- Học viên outstanding/struggling
+- Issues cần follow-up
+- Ghi chú cho buổi sau
+
+Hệ thống lưu session notes vào class log.
+                `
+            },
+            'emergency-trigger': {
+                title: '🚨 Sự kiện khẩn cấp',
+                actor: 'External Event',
+                duration: 'Bất ngờ',
+                description: 'COVID-19, thiên tai, bảo trì tòa nhà',
+                details: `
+Các tình huống trigger Emergency Mode:
+- COVID-19 lockdown
+- Thiên tai (bão, lụt, động đất)
+- Bảo trì/sửa chữa tòa nhà khẩn cấp
+- Giáo viên ốm (nhưng có thể dạy từ nhà)
+- Học viên phải cách ly
+
+Mục tiêu: Không gián đoạn học tập!
+                `
+            },
+            'emergency-decide': {
+                title: '❗ Quyết định chuyển đổi',
+                actor: 'Branch Manager',
+                duration: '15 phút',
+                description: 'Đánh giá và quyết định',
+                details: `
+Branch Manager cân nhắc:
+- Mức độ nghiêm trọng của sự kiện
+- Thời gian dự kiến kéo dài
+- Khả năng học online của học viên
+- Giáo viên có thể adapt không
+
+Quyết định: Chuyển ngay hay chờ đợi?
+                `
+            },
+            'emergency-setup': {
+                title: '⚡ Setup online khẩn cấp',
+                actor: 'Hệ thống tự động',
+                duration: '5 phút',
+                description: 'Tạo meeting room tự động',
+                details: `
+Hệ thống tự động:
+1. Tạo Zoom/Meet room với lịch recurring
+2. Generate meeting link
+3. Chuẩn bị email/SMS templates
+4. Backup config hiện tại
+
+Không cần IT staff can thiệp - hoàn toàn tự động!
+                `
+            },
+            'emergency-notify': {
+                title: '📢 Thông báo khẩn cấp',
+                actor: 'Hệ thống',
+                duration: 'Tức thì',
+                description: 'Thông báo multi-channel',
+                details: `
+Gửi đồng thời qua:
+📧 Email: Chi tiết đầy đủ + hướng dẫn
+📱 SMS: Thông báo ngắn gọn + link
+📲 Push Notification: Alert urgent
+🔔 In-app: Hiện banner đỏ
+
+Nội dung bao gồm:
+- Lý do chuyển đổi
+- Meeting link mới
+- Hướng dẫn join
+- Contact hỗ trợ
+                `
+            },
+            'emergency-continue': {
+                title: '▶️ Tiếp tục online',
+                actor: 'Giáo viên & Học viên',
+                duration: 'Như bình thường',
+                description: 'Học như không có gì xảy ra',
+                details: `
+Học viên:
+- Join meeting từ nhà/bất cứ đâu
+- Vẫn có tương tác đầy đủ
+- Recording sẵn để xem lại
+
+Giáo viên:
+- Adapt teaching method cho online
+- Share screen, whiteboard
+- Sử dụng breakout rooms
+
+Mục tiêu: Business continuity!
+                `
+            },
+            'online-setup': {
+                title: '🌐 Chọn platform',
+                actor: 'Academic Manager',
+                duration: '1 phút',
+                description: 'Chọn video conferencing platform',
+                details: `
+Options:
+- Zoom: Phổ biến nhất, tính năng đầy đủ
+- Google Meet: Tích hợp Google Workspace
+- MS Teams: Tích hợp Microsoft 365
+
+Tiêu chí chọn:
+- Ngân sách
+- Features cần thiết
+- IT infrastructure hiện có
+- User familiarity
+                `
+            },
+            'online-create-meeting': {
+                title: '📹 Tạo meeting room',
+                actor: 'Hệ thống',
+                duration: 'Tức thì',
+                description: 'Tạo recurring meeting tự động',
+                details: `
+Hệ thống tự động:
+1. Call Zoom/Meet API
+2. Create recurring meeting với lịch của class
+3. Set security: Waiting room, password
+4. Enable recording
+5. Set co-hosts
+
+Meeting room cố định cho cả khóa học → Học viên nhớ link!
+                `
+            },
+            'online-send-link': {
+                title: '🔗 Gửi link học',
+                actor: 'Hệ thống',
+                duration: '1 phút',
+                description: 'Email + SMS meeting link cho học viên',
+                details: `
+Email gửi kèm:
+- Meeting link (clickable)
+- Meeting ID & Password
+- Lịch học
+- Hướng dẫn join (có ảnh)
+- System requirements
+- Support contact
+
+SMS backup: Link ngắn + Meeting ID
+
+Gửi trước 3 ngày khóa học bắt đầu.
+                `
+            },
+            'online-teacher-login': {
+                title: '🔑 Giáo viên vào sớm',
+                actor: 'Giáo viên',
+                duration: '10 phút trước',
+                description: 'Test và chuẩn bị',
+                details: `
+Checklist cho giáo viên:
+✓ Test camera, mic, speaker
+✓ Kiểm tra internet speed
+✓ Chuẩn bị materials (slides, videos)
+✓ Test screen share
+✓ Tắt notifications
+
+Best practice: Vào sớm 10 phút để học viên không phải chờ.
+                `
+            },
+            'online-start-record': {
+                title: '🔴 Bắt đầu recording',
+                actor: 'Giáo viên',
+                duration: '5 giây',
+                description: 'Ghi lại buổi học',
+                details: `
+Recording options:
+- Cloud recording: Tự động upload
+- Local recording: Lưu máy giáo viên
+
+Settings:
+✓ Record video
+✓ Record audio
+✓ Record shared screen
+✓ Record active speaker view
+
+Thông báo "Recording" hiện cho mọi người.
+                `
+            },
+            'online-attendance': {
+                title: '✓ Điểm danh tự động',
+                actor: 'Hệ thống',
+                duration: 'Tự động',
+                description: 'Sync từ meeting platform',
+                details: `
+Hệ thống tự động:
+1. Webhook từ Zoom/Meet khi user join
+2. Match participant name/email với học viên
+3. Ghi nhận thời gian join & leave
+4. Tính duration
+5. Xác định: On time / Late / Absent
+
+Giáo viên không cần manual tracking!
+                `
+            },
+            'online-teach': {
+                title: '📚 Giảng dạy online',
+                actor: 'Giáo viên',
+                duration: '90 phút',
+                description: 'Buổi học online tương tác',
+                details: `
+Online teaching techniques:
+- Screen share presentations
+- Virtual whiteboard
+- Breakout rooms (group work)
+- Polls & quizzes (tương tác)
+- Chat (Q&A real-time)
+- Share resources (files, links)
+
+Tips:
+- Encourage camera on
+- Frequent check for understanding
+- Interactive activities every 15 phút
+- Use participant names often
+                `
+            },
+            'online-save': {
+                title: '💾 Lưu recording',
+                actor: 'Hệ thống',
+                duration: '30-60 phút',
+                description: 'Process và upload recording',
+                details: `
+Processing pipeline:
+1. Download từ Zoom/Meet cloud
+2. Transcode: 720p (default), 480p, 360p
+3. Generate thumbnail (frame at 1 minute)
+4. Extract audio track
+5. AI generate transcript (Whisper)
+6. Generate subtitles (VTT)
+7. Upload to storage (S3/local)
+8. Create database record
+
+Hoàn tất trong 1 giờ sau buổi học.
+                `
+            },
+            'online-available': {
+                title: '📺 Xem lại bất cứ lúc nào',
+                actor: 'Học viên',
+                duration: 'Theo nhu cầu',
+                description: 'Recording available trong Digital Library',
+                details: `
+Học viên có thể:
+- Xem lại toàn bộ buổi học
+- Tua tới/lui, tăng/giảm tốc độ
+- Đọc transcript
+- Bật subtitles
+- Bookmark các phần quan trọng
+- Take notes tại timestamp
+
+Lợi ích:
+- Học viên vắng không bị bỏ lỡ
+- Review trước thi
+- Học lại phần khó
+                `
+            },
+            'hybrid-setup': {
+                title: '⚙️ Thiết lập Hybrid',
+                actor: 'Academic Manager',
+                duration: '15 phút',
+                description: 'Config hybrid schedule',
+                details: `
+Quyết định:
+1. Ngày nào online? Ngày nào offline?
+2. Tỷ lệ: 50-50, 60-40, hay khác?
+3. Pattern: Tuần 1 online, tuần 2 offline?
+4. Hay: T2/T4/T6 online, T3/T5 offline?
+
+Nguyên tắc:
+- Balance giữa hai mode
+- Predictable pattern
+- Easy to remember
+                `
+            },
+            'hybrid-schedule': {
+                title: '📅 Lịch Hybrid cụ thể',
+                actor: 'Academic Manager',
+                duration: '5 phút',
+                description: 'Định nghĩa lịch chi tiết',
+                details: `
+Ví dụ lịch A:
+- Thứ 2: Online (Zoom)
+- Thứ 3: Offline (Phòng 301)
+- Thứ 4: Online (Zoom)
+- Thứ 5: Offline (Phòng 301)
+- Thứ 6: Online (Zoom)
+
+Lịch này repeat mỗi tuần trong cả khóa học.
+
+Học viên biết trước lịch → Plan ahead!
+                `
+            },
+            'hybrid-notify': {
+                title: '📧 Gửi lịch Hybrid',
+                actor: 'Hệ thống',
+                duration: 'Tức thì',
+                description: 'Thông báo chi tiết cho học viên',
+                details: `
+Email bao gồm:
+- Full schedule (calendar format)
+- Online: Meeting link
+- Offline: Địa chỉ, phòng học
+- ICS file (add to calendar)
+- Reminder: Check trước mỗi buổi
+
+Gửi:
+- Lúc enrollment
+- 1 tuần trước khóa học bắt đầu
+- Reminder 1 ngày trước mỗi buổi
+                `
+            },
+            'hybrid-check-day': {
+                title: '❓ Kiểm tra hôm nay',
+                actor: 'Hệ thống',
+                duration: 'Tự động',
+                description: 'Check session hôm nay online hay offline',
+                details: `
+Hệ thống query database:
+- Session hôm nay là gì?
+- Check hybrid_schedule config
+- Xác định delivery_mode
+
+Then:
+- Nếu online: Show meeting link
+- Nếu offline: Show room location
+
+Học viên xem trong app/email reminder.
+                `
+            },
+            'hybrid-online-day': {
+                title: '🎥 Ngày học Online',
+                actor: 'Hệ thống',
+                duration: '90 phút',
+                description: 'Follow online workflow',
+                details: `
+Quy trình online hoàn chỉnh:
+1. Giáo viên login Zoom
+2. Start recording
+3. Học viên join từ nhà
+4. Auto attendance
+5. Teach online
+6. Save recording
+7. Available for review
+
+Giống hệt online mode!
+                `
+            },
+            'hybrid-offline-day': {
+                title: '🏢 Ngày học Offline',
+                actor: 'Hệ thống',
+                duration: '90 phút',
+                description: 'Follow offline workflow',
+                details: `
+Quy trình offline hoàn chỉnh:
+1. Giáo viên đến lớp
+2. Setup thiết bị
+3. Học viên đến trung tâm
+4. Điểm danh manual/QR
+5. Teach offline
+6. Session notes
+
+Giống hệt offline mode!
+                `
+            },
+            'flexible-setup': {
+                title: '🎯 Setup Flexible Mode',
+                actor: 'Academic Manager',
+                duration: '20 phút',
+                description: 'Chuẩn bị cho cả hai options',
+                details: `
+Setup yêu cầu:
+✓ Phòng học vật lý (backup)
+✓ Meeting room online
+✓ Streaming equipment (nếu dạy cả hai đồng thời)
+✓ Policy: Deadline chọn, số lần đổi, etc.
+
+Phức tạp hơn nhưng flexibility cao nhất!
+                `
+            },
+            'flexible-prepare-both': {
+                title: '🔄 Sẵn sàng cả hai',
+                actor: 'Hệ thống',
+                duration: 'Trước mỗi session',
+                description: 'Giữ cả phòng và meeting room',
+                details: `
+Mỗi buổi học:
+- Phòng học: Reserved (just in case)
+- Meeting room: Created & ready
+- Giáo viên: Biết có thể có cả hai nhóm
+
+Cost: Cao hơn (giữ phòng dù có thể không dùng)
+Benefit: Học viên hài lòng hơn!
+                `
+            },
+            'flexible-notify': {
+                title: '📧 Thông báo Flexible',
+                actor: 'Hệ thống',
+                duration: 'Enrollment time',
+                description: 'Giải thích flexible option',
+                details: `
+Email welcome:
+"Chào mừng bạn đến lớp Flexible!
+
+Mỗi buổi học, bạn có thể TỰ CHỌN:
+🎥 Online: Join Zoom từ nhà
+🏢 Offline: Đến trung tâm
+
+Cách chọn:
+- 24 giờ trước mỗi buổi, bạn sẽ nhận reminder
+- Click chọn Online hoặc Offline
+- Hệ thống gửi thông tin chi tiết
+
+Linh hoạt tối đa!"
+                `
+            },
+            'flexible-remind': {
+                title: '⏰ Nhắc học viên chọn',
+                actor: 'Hệ thống',
+                duration: '24h trước',
+                description: 'Auto reminder',
+                details: `
+Email/SMS/Push:
+"🔔 Nhắc nhở: Buổi học ngày mai
+
+Vui lòng chọn cách học:
+[  Online  ] [  Offline  ]
+
+⏰ Vui lòng chọn trước 6pm hôm nay
+(Nếu không chọn, mặc định = Online)"
+
+Action buttons trong email/app để chọn nhanh.
+                `
+            },
+            'flexible-student-choose': {
+                title: '✋ Học viên quyết định',
+                actor: 'Học viên',
+                duration: '1 phút',
+                description: 'Chọn online hoặc offline',
+                details: `
+Học viên cân nhắc:
+- Lịch làm việc ngày mai
+- Thời tiết
+- Sức khỏe
+- Khoảng cách đến trung tâm
+- Preference cá nhân
+
+Click button → Done!
+
+Có thể đổi ý trong vòng 12 giờ trước buổi học.
+                `
+            },
+            'flexible-record': {
+                title: '📝 Ghi nhận lựa chọn',
+                actor: 'Hệ thống',
+                duration: 'Tức thì',
+                description: 'Save student choice',
+                details: `
+Database record:
+- Student ID
+- Session ID
+- Choice: Online / Offline
+- Chosen at: Timestamp
+- Can change until: 12h before
+
+Hệ thống aggregate:
+- Bao nhiêu học viên chọn online?
+- Bao nhiêu chọn offline?
+- Giáo viên cần chuẩn bị gì?
+                `
+            },
+            'flexible-confirm': {
+                title: '✅ Xác nhận chi tiết',
+                actor: 'Hệ thống',
+                duration: 'Tức thì',
+                description: 'Gửi thông tin cụ thể',
+                details: `
+Nếu chọn ONLINE:
+"✅ Đã ghi nhận: BẠN HỌC ONLINE
+
+🎥 Meeting link: [link]
+⏰ Thời gian: 18:00 ngày mai
+💡 Join sớm 5 phút nhé!"
+
+Nếu chọn OFFLINE:
+"✅ Đã ghi nhận: BẠN HỌC OFFLINE
+
+🏢 Địa điểm: Tầng 3, Phòng 301
+⏰ Thời gian: 18:00 ngày mai
+💡 Đến sớm 10 phút để check-in!"
+                `
+            },
+            'flexible-online-group': {
+                title: '🎥 Nhóm Online',
+                actor: 'Học viên nhóm A',
+                duration: '90 phút',
+                description: 'Join Zoom meeting',
+                details: `
+Học viên online:
+- Join meeting từ nhà/văn phòng/cafe
+- Camera on (encouraged)
+- Mic on khi cần speak
+- Tương tác qua chat, polls
+
+Giáo viên thấy họ trên screen trong phòng học.
+                `
+            },
+            'flexible-offline-group': {
+                title: '🏢 Nhóm Offline',
+                actor: 'Học viên nhóm B',
+                duration: '90 phút',
+                description: 'Đến trung tâm',
+                details: `
+Học viên offline:
+- Đến phòng 301
+- Check-in tại reception
+- Ngồi trong lớp
+- Tương tác trực tiếp với giáo viên
+
+Giáo viên dạy face-to-face cho nhóm này.
+                `
+            },
+            'flexible-teach-both': {
+                title: '👨‍🏫 Dạy cả hai đồng thời',
+                actor: 'Giáo viên',
+                duration: '90 phút',
+                description: 'Hybrid teaching',
+                details: `
+Setup trong phòng:
+- Camera quay giáo viên
+- Mic pickup giọng nói
+- Screen share slides
+- Speakers để nghe online students
+
+Giáo viên:
+- Dạy cho offline students trực tiếp
+- Đồng thời stream cho online students
+- Tương tác với cả hai nhóm
+- Check chat để answer online questions
+
+Challenge: Cần kỹ năng multitasking!
+Benefit: Teach once, reach all!
+                `
+            }
+        };
+
+        // Mode switching
+        const modeButtons = document.querySelectorAll('.mode-btn');
+        const phaseSections = document.querySelectorAll('.phase-section');
+
+        modeButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const mode = this.getAttribute('data-mode');
+
+                // Update active button
+                modeButtons.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                // Show corresponding section
+                phaseSections.forEach(section => {
+                    if (section.getAttribute('data-mode') === mode) {
+                        section.classList.add('active');
+                    } else {
+                        section.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // Step details
+        document.querySelectorAll('.step-node').forEach(node => {
+            node.addEventListener('click', function() {
+                const stepId = this.getAttribute('data-step');
+                if (stepId && stepDetails[stepId]) {
+                    showStepDetails(stepId);
+                    document.querySelectorAll('.step-node').forEach(n => n.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        function showStepDetails(stepId) {
+            const panel = document.getElementById('infoPanel');
+            const content = document.getElementById('panelContent');
+            const title = document.getElementById('panelTitle');
+            const details = stepDetails[stepId];
+
+            title.textContent = details.title;
+
+            let html = `
+                <div class="detail">
+                    <div class="label">👤 Người thực hiện</div>
+                    <div class="value">${details.actor}</div>
+                </div>
+                <div class="detail">
+                    <div class="label">⏱️ Thời gian</div>
+                    <div class="value">${details.duration}</div>
+                </div>
+                <div class="detail">
+                    <div class="label">📋 Mô tả</div>
+                    <div class="value">${details.description}</div>
+                </div>
+                <div class="detail">
+                    <div class="label">📝 Chi tiết</div>
+                    <div class="value" style="white-space: pre-line;">${details.details}</div>
+                </div>
+            `;
+
+            content.innerHTML = html;
+            panel.classList.add('show');
+        }
+
+        function closePanel() {
+            document.getElementById('infoPanel').classList.remove('show');
+            document.querySelectorAll('.step-node').forEach(n => n.classList.remove('active'));
+        }
+
+        document.addEventListener('click', function(e) {
+            const panel = document.getElementById('infoPanel');
+            if (!e.target.closest('.step-node') && !e.target.closest('.info-panel')) {
+                panel.classList.remove('show');
+                document.querySelectorAll('.step-node').forEach(n => n.classList.remove('active'));
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WF-07: AI-Powered Assessment & Grading - Sơ đồ Tương tác</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: linear-gradient(135deg, #f3e5f5 0%, #fce4ec 100%);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #9c27b0;
+            display: block;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .assignment-type-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .type-btn {
+            padding: 12px 25px;
+            border: 3px solid #e2e8f0;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .type-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+
+        .type-btn.active {
+            background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
+            color: white;
+            border-color: #9c27b0;
+        }
+
+        .workflow-canvas {
+            position: relative;
+            min-height: 800px;
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 40px;
+            overflow-x: auto;
+        }
+
+        .phase-section {
+            margin-bottom: 50px;
+            display: none;
+        }
+
+        .phase-section.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .phase-header {
+            background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3);
+        }
+
+        .steps-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px 0;
+            align-items: flex-start;
+        }
+
+        .step-node {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 200px;
+            flex: 1;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            position: relative;
+        }
+
+        .step-node:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .step-node.active {
+            border-color: #9c27b0;
+            box-shadow: 0 8px 25px rgba(156, 39, 176, 0.3);
+        }
+
+        .step-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .step-desc {
+            color: #718096;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .step-time {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background: #edf2f7;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            color: #4a5568;
+            display: inline-block;
+        }
+
+        .connector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #cbd5e0;
+            min-width: 40px;
+        }
+
+        .create-node {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+        }
+
+        .ai-node {
+            background: #f3e5f5;
+            border-left: 4px solid #9c27b0;
+        }
+
+        .ai-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .student-node {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+
+        .teacher-node {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+        }
+
+        .analytics-node {
+            background: #fff9c4;
+            border-left: 4px solid #fbc02d;
+        }
+
+        .decision-node {
+            background: #ffebee;
+            border: 3px dashed #f44336;
+        }
+
+        .split-flow {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .split-column {
+            flex: 1;
+        }
+
+        .info-panel {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            width: 450px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 25px;
+            max-height: 85vh;
+            overflow-y: auto;
+            opacity: 0;
+            transform: translateX(500px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .info-panel.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .info-panel h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .info-panel .detail {
+            margin-bottom: 15px;
+        }
+
+        .info-panel .label {
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 5px;
+        }
+
+        .info-panel .value {
+            color: #718096;
+            line-height: 1.6;
+        }
+
+        .close-panel {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #a0aec0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .close-panel:hover {
+            background: #edf2f7;
+            color: #2d3748;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        .comparison-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.9rem;
+        }
+
+        .comparison-table tr:hover {
+            background: #f7fafc;
+        }
+
+        .check {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .cross {
+            color: #f44336;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .info-panel {
+                width: calc(100% - 40px);
+                right: 20px;
+            }
+
+            .steps-container {
+                flex-direction: column;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .split-flow {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 WF-07: AI-Powered Assessment & Grading</h1>
+        <p class="subtitle">AI tự động chấm bài, tiết kiệm 50-70% thời gian giáo viên - Click để khám phá</p>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-number">50-70%</span>
+                <div class="stat-label">Time Saved</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">85-95%</span>
+                <div class="stat-label">AI Accuracy</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">24h → 1h</span>
+                <div class="stat-label">Faster Feedback</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">4.5/5</span>
+                <div class="stat-label">Satisfaction</div>
+            </div>
+        </div>
+
+        <div class="assignment-type-selector">
+            <button class="type-btn active" data-type="overview">
+                📊 Overview
+            </button>
+            <button class="type-btn" data-type="multiple-choice">
+                ☑️ Multiple Choice
+            </button>
+            <button class="type-btn" data-type="essay">
+                📝 Essay
+            </button>
+            <button class="type-btn" data-type="speaking">
+                🎤 Speaking
+            </button>
+            <button class="type-btn" data-type="code">
+                💻 Code
+            </button>
+        </div>
+
+        <div class="workflow-canvas">
+            <!-- Overview Flow -->
+            <div class="phase-section active" data-type="overview">
+                <div class="phase-header">
+                    📝 Phase 1: Tạo Assignment
+                </div>
+
+                <div class="steps-container">
+                    <div class="step-node decision-node" data-step="create-how">
+                        <div class="step-icon">❓</div>
+                        <div class="step-title">Tạo như thế nào?</div>
+                        <div class="step-desc">Manual hoặc AI Generate?</div>
+                        <div class="step-time">⏱️ 1 giây</div>
+                    </div>
+                </div>
+
+                <div class="split-flow">
+                    <div class="split-column">
+                        <div class="step-node create-node" data-step="manual-create">
+                            <div class="step-icon">✍️</div>
+                            <div class="step-title">Manual Create</div>
+                            <div class="step-desc">Giáo viên tự tạo</div>
+                            <div class="step-time">⏱️ 30-60 phút</div>
+                        </div>
+                    </div>
+
+                    <div class="split-column">
+                        <div class="step-node ai-node" data-step="ai-generate">
+                            <div class="ai-badge">AI</div>
+                            <div class="step-icon">🤖</div>
+                            <div class="step-title">AI Generate</div>
+                            <div class="step-desc">AI tạo tự động</div>
+                            <div class="step-time">⏱️ 10-30 giây</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="phase-header" style="margin-top: 30px;">
+                    👥 Phase 2: Student Submission
+                </div>
+
+                <div class="steps-container">
+                    <div class="step-node student-node" data-step="student-start">
+                        <div class="step-icon">▶️</div>
+                        <div class="step-title">Bắt đầu làm bài</div>
+                        <div class="step-desc">Student opens assignment</div>
+                        <div class="step-time">⏱️ Varies</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node student-node" data-step="student-work">
+                        <div class="step-icon">✏️</div>
+                        <div class="step-title">Làm bài</div>
+                        <div class="step-desc">Complete questions</div>
+                        <div class="step-time">⏱️ 30-90 phút</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node student-node" data-step="student-submit">
+                        <div class="step-icon">📤</div>
+                        <div class="step-title">Submit</div>
+                        <div class="step-desc">Nộp bài</div>
+                        <div class="step-time">⏱️ Tức thì</div>
+                    </div>
+                </div>
+
+                <div class="phase-header" style="margin-top: 30px;">
+                    🤖 Phase 3: AI Auto-Grading
+                </div>
+
+                <div class="steps-container">
+                    <div class="step-node ai-node" data-step="ai-grade">
+                        <div class="ai-badge">AI</div>
+                        <div class="step-icon">✓</div>
+                        <div class="step-title">AI Grades</div>
+                        <div class="step-desc">Tự động chấm</div>
+                        <div class="step-time">⏱️ 5-30 giây</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node ai-node" data-step="ai-feedback">
+                        <div class="ai-badge">AI</div>
+                        <div class="step-icon">💬</div>
+                        <div class="step-title">Generate Feedback</div>
+                        <div class="step-desc">Chi tiết, cá nhân hóa</div>
+                        <div class="step-time">⏱️ 5-10 giây</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node teacher-node" data-step="teacher-review">
+                        <div class="step-icon">👨‍🏫</div>
+                        <div class="step-title">Teacher Review</div>
+                        <div class="step-desc">Verify & adjust (optional)</div>
+                        <div class="step-time">⏱️ 2-5 phút</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node teacher-node" data-step="publish-grade">
+                        <div class="step-icon">📢</div>
+                        <div class="step-title">Publish Grade</div>
+                        <div class="step-desc">Học viên nhận kết quả</div>
+                        <div class="step-time">⏱️ Tức thì</div>
+                    </div>
+                </div>
+
+                <div class="phase-header" style="margin-top: 30px;">
+                    📊 Phase 4: Analytics & Insights
+                </div>
+
+                <div class="steps-container">
+                    <div class="step-node analytics-node" data-step="analyze-results">
+                        <div class="step-icon">📊</div>
+                        <div class="step-title">Analyze Results</div>
+                        <div class="step-desc">Class performance</div>
+                        <div class="step-time">⏱️ Real-time</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node ai-node" data-step="ai-insights">
+                        <div class="ai-badge">AI</div>
+                        <div class="step-icon">💡</div>
+                        <div class="step-title">AI Insights</div>
+                        <div class="step-desc">Patterns, gaps, predictions</div>
+                        <div class="step-time">⏱️ Daily</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node analytics-node" data-step="early-intervention">
+                        <div class="step-icon">⚠️</div>
+                        <div class="step-title">Early Intervention</div>
+                        <div class="step-desc">Alert for struggling students</div>
+                        <div class="step-time">⏱️ Immediate</div>
+                    </div>
+                </div>
+
+                <div class="phase-header" style="margin-top: 30px;">
+                    📊 So sánh các loại Assignment
+                </div>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Assignment Type</th>
+                            <th>Auto-Grade</th>
+                            <th>AI Accuracy</th>
+                            <th>Teacher Review</th>
+                            <th>Time Saved</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>☑️ Multiple Choice</td>
+                            <td><span class="check">✓ 100%</span></td>
+                            <td>100%</td>
+                            <td>Not needed</td>
+                            <td><strong>95%</strong></td>
+                        </tr>
+                        <tr>
+                            <td>📝 Essay</td>
+                            <td><span class="check">✓ Yes</span></td>
+                            <td>85-90%</td>
+                            <td>Recommended</td>
+                            <td><strong>60-70%</strong></td>
+                        </tr>
+                        <tr>
+                            <td>🎤 Speaking</td>
+                            <td><span class="check">✓ Yes</span></td>
+                            <td>80-85%</td>
+                            <td>Recommended</td>
+                            <td><strong>70-80%</strong></td>
+                        </tr>
+                        <tr>
+                            <td>💻 Code</td>
+                            <td><span class="check">✓ Yes</span></td>
+                            <td>90-95%</td>
+                            <td>Optional</td>
+                            <td><strong>80%</strong></td>
+                        </tr>
+                        <tr>
+                            <td>🎮 Interactive</td>
+                            <td><span class="check">✓ 100%</span></td>
+                            <td>100%</td>
+                            <td>Not needed</td>
+                            <td><strong>100%</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Multiple Choice Flow -->
+            <div class="phase-section" data-type="multiple-choice">
+                <div class="phase-header">
+                    ☑️ Multiple Choice - Instant Grading
+                </div>
+
+                <div class="steps-container">
+                    <div class="step-node create-node" data-step="mc-create">
+                        <div class="step-icon">✍️</div>
+                        <div class="step-title">Create Questions</div>
+                        <div class="step-desc">10-50 câu hỏi trắc nghiệm</div>
+                        <div class="step-time">⏱️ 30 phút</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node student-node" data-step="mc-submit">
+                        <div class="step-icon">☑️</div>
+                        <div class="step-title">Student Answers</div>
+                        <div class="step-desc">Chọn A, B, C, D</div>
+                        <div class="step-time">⏱️ 30-45 phút</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node ai-node" data-step="mc-grade">
+                        <div class="step-icon">⚡</div>
+                        <div class="step-title">Instant Grade</div>
+                        <div class="step-desc">Chấm tức thì, 100% chính xác</div>
+                        <div class="step-time">⏱️ < 1 giây</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node student-node" data-step="mc-result">
+                        <div class="step-icon">📊</div>
+                        <div class="step-title">View Results</div>
+                        <div class="step-desc">Điểm + đáp án đúng + giải thích</div>
+                        <div class="step-time">⏱️ Ngay lập tức</div>
+                    </div>
+                </div>
+
+                <div class="phase-header" style="margin-top: 30px;">
+                    💡 Benefits
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Benefit</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>⚡ <strong>Instant Feedback</strong></td>
+                            <td>Students get results immediately after submission</td>
+                        </tr>
+                        <tr>
+                            <td>✓ <strong>100% Accuracy</strong></td>
+                            <td>No human error in checking answers</td>
+                        </tr>
+                        <tr>
+                            <td>💰 <strong>Zero Cost</strong></td>
+                            <td>No AI API calls needed - simple comparison</td>
+                        </tr>
+                        <tr>
+                            <td>📊 <strong>Easy Analytics</strong></td>
+                            <td>Automatic question difficulty analysis</td>
+                        </tr>
+                        <tr>
+                            <td>🎯 <strong>Scalable</strong></td>
+                            <td>Grade 1000 students same time as 1 student</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Essay Flow -->
+            <div class="phase-section" data-type="essay">
+                <div class="phase-header">
+                    📝 Essay - AI-Powered Grading with Detailed Feedback
+                </div>
+
+                <div class="steps-container">
+                    <div class="step-node create-node" data-step="essay-prompt">
+                        <div class="step-icon">📝</div>
+                        <div class="step-title">Set Essay Prompt</div>
+                        <div class="step-desc">Define topic, requirements, rubric</div>
+                        <div class="step-time">⏱️ 10 phút</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node student-node" data-step="essay-write">
+                        <div class="step-icon">✍️</div>
+                        <div class="step-title">Student Writes</div>
+                        <div class="step-desc">200-500 words essay</div>
+                        <div class="step-time">⏱️ 45-60 phút</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node ai-node" data-step="essay-ai-grade">
+                        <div class="ai-badge">AI</div>
+                        <div class="step-icon">🤖</div>
+                        <div class="step-title">AI Grades Essay</div>
+                        <div class="step-desc">Analyze content, grammar, structure</div>
+                        <div class="step-time">⏱️ 10-20 giây</div>
+                    </div>
+                </div>
+
+                <div class="steps-container" style="margin-top: 20px;">
+                    <div class="step-node ai-node" data-step="essay-feedback">
+                        <div class="ai-badge">AI</div>
+                        <div class="step-icon">💬</div>
+                        <div class="step-title">Generate Feedback</div>
+                        <div class="step-desc">Detailed, personalized feedback</div>
+                        <div class="step-time">⏱️ 10 giây</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node teacher-node" data-step="essay-review">
+                        <div class="step-icon">👨‍🏫</div>
+                        <div class="step-title">Teacher Reviews</div>
+                        <div class="step-desc">Verify AI grade, adjust if needed</div>
+                        <div class="step-time">⏱️ 3-5 phút</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node teacher-node" data-step="essay-publish">
+                        <div class="step-icon">✅</div>
+                        <div class="step-title">Approve & Publish</div>
+                        <div class="step-desc">Student receives feedback</div>
+                        <div class="step-time">⏱️ Tức thì</div>
+                    </div>
+                </div>
+
+                <div class="phase-header" style="margin-top: 30px;">
+                    📊 AI Essay Feedback Example
+                </div>
+                <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <h4 style="color: #9c27b0; margin-bottom: 15px;">Bài luận: "My Hometown"</h4>
+
+                    <div style="margin-bottom: 15px;">
+                        <strong style="color: #2d3748;">📊 Overall Score: 32/40 (80%)</strong>
+                    </div>
+
+                    <table class="comparison-table" style="margin: 15px 0;">
+                        <thead>
+                            <tr>
+                                <th>Criterion</th>
+                                <th>Score</th>
+                                <th>Comments</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Content</td>
+                                <td><strong>8/10</strong></td>
+                                <td>Good ideas, relevant examples</td>
+                            </tr>
+                            <tr>
+                                <td>Grammar</td>
+                                <td><strong>7/10</strong></td>
+                                <td>Minor tense errors</td>
+                            </tr>
+                            <tr>
+                                <td>Structure</td>
+                                <td><strong>9/10</strong></td>
+                                <td>Clear paragraphs, good flow</td>
+                            </tr>
+                            <tr>
+                                <td>Vocabulary</td>
+                                <td><strong>8/10</strong></td>
+                                <td>Good variety, some repetition</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top: 15px;">
+                        <h4 style="color: #4caf50;">✓ Strengths:</h4>
+                        <ul style="color: #718096; line-height: 1.8;">
+                            <li>Clear thesis statement in introduction</li>
+                            <li>Good use of descriptive adjectives</li>
+                            <li>Well-organized paragraphs</li>
+                        </ul>
+                    </div>
+
+                    <div style="margin-top: 15px;">
+                        <h4 style="color: #f44336;">⚠️ Areas to Improve:</h4>
+                        <ul style="color: #718096; line-height: 1.8;">
+                            <li><strong>Tense consistency:</strong> "I live" vs "I lived" - be consistent with present tense</li>
+                            <li><strong>Word repetition:</strong> "beautiful" used 5 times - try: gorgeous, stunning, picturesque</li>
+                            <li><strong>Conclusion:</strong> Restate main points more clearly</li>
+                        </ul>
+                    </div>
+
+                    <div style="margin-top: 15px;">
+                        <h4 style="color: #2196f3;">💡 Suggestions:</h4>
+                        <ul style="color: #718096; line-height: 1.8;">
+                            <li>Add more specific details about your hometown</li>
+                            <li>Use transition words: Furthermore, Moreover, In addition</li>
+                            <li>Practice past tense for narrative sections</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Speaking Flow -->
+            <div class="phase-section" data-type="speaking">
+                <div class="phase-header">
+                    🎤 Speaking - AI Pronunciation & Fluency Assessment
+                </div>
+
+                <div class="steps-container">
+                    <div class="step-node create-node" data-step="speaking-prompt">
+                        <div class="step-icon">🎤</div>
+                        <div class="step-title">Set Speaking Task</div>
+                        <div class="step-desc">Topic, preparation time, duration</div>
+                        <div class="step-time">⏱️ 5 phút</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node student-node" data-step="speaking-prepare">
+                        <div class="step-icon">⏰</div>
+                        <div class="step-title">Preparation</div>
+                        <div class="step-desc">30-60 seconds to think</div>
+                        <div class="step-time">⏱️ 30-60 giây</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node student-node" data-step="speaking-record">
+                        <div class="step-icon">🔴</div>
+                        <div class="step-title">Record Response</div>
+                        <div class="step-desc">1-2 minutes speaking</div>
+                        <div class="step-time">⏱️ 1-2 phút</div>
+                    </div>
+                </div>
+
+                <div class="steps-container" style="margin-top: 20px;">
+                    <div class="step-node ai-node" data-step="speaking-stt">
+                        <div class="ai-badge">AI</div>
+                        <div class="step-icon">🎧</div>
+                        <div class="step-title">Speech-to-Text</div>
+                        <div class="step-desc">Transcribe with Whisper</div>
+                        <div class="step-time">⏱️ 5-10 giây</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node ai-node" data-step="speaking-pronunciation">
+                        <div class="ai-badge">AI</div>
+                        <div class="step-icon">🗣️</div>
+                        <div class="step-title">Analyze Pronunciation</div>
+                        <div class="step-desc">Accuracy, clarity</div>
+                        <div class="step-time">⏱️ 5 giây</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node ai-node" data-step="speaking-fluency">
+                        <div class="ai-badge">AI</div>
+                        <div class="step-icon">⚡</div>
+                        <div class="step-title">Analyze Fluency</div>
+                        <div class="step-desc">Speed, pauses, hesitations</div>
+                        <div class="step-time">⏱️ 3 giây</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node ai-node" data-step="speaking-grammar">
+                        <div class="ai-badge">AI</div>
+                        <div class="step-icon">✓</div>
+                        <div class="step-title">Check Grammar</div>
+                        <div class="step-desc">Errors in transcript</div>
+                        <div class="step-time">⏱️ 5 giây</div>
+                    </div>
+                </div>
+
+                <div class="steps-container" style="margin-top: 20px;">
+                    <div class="step-node ai-node" data-step="speaking-score">
+                        <div class="ai-badge">AI</div>
+                        <div class="step-icon">📊</div>
+                        <div class="step-title">Calculate Scores</div>
+                        <div class="step-desc">4 criteria: Pronunciation, Fluency, Grammar, Vocabulary</div>
+                        <div class="step-time">⏱️ 2 giây</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node teacher-node" data-step="speaking-verify">
+                        <div class="step-icon">👨‍🏫</div>
+                        <div class="step-title">Teacher Listens</div>
+                        <div class="step-desc">Verify AI assessment</div>
+                        <div class="step-time">⏱️ 3-5 phút</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node student-node" data-step="speaking-result">
+                        <div class="step-icon">📈</div>
+                        <div class="step-title">Detailed Report</div>
+                        <div class="step-desc">Scores + specific feedback</div>
+                        <div class="step-time">⏱️ View anytime</div>
+                    </div>
+                </div>
+
+                <div class="phase-header" style="margin-top: 30px;">
+                    📊 Speaking Assessment Breakdown
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Criterion</th>
+                            <th>Weight</th>
+                            <th>What AI Checks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Pronunciation</strong></td>
+                            <td>25/100</td>
+                            <td>Accuracy score, phoneme-level analysis, word stress</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Fluency</strong></td>
+                            <td>25/100</td>
+                            <td>Speech rate (130-170 wpm ideal), pause frequency, hesitations</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Grammar</strong></td>
+                            <td>25/100</td>
+                            <td>Tense errors, subject-verb agreement, sentence structure</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Vocabulary</strong></td>
+                            <td>25/100</td>
+                            <td>Variety, appropriateness, collocations, topic relevance</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Code Flow -->
+            <div class="phase-section" data-type="code">
+                <div class="phase-header">
+                    💻 Code - Auto-Test & AI Code Review
+                </div>
+
+                <div class="steps-container">
+                    <div class="step-node create-node" data-step="code-problem">
+                        <div class="step-icon">💻</div>
+                        <div class="step-title">Define Problem</div>
+                        <div class="step-desc">Description, test cases, constraints</div>
+                        <div class="step-time">⏱️ 15 phút</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node student-node" data-step="code-write">
+                        <div class="step-icon">⌨️</div>
+                        <div class="step-title">Student Codes</div>
+                        <div class="step-desc">Write solution</div>
+                        <div class="step-time">⏱️ 30-60 phút</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node student-node" data-step="code-submit">
+                        <div class="step-icon">📤</div>
+                        <div class="step-title">Submit Code</div>
+                        <div class="step-desc">Send for evaluation</div>
+                        <div class="step-time">⏱️ Tức thì</div>
+                    </div>
+                </div>
+
+                <div class="steps-container" style="margin-top: 20px;">
+                    <div class="step-node ai-node" data-step="code-test">
+                        <div class="step-icon">🧪</div>
+                        <div class="step-title">Run Test Cases</div>
+                        <div class="step-desc">Visible + Hidden tests</div>
+                        <div class="step-time">⏱️ 5-15 giây</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node ai-node" data-step="code-ai-review">
+                        <div class="ai-badge">AI</div>
+                        <div class="step-icon">🤖</div>
+                        <div class="step-title">AI Code Review</div>
+                        <div class="step-desc">Quality, efficiency, best practices</div>
+                        <div class="step-time">⏱️ 10-15 giây</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node ai-node" data-step="code-score">
+                        <div class="step-icon">📊</div>
+                        <div class="step-title">Calculate Score</div>
+                        <div class="step-desc">Tests (50%) + Quality (25%) + Efficiency (25%)</div>
+                        <div class="step-time">⏱️ Tức thì</div>
+                    </div>
+
+                    <div class="connector">→</div>
+
+                    <div class="step-node student-node" data-step="code-feedback">
+                        <div class="step-icon">💡</div>
+                        <div class="step-title">Detailed Feedback</div>
+                        <div class="step-desc">Test results + suggestions</div>
+                        <div class="step-time">⏱️ Instant</div>
+                    </div>
+                </div>
+
+                <div class="phase-header" style="margin-top: 30px;">
+                    📊 Code Grading Breakdown
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Weight</th>
+                            <th>Evaluation Method</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Correctness</strong></td>
+                            <td>50%</td>
+                            <td>Pass/fail on test cases (visible + hidden)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Code Quality</strong></td>
+                            <td>25%</td>
+                            <td>AI review: naming, structure, readability, comments</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Efficiency</strong></td>
+                            <td>25%</td>
+                            <td>Time complexity, space complexity, optimization</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 20px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <h4 style="color: #9c27b0; margin-bottom: 15px;">Example: Two Sum Problem</h4>
+                    <div style="background: #f7fafc; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <strong>Test Results:</strong> 10/10 passed ✓<br>
+                        <strong>Time:</strong> 0.23s / 1.00s limit ✓<br>
+                        <strong>Memory:</strong> 45MB / 100MB limit ✓
+                    </div>
+                    <div>
+                        <strong style="color: #4caf50;">Code Quality: 20/25</strong>
+                        <ul style="color: #718096; margin-top: 10px; line-height: 1.8;">
+                            <li>✓ Good variable names</li>
+                            <li>✓ Clear logic flow</li>
+                            <li>⚠️ Missing comments for complex logic</li>
+                        </ul>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <strong style="color: #2196f3;">Efficiency: 22/25</strong>
+                        <ul style="color: #718096; margin-top: 10px; line-height: 1.8;">
+                            <li>Time complexity: O(n) ✓ Optimal</li>
+                            <li>Space complexity: O(n) ✓ Acceptable</li>
+                            <li>💡 Suggestion: Could use two-pointer if array is sorted</li>
+                        </ul>
+                    </div>
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #e2e8f0;">
+                        <strong style="font-size: 1.2rem;">Total Score: 92/100</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-panel" id="infoPanel">
+        <button class="close-panel" onclick="closePanel()">×</button>
+        <h3 id="panelTitle">Chi tiết bước</h3>
+        <div id="panelContent"></div>
+    </div>
+
+    <script>
+        const stepDetails = {
+            'create-how': {
+                title: '❓ Chọn cách tạo',
+                actor: 'Teacher',
+                duration: '1 giây',
+                description: 'Manual hoặc AI Generate?',
+                details: `
+Hai options:
+
+1️⃣ Manual Create:
+- Teacher tự viết từng câu hỏi
+- Full control
+- Takes time: 30-60 phút
+- Best for: Specific, customized content
+
+2️⃣ AI Generate:
+- AI tạo tự động
+- Super fast: 10-30 giây
+- Teacher review & adjust
+- Best for: Practice exercises, quizzes
+
+Recommendation:
+- Use AI for practice/homework
+- Use Manual for important exams
+- Mix both for best results!
+                `
+            },
+            'manual-create': {
+                title: '✍️ Manual Create',
+                actor: 'Teacher',
+                duration: '30-60 phút',
+                description: 'Giáo viên tự tạo',
+                details: `
+Manual creation steps:
+1. Choose assignment type
+2. Write instructions
+3. Create questions one by one
+4. Set correct answers
+5. Write explanations
+6. Define rubric (if essay/speaking)
+7. Set duration, attempts
+8. Preview
+9. Publish
+
+Benefits:
+✓ Full control
+✓ Perfect for your class
+✓ Aligned with teaching
+
+Drawbacks:
+✗ Time-consuming
+✗ Repetitive work
+✗ Hard to scale
+
+Best for: Exams, important assessments
+                `
+            },
+            'ai-generate': {
+                title: '🤖 AI Generate',
+                actor: 'AI (GPT-4)',
+                duration: '10-30 giây',
+                description: 'AI tạo tự động',
+                details: `
+AI generation process:
+1. Teacher provides:
+   - Topic (e.g., "Present Simple Tense")
+   - Level (beginner/intermediate/advanced)
+   - Type (multiple choice, essay, etc.)
+   - Number of questions (10-50)
+   - Duration
+   - Focus areas (optional)
+
+2. AI generates:
+   - Complete questions
+   - Correct answers
+   - Distractors (for MC)
+   - Explanations
+   - Rubric (for essay)
+
+3. Teacher reviews:
+   - Check accuracy
+   - Adjust difficulty
+   - Edit if needed
+   - Approve
+
+Time saved: 80-90%!
+
+Example prompt:
+"Create 20 multiple choice questions about Present Simple Tense for intermediate students. Focus on affirmative, negative, and question forms."
+
+AI delivers in 15 seconds!
+                `
+            },
+            'student-submit': {
+                title: '📤 Student Submits',
+                actor: 'Student',
+                duration: 'Tức thì',
+                description: 'Nộp bài',
+                details: `
+Submission process:
+1. Student clicks "Submit"
+2. Confirm dialog: "Are you sure?"
+3. System saves submission
+4. Lock answers (no more changes)
+5. Timestamp recorded
+6. Queue for grading
+
+What happens next:
+- Multiple Choice → Instant grade
+- Essay → AI grading queue (10-30s)
+- Speaking → Processing queue (20-40s)
+- Code → Test execution (5-20s)
+
+Student sees:
+"✓ Submitted successfully
+Your assignment is being graded.
+You'll be notified when results are ready."
+
+For instant grading (MC):
+Results appear immediately!
+
+Time saved for students:
+No waiting days for feedback!
+                `
+            },
+            'ai-grade': {
+                title: '✓ AI Auto-Grades',
+                actor: 'AI System',
+                duration: '5-30 giây',
+                description: 'Tự động chấm điểm',
+                details: `
+AI grading by type:
+
+☑️ Multiple Choice:
+- Compare answers instantly
+- 100% accuracy
+- < 1 second
+
+📝 Essay:
+- AI analyzes text
+- Check grammar, structure, content
+- Score against rubric
+- 10-20 seconds
+
+🎤 Speaking:
+- Speech-to-text (Whisper)
+- Pronunciation analysis
+- Fluency calculation
+- Grammar check
+- 20-30 seconds
+
+💻 Code:
+- Run test cases
+- AI code review
+- Calculate scores
+- 10-20 seconds
+
+Accuracy:
+- MC/Interactive: 100%
+- Code: 90-95%
+- Essay: 85-90%
+- Speaking: 80-85%
+
+Why differences?
+Subjective content (essay, speaking) harder to grade perfectly. That's why teacher review recommended!
+                `
+            },
+            'ai-feedback': {
+                title: '💬 AI Feedback',
+                actor: 'AI (GPT-4)',
+                duration: '5-10 giây',
+                description: 'Chi tiết, cá nhân hóa',
+                details: `
+AI generates personalized feedback:
+
+For Essays:
+✓ Strengths (3-5 points)
+✗ Weaknesses (3-5 points)
+📝 Grammar errors with corrections
+📚 Good vocabulary used
+💡 Suggestions to improve (3-5 tips)
+📊 Overall feedback paragraph
+
+For Speaking:
+🗣️ Pronunciation tips (specific phonemes)
+⚡ Fluency improvements
+✓ Grammar corrections
+📚 Vocabulary suggestions
+💡 Practice recommendations
+
+For Code:
+✓ What works well
+⚠️ Potential issues
+💡 Optimization suggestions
+📚 Best practices violated
+🔗 Resources to learn more
+
+Personalization:
+- References student's specific mistakes
+- Considers student's level
+- Encouraging tone
+- Actionable advice
+
+Length: 200-400 words
+Tone: Supportive, constructive
+Language: Vietnamese or English (auto-detect)
+
+Students love it:
+"Better than generic comments!"
+                `
+            },
+            'teacher-review': {
+                title: '👨‍🏫 Teacher Review',
+                actor: 'Teacher',
+                duration: '2-5 phút',
+                description: 'Verify & adjust',
+                details: `
+Teacher review workflow:
+1. Open submission
+2. See student work
+3. See AI grade & feedback
+4. Review AI's assessment
+
+Options:
+✓ Approve: AI grade is good
+✏️ Adjust: Change score slightly
+🔄 Override: Change completely
+💬 Add comment: Additional feedback
+
+What teacher checks:
+- AI grade fair?
+- Feedback accurate?
+- Anything AI missed?
+- Cultural/context nuances?
+
+Typical adjustments:
+- Essay: ±2 points (on 40)
+- Speaking: ±3 points (on 100)
+- Code: ±5 points (on 100)
+
+Teacher adjustment rate:
+- 20% adjusted slightly
+- 10% adjusted significantly
+- 70% approved as-is
+
+Time saved:
+Manual grading essay: 10-15 minutes
+With AI: 2-5 minutes review
+Savings: 70%!
+
+Note: For MC/Interactive, no review needed - 100% accurate!
+                `
+            },
+            'publish-grade': {
+                title: '📢 Publish Grade',
+                actor: 'System',
+                duration: 'Tức thì',
+                description: 'Học viên nhận kết quả',
+                details: `
+Publishing actions:
+1. Mark as "graded"
+2. Make visible to student
+3. Send notifications:
+   📲 Push: "Your assignment has been graded"
+   📧 Email: Grade + feedback
+   🔔 In-app: Badge notification
+
+Student sees:
+📊 Score: 32/40 (80%)
+✓/✗ Per question breakdown (if MC)
+💬 Detailed feedback
+📈 Compared to class average
+🎯 Next steps suggestions
+
+Additional features:
+- Download feedback as PDF
+- View correct answers (if allowed)
+- See rubric scores
+- Request regrade (if disputes)
+
+Timing:
+- MC: Instant (on submit)
+- Others: 1-24 hours
+  - With AI: < 1 hour typically
+  - Manual only: 1-7 days
+
+Transparency:
+Student knows:
+- Who graded (AI vs Teacher)
+- When graded
+- Can see work + feedback side-by-side
+
+Privacy:
+- Only student + teacher see grade
+- Class average anonymized
+- No public ranking
+                `
+            },
+            'analyze-results': {
+                title: '📊 Analyze Results',
+                actor: 'System',
+                duration: 'Real-time',
+                description: 'Class performance',
+                details: `
+Analytics calculated:
+📈 Assignment-level:
+- Average score
+- Median score
+- Highest/Lowest
+- Pass rate (if threshold set)
+- Completion rate
+- Time to complete (average)
+
+📊 Question-level:
+- Correct rate per question
+- Most difficult questions
+- Most commonly wrong answers
+- Discrimination index
+
+👥 Student-level:
+- Individual scores
+- Rank in class (optional)
+- Improvement vs previous
+- Time spent
+
+Visualizations:
+- Score distribution histogram
+- Question difficulty chart
+- Student progress line chart
+- Comparison with previous assignments
+
+Exports:
+- Excel spreadsheet
+- CSV for further analysis
+- PDF report for management
+
+Updates:
+- Real-time as students submit
+- Refresh automatically
+- Historical data retained
+
+Use cases:
+- Identify struggling students
+- Find ineffective questions
+- Measure teaching effectiveness
+- Report to management
+                `
+            },
+            'ai-insights': {
+                title: '💡 AI Insights',
+                actor: 'AI (GPT-4)',
+                duration: 'Daily',
+                description: 'Patterns, gaps, predictions',
+                details: `
+AI analyzes patterns and generates insights:
+
+🎯 Performance Insights:
+"Question 5 has only 35% correct rate.
+Most students chose B instead of C.
+Suggestion: Re-teach concept of [X] before next assignment."
+
+👥 Student Insights:
+"5 students scored below 50% and are at risk.
+Common weakness: Grammar (Past Tense).
+Action: Assign remedial content or schedule 1-on-1."
+
+📊 Trend Insights:
+"Class average improved 15% vs last assignment.
+Keep up current teaching approach!"
+
+⚠️ Early Warning:
+"Student John Doe: 3 consecutive low scores (<60%).
+Risk: High dropout probability (85%).
+Recommended: Immediate intervention."
+
+🔮 Predictions:
+"Based on current trajectory, 80% of students will pass final exam.
+Students needing extra support: [List]"
+
+💡 Content Recommendations:
+"Students struggled with [Topic X].
+Recommended content:
+- Video: [Link]
+- Practice: [Link]
+- Reading: [Link]"
+
+Delivery:
+- Email digest (weekly)
+- Dashboard widgets
+- Mobile notifications
+- Downloadable reports
+
+Actionable:
+Every insight comes with specific actions!
+                `
+            },
+            'early-intervention': {
+                title: '⚠️ Early Intervention',
+                actor: 'System + Teacher',
+                duration: 'Immediate',
+                description: 'Alert for struggling students',
+                details: `
+Triggers for intervention:
+⚠️ Score < 60% on 2+ consecutive assignments
+⚠️ Declining trend (each assignment worse)
+⚠️ Multiple missing assignments
+⚠️ Low engagement (minimal time spent)
+⚠️ AI prediction: High dropout risk
+
+What happens:
+1. System flags student
+2. Notification to teacher (urgent)
+3. Notification to academic manager
+4. Auto-send support resources to student
+
+Intervention options:
+📚 Content:
+- Recommended videos/articles
+- Practice exercises
+- Remedial materials
+
+👥 Human:
+- Schedule 1-on-1 with teacher
+- Peer tutoring assignment
+- Learning strategy consultation
+
+🎯 Adjustments:
+- Extend deadlines
+- Reduce assignment load
+- Modify difficulty
+
+📊 Monitoring:
+- Weekly check-ins
+- Progress tracking
+- Reassess after 2 weeks
+
+Success rate:
+75%+ of flagged students improve after intervention!
+
+Prevention is key:
+Catch early → Easier to help
+Wait too long → Student gives up
+
+Real impact:
+Reduce dropout rate from 15% → 5%!
+                `
+            }
+        };
+
+        // Type switching
+        const typeButtons = document.querySelectorAll('.type-btn');
+        const phaseSections = document.querySelectorAll('.phase-section');
+
+        typeButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const type = this.getAttribute('data-type');
+
+                // Update active button
+                typeButtons.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                // Show corresponding section
+                phaseSections.forEach(section => {
+                    if (section.getAttribute('data-type') === type) {
+                        section.classList.add('active');
+                    } else {
+                        section.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // Step details
+        document.querySelectorAll('.step-node').forEach(node => {
+            node.addEventListener('click', function() {
+                const stepId = this.getAttribute('data-step');
+                if (stepId && stepDetails[stepId]) {
+                    showStepDetails(stepId);
+                    document.querySelectorAll('.step-node').forEach(n => n.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        function showStepDetails(stepId) {
+            const panel = document.getElementById('infoPanel');
+            const content = document.getElementById('panelContent');
+            const title = document.getElementById('panelTitle');
+            const details = stepDetails[stepId];
+
+            title.textContent = details.title;
+
+            let html = `
+                <div class="detail">
+                    <div class="label">👤 Thực hiện bởi</div>
+                    <div class="value">${details.actor}</div>
+                </div>
+                <div class="detail">
+                    <div class="label">⏱️ Thời gian</div>
+                    <div class="value">${details.duration}</div>
+                </div>
+                <div class="detail">
+                    <div class="label">📋 Mô tả</div>
+                    <div class="value">${details.description}</div>
+                </div>
+                <div class="detail">
+                    <div class="label">📝 Chi tiết đầy đủ</div>
+                    <div class="value" style="white-space: pre-line;">${details.details}</div>
+                </div>
+            `;
+
+            content.innerHTML = html;
+            panel.classList.add('show');
+        }
+
+        function closePanel() {
+            document.getElementById('infoPanel').classList.remove('show');
+            document.querySelectorAll('.step-node').forEach(n => n.classList.remove('active'));
+        }
+
+        document.addEventListener('click', function(e) {
+            const panel = document.getElementById('infoPanel');
+            if (!e.target.closest('.step-node') && !e.target.closest('.info-panel')) {
+                panel.classList.remove('show');
+                document.querySelectorAll('.step-node').forEach(n => n.classList.remove('active'));
+            }
+        });
+    </script>
+</body>
+</html>

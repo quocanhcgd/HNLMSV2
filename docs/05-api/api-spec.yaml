@@ -1,0 +1,2390 @@
+openapi: 3.0.3
+info:
+  title: EduCenter LMS API
+  version: 1.0.0
+  description: |
+    API chuẩn cho EduCenter LMS (on-premise). Mọi endpoint yêu cầu JWT bearer
+    trừ nhóm /public, /auth/login, /auth/forgot-password, /auth/reset-password,
+    /health và webhook tích hợp.
+
+    Quy ước chung:
+    - Base URL: https://<host>/api (reverse proxy qua Nginx)
+    - Timestamp: ISO 8601 (UTC)
+    - Tiền tệ: NUMERIC decimal, đơn vị theo organization.currency (mặc định VND)
+    - Lỗi: { "code", "message", "correlation_id", "details" }
+    - Pagination: ?page=1&page_size=50 → meta.total, meta.page, meta.page_size
+    - Idempotency: endpoint ghi dữ liệu tài chính/ghi danh nhận header Idempotency-Key
+    - Rate limit: 100 req/15 phút/IP; login 5 lần/15 phút
+    - Mọi endpoint business check scope (branch/class/student) + module effective state
+
+    Endpoint đánh dấu x-phase: thuộc roadmap (P2/P3), không nằm trong phạm vi MVP.
+  contact:
+    name: EduCenter LMS Vendor
+    email: support@lms-vendor.com
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://lms.example.edu.vn/api
+    description: Production (customer installation)
+
+tags:
+  - name: Health
+    description: Kiểm tra trạng thái hệ thống
+  - name: Auth
+    description: Đăng nhập, refresh, mật khẩu
+  - name: Me
+    description: Context người dùng hiện tại
+  - name: Organization
+    description: Tổ chức, chi nhánh, module, theme
+  - name: Users
+    description: Người dùng, vai trò, scope grants
+  - name: Academic
+    description: Department, program, course, class, schedule
+  - name: Students & Enrollment
+    description: Hồ sơ học viên, ghi danh
+  - name: Learning
+    description: Nội dung học liệu, thư viện
+  - name: Finance
+    description: Hóa đơn, thanh toán, hoàn tiền, phiếu thu
+  - name: Reports
+    description: Báo cáo (async)
+  - name: License
+    description: Kích hoạt và trạng thái license
+  - name: Public
+    description: Endpoint công khai (không cần auth)
+  - name: Integrations
+    description: Webhook thanh toán và tích hợp
+  - name: Addons
+    description: Endpoint addon (P2/P3)
+  - name: AI
+    description: AI tasks (P3)
+
+x-tagGroups:
+  - name: MVP
+    tags: [Health, Auth, Me, Organization, Users, Academic, "Students & Enrollment", Learning, Finance, Reports, License, Public, Integrations]
+  - name: Roadmap
+    tags: [Addons, AI]
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Kiểm tra sức khỏe dịch vụ
+      operationId: getHealth
+      responses:
+        "200":
+          description: Dịch vụ hoạt động
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy, degraded]
+                  version:
+                    type: string
+                    example: 1.0.0
+                  db:
+                    type: string
+                    example: up
+                  redis:
+                    type: string
+                    example: up
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Đăng nhập
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        "200":
+          description: Đăng nhập thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Làm mới access token (refresh token trong HTTP-only cookie)
+      operationId: refreshToken
+      responses:
+        "200":
+          description: Token mới
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                  expiresIn:
+                    type: integer
+                    example: 900
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Đăng xuất (vô hiệu hóa refresh token)
+      operationId: logout
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Đăng xuất thành công
+
+  /auth/forgot-password:
+    post:
+      tags: [Auth]
+      summary: Gửi email đặt lại mật khẩu
+      operationId: forgotPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        "202":
+          description: Email đặt lại đã gửi (nếu email tồn tại)
+
+  /auth/reset-password:
+    post:
+      tags: [Auth]
+      summary: Đặt lại mật khẩu bằng token
+      operationId: resetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, newPassword]
+              properties:
+                token:
+                  type: string
+                newPassword:
+                  type: string
+                  format: password
+                  minLength: 8
+      responses:
+        "204":
+          description: Mật khẩu đã đặt lại
+
+  /me/context:
+    get:
+      tags: [Me]
+      summary: Context người dùng (roles, scopes, modules, permissions)
+      operationId: getMyContext
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Context hiện tại
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserContext"
+
+  # ============================================================
+  # ORGANIZATION
+  # ============================================================
+  /organization:
+    get:
+      tags: [Organization]
+      summary: Thông tin tổ chức
+      operationId: getOrganization
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Thông tin tổ chức
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Organization"
+    put:
+      tags: [Organization]
+      summary: Cập nhật cấu hình tổ chức
+      operationId: updateOrganization
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                timezone:
+                  type: string
+                  example: Asia/Ho_Chi_Minh
+                academic_period:
+                  type: string
+                brand_settings:
+                  type: object
+                contact_settings:
+                  type: object
+      responses:
+        "200":
+          description: Đã cập nhật
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Organization"
+
+  /organization/branches:
+    get:
+      tags: [Organization]
+      summary: Danh sách chi nhánh
+      operationId: listBranches
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PageSizeParam"
+      responses:
+        "200":
+          description: Danh sách chi nhánh
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Branch"
+                  meta:
+                    $ref: "#/components/schemas/PaginationMeta"
+    post:
+      tags: [Organization]
+      summary: Tạo chi nhánh
+      operationId: createBranch
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code, name]
+              properties:
+                code:
+                  type: string
+                  maxLength: 50
+                name:
+                  type: string
+                address:
+                  type: string
+                manager_user_id:
+                  type: string
+                  format: uuid
+      responses:
+        "201":
+          description: Đã tạo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Branch"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /organization/branches/{branch_id}:
+    parameters:
+      - $ref: "#/components/parameters/BranchIdParam"
+    get:
+      tags: [Organization]
+      summary: Chi tiết chi nhánh
+      operationId: getBranch
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Chi tiết chi nhánh
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Branch"
+    put:
+      tags: [Organization]
+      summary: Cập nhật chi nhánh
+      operationId: updateBranch
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                address:
+                  type: string
+                manager_user_id:
+                  type: string
+                  format: uuid
+                status:
+                  type: string
+                  enum: [active, inactive]
+      responses:
+        "200":
+          description: Đã cập nhật
+
+  /organization/modules:
+    get:
+      tags: [Organization]
+      summary: Trạng thái module (installed/configured/licensed/effective)
+      operationId: listModules
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Trạng thái module
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ModuleState"
+
+  /organization/modules/{module_key}:
+    parameters:
+      - name: module_key
+        in: path
+        required: true
+        schema:
+          type: string
+          example: crm
+    put:
+      tags: [Organization]
+      summary: Bật/tắt module theo cấu hình (không tự cấp entitlement)
+      operationId: setModuleConfigured
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [configured_enabled]
+              properties:
+                configured_enabled:
+                  type: boolean
+      responses:
+        "200":
+          description: Trạng thái mới
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModuleState"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /organization/theme:
+    get:
+      tags: [Organization]
+      summary: Theme hiện tại
+      operationId: getTheme
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Theme tokens
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Theme"
+
+  # ============================================================
+  # USERS & ROLES
+  # ============================================================
+  /users:
+    get:
+      tags: [Users]
+      summary: Danh sách người dùng (trong scope)
+      operationId: listUsers
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PageSizeParam"
+        - name: role
+          in: query
+          schema:
+            type: string
+        - name: branch_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: q
+          in: query
+          description: Tìm theo tên/email
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Danh sách người dùng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/User"
+                  meta:
+                    $ref: "#/components/schemas/PaginationMeta"
+    post:
+      tags: [Users]
+      summary: Tạo người dùng
+      operationId: createUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, full_name]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                full_name:
+                  type: string
+                role_ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                branch_ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        "201":
+          description: Đã tạo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /users/{user_id}:
+    parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Users]
+      summary: Chi tiết người dùng
+      operationId: getUser
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Chi tiết
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    put:
+      tags: [Users]
+      summary: Cập nhật người dùng
+      operationId: updateUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                phone:
+                  type: string
+                status:
+                  type: string
+                  enum: [active, inactive, suspended]
+      responses:
+        "200":
+          description: Đã cập nhật
+
+  /users/{user_id}/scope-grants:
+    post:
+      tags: [Users]
+      summary: Cấp phạm vi truy cập (branch/class/student) cho người dùng
+      operationId: createScopeGrant
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                branch_id:
+                  type: string
+                  format: uuid
+                class_id:
+                  type: string
+                  format: uuid
+                student_id:
+                  type: string
+                  format: uuid
+                effective_from:
+                  type: string
+                  format: date-time
+                effective_to:
+                  type: string
+                  format: date-time
+      responses:
+        "201":
+          description: Đã cấp scope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScopeGrant"
+
+  /roles:
+    get:
+      tags: [Users]
+      summary: Danh sách vai trò
+      operationId: listRoles
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Danh sách vai trò
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Role"
+
+  # ============================================================
+  # ACADEMIC
+  # ============================================================
+  /departments:
+    get:
+      tags: [Academic]
+      summary: Danh sách ngành
+      operationId: listDepartments
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Danh sách ngành
+    post:
+      tags: [Academic]
+      summary: Tạo ngành
+      operationId: createDepartment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code, name]
+              properties:
+                code:
+                  type: string
+                name:
+                  type: string
+      responses:
+        "201":
+          description: Đã tạo
+
+  /programs:
+    get:
+      tags: [Academic]
+      summary: Danh sách chương trình
+      operationId: listPrograms
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: department_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, active, archived]
+      responses:
+        "200":
+          description: Danh sách chương trình
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Program"
+                  meta:
+                    $ref: "#/components/schemas/PaginationMeta"
+    post:
+      tags: [Academic]
+      summary: Tạo chương trình
+      operationId: createProgram
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [department_id, code, name]
+              properties:
+                department_id:
+                  type: string
+                  format: uuid
+                code:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+                duration_months:
+                  type: integer
+                completion_rules:
+                  type: object
+      responses:
+        "201":
+          description: Đã tạo
+
+  /classes:
+    get:
+      tags: [Academic]
+      summary: Danh sách lớp học
+      operationId: listClasses
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: branch_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: program_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, open, closed, full, archived]
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PageSizeParam"
+      responses:
+        "200":
+          description: Danh sách lớp
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Class"
+                  meta:
+                    $ref: "#/components/schemas/PaginationMeta"
+    post:
+      tags: [Academic]
+      summary: Tạo lớp học
+      operationId: createClass
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [branch_id, program_id, course_id, code, name]
+              properties:
+                branch_id:
+                  type: string
+                  format: uuid
+                program_id:
+                  type: string
+                  format: uuid
+                course_id:
+                  type: string
+                  format: uuid
+                code:
+                  type: string
+                name:
+                  type: string
+                modality:
+                  type: string
+                  enum: [offline, online, hybrid, flexible]
+                capacity:
+                  type: integer
+                  minimum: 1
+                start_date:
+                  type: string
+                  format: date
+                end_date:
+                  type: string
+                  format: date
+                teacher_ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        "201":
+          description: Đã tạo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Class"
+        "409":
+          description: Mã lớp trùng
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /classes/{class_id}/schedules:
+    parameters:
+      - name: class_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags: [Academic]
+      summary: Tạo lịch học (chống trùng teacher/room/time)
+      operationId: createSchedule
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [day_of_week, start_time, end_time, teacher_id, valid_from]
+              properties:
+                day_of_week:
+                  type: integer
+                  minimum: 1
+                  maximum: 7
+                start_time:
+                  type: string
+                  example: "18:00"
+                end_time:
+                  type: string
+                  example: "19:30"
+                teacher_id:
+                  type: string
+                  format: uuid
+                room_id:
+                  type: string
+                  format: uuid
+                recurrence:
+                  type: string
+                  enum: [weekly, biweekly, once]
+                valid_from:
+                  type: string
+                  format: date
+                valid_to:
+                  type: string
+                  format: date
+      responses:
+        "201":
+          description: Đã tạo lịch
+        "409":
+          description: Trùng lịch (teacher/room/time)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  # ============================================================
+  # STUDENTS & ENROLLMENT
+  # ============================================================
+  /students:
+    get:
+      tags: ["Students & Enrollment"]
+      summary: Danh sách học viên
+      operationId: listStudents
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PageSizeParam"
+        - name: q
+          in: query
+          description: Tìm theo tên/mã học viên
+          schema:
+            type: string
+        - name: branch_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Danh sách học viên
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Student"
+                  meta:
+                    $ref: "#/components/schemas/PaginationMeta"
+    post:
+      tags: ["Students & Enrollment"]
+      summary: Tạo hồ sơ học viên
+      operationId: createStudent
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [full_name, student_code]
+              properties:
+                student_code:
+                  type: string
+                full_name:
+                  type: string
+                date_of_birth:
+                  type: string
+                  format: date
+                gender:
+                  type: string
+                phone:
+                  type: string
+                guardian_phone:
+                  type: string
+                identity_ref:
+                  type: string
+                branch_id:
+                  type: string
+                  format: uuid
+      responses:
+        "201":
+          description: Đã tạo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+
+  /enrollments:
+    post:
+      tags: ["Students & Enrollment"]
+      summary: "Ghi danh học viên vào lớp (transaction: enrollment + invoice)"
+      operationId: createEnrollment
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKeyParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [student_id, class_id]
+              properties:
+                student_id:
+                  type: string
+                  format: uuid
+                class_id:
+                  type: string
+                  format: uuid
+                enrollment_source:
+                  type: string
+                  example: manual
+      responses:
+        "201":
+          description: Ghi danh thành công + tạo invoice
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  enrollment:
+                    $ref: "#/components/schemas/Enrollment"
+                  invoice:
+                    $ref: "#/components/schemas/Invoice"
+        "409":
+          description: Đã ghi danh hoặc lớp đầy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /enrollments/{enrollment_id}:
+    parameters:
+      - name: enrollment_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: ["Students & Enrollment"]
+      summary: Chi tiết ghi danh (bao gồm tiến độ)
+      operationId: getEnrollment
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Chi tiết ghi danh
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Enrollment"
+
+  # ============================================================
+  # LEARNING
+  # ============================================================
+  /learning/content:
+    get:
+      tags: [Learning]
+      summary: Danh sách học liệu (trong scope)
+      operationId: listContent
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PageSizeParam"
+        - name: class_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: access_scope
+          in: query
+          schema:
+            type: string
+            enum: [public, class, private]
+      responses:
+        "200":
+          description: Danh sách học liệu
+    post:
+      tags: [Learning]
+      summary: Tải lên học liệu mới
+      operationId: createContent
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [title, file]
+              properties:
+                title:
+                  type: string
+                content_type:
+                  type: string
+                  enum: [document, video, audio, presentation, interactive, ebook]
+                access_scope:
+                  type: string
+                  enum: [public, class, private]
+                class_ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Đã tải lên
+        "413":
+          description: Vượt giới hạn 500MB
+
+  /learning/content/{content_id}/download:
+    parameters:
+      - name: content_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Learning]
+      summary: Tải file học liệu (URL chỉ cấp sau authorization)
+      operationId: downloadContent
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: File (stream)
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /learning/library:
+    get:
+      tags: [Learning]
+      summary: Tìm kiếm thư viện tài nguyên
+      operationId: searchLibrary
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+        - name: category_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: subject
+          in: query
+          schema:
+            type: string
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PageSizeParam"
+      responses:
+        "200":
+          description: Kết quả tìm kiếm
+
+  # ============================================================
+  # FINANCE
+  # ============================================================
+  /finance/invoices:
+    get:
+      tags: [Finance]
+      summary: Danh sách hóa đơn
+      operationId: listInvoices
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: student_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: branch_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: balance_state
+          in: query
+          schema:
+            type: string
+            enum: [pending, partially_paid, paid, overdue, void]
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PageSizeParam"
+      responses:
+        "200":
+          description: Danh sách hóa đơn
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Invoice"
+                  meta:
+                    $ref: "#/components/schemas/PaginationMeta"
+
+  /finance/invoices/{invoice_id}:
+    parameters:
+      - name: invoice_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Finance]
+      summary: Chi tiết hóa đơn
+      operationId: getInvoice
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Chi tiết hóa đơn
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+
+  /finance/invoices/{invoice_id}/payment-attempts:
+    parameters:
+      - name: invoice_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags: [Finance]
+      summary: Tạo lần thanh toán (cash/bank/gateway). KHÔNG chốt paid từ redirect.
+      operationId: createPaymentAttempt
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKeyParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount, payment_method]
+              properties:
+                amount:
+                  type: number
+                  format: decimal
+                  example: 3500000
+                payment_method:
+                  type: string
+                  enum: [cash, bank_transfer, vnpay, momo]
+      responses:
+        "201":
+          description: Đã tạo payment attempt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentAttempt"
+        "409":
+          description: Trùng idempotency key
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /finance/invoices/{invoice_id}/payments:
+    parameters:
+      - name: invoice_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags: [Finance]
+      summary: Ghi nhận thanh toán thủ công (cash/bank transfer, đã nhận tiền)
+      operationId: recordPayment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount, payment_method]
+              properties:
+                amount:
+                  type: number
+                  format: decimal
+                payment_method:
+                  type: string
+                  enum: [cash, bank_transfer]
+                reference:
+                  type: string
+      responses:
+        "201":
+          description: Đã ghi nhận
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+
+  /finance/refunds:
+    post:
+      tags: [Finance]
+      summary: Hoàn tiền (tạo record mới, không sửa payment gốc)
+      operationId: createRefund
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKeyParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [payment_id, amount, reason]
+              properties:
+                payment_id:
+                  type: string
+                  format: uuid
+                amount:
+                  type: number
+                  format: decimal
+                reason:
+                  type: string
+      responses:
+        "201":
+          description: Đã tạo yêu cầu hoàn tiền
+
+  /finance/receipts/{receipt_id}/download:
+    parameters:
+      - name: receipt_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Finance]
+      summary: Tải phiếu thu PDF
+      operationId: downloadReceipt
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: PDF
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  # ============================================================
+  # REPORTS
+  # ============================================================
+  /reports:
+    post:
+      tags: [Reports]
+      summary: Tạo báo cáo (chạy bất đồng bộ, có quyền export theo scope)
+      operationId: createReport
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [report_type]
+              properties:
+                report_type:
+                  type: string
+                  enum: [enrollment_summary, revenue_summary, class_utilization, student_progress]
+                branch_id:
+                  type: string
+                  format: uuid
+                from:
+                  type: string
+                  format: date
+                to:
+                  type: string
+                  format: date
+                format:
+                  type: string
+                  enum: [xlsx, pdf, csv]
+                  default: xlsx
+      responses:
+        "202":
+          description: Báo cáo đang xử lý
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  report_id:
+                    type: string
+                    format: uuid
+                  state:
+                    type: string
+                    enum: [queued, processing]
+      security:
+        - bearerAuth: []
+
+  /reports/{report_id}:
+    parameters:
+      - name: report_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Reports]
+      summary: Trạng thái báo cáo + link tải khi xong
+      operationId: getReport
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Trạng thái báo cáo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  report_id:
+                    type: string
+                    format: uuid
+                  state:
+                    type: string
+                    enum: [queued, processing, ready, failed]
+                  download_url:
+                    type: string
+                  error:
+                    type: string
+
+  # ============================================================
+  # LICENSE
+  # ============================================================
+  /license/activate:
+    post:
+      tags: [License]
+      summary: Kích hoạt license base (upload file hoặc key) — FUTURE (D9)
+      description: >-
+        [FUTURE — D9] Hệ thống quản lý license chưa triển khai ở giai đoạn này; LMS chạy license
+        mặc định (LicenseService stub). Endpoint này là điểm kết nối chờ và sẽ hoạt động khi kết nối
+        hệ thống quản lý license ở giai đoạn sau.
+      operationId: activateLicense
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  required: [license_file]
+                  properties:
+                    license_file:
+                      type: string
+                      description: Nội dung JSON của license file (base64)
+                - type: object
+                  required: [license_key]
+                  properties:
+                    license_key:
+                      type: string
+      responses:
+        "200":
+          description: Kích hoạt thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LicenseStatus"
+        "422":
+          description: Chữ ký không hợp lệ / hết hạn / sai định dạng
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /license/status:
+    get:
+      tags: [License]
+      summary: Trạng thái license hiện tại (signature, constraints, modules) — FUTURE (D9)
+      description: >-
+        [FUTURE — D9] Chưa triển khai ở giai đoạn này. Hiện tại LicenseService là stub trả license
+        mặc định (dev/evaluation). Giữ làm contract cho hệ thống quản lý license sau này.
+      operationId: getLicenseStatus
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Trạng thái license
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LicenseStatus"
+
+  /license/addons:
+    get:
+      tags: [License]
+      summary: Danh sách addon đã cài + trạng thái license — FUTURE (D9)
+      description: >-
+        [FUTURE — D9] — Chưa triển khai ở giai đoạn này; giữ contract cho hệ thống quản lý license sau này.
+      operationId: listAddonLicenses
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Danh sách addon licenses
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AddonLicense"
+
+  /license/addons/{addon_id}/activate:
+    parameters:
+      - name: addon_id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: crm
+    post:
+      tags: [License]
+      summary: Kích hoạt addon bằng serial key — FUTURE (D9)
+      description: >-
+        [FUTURE — D9] — Chưa triển khai ở giai đoạn này; giữ contract cho hệ thống quản lý license sau này.
+      operationId: activateAddon
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [serial_key]
+              properties:
+                serial_key:
+                  type: string
+                  example: CRM-A1B2-C3D4-E5F6-G7H8
+      responses:
+        "200":
+          description: Addon đã kích hoạt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddonLicense"
+        "422":
+          description: Serial key không hợp lệ / đã dùng
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  # ============================================================
+  # PUBLIC
+  # ============================================================
+  /public/programs:
+    get:
+      tags: [Public]
+      summary: Danh mục chương trình công khai
+      operationId: publicPrograms
+      parameters:
+        - name: branch
+          in: query
+          schema:
+            type: string
+        - name: department
+          in: query
+          schema:
+            type: string
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PageSizeParam"
+      responses:
+        "200":
+          description: Chương trình được phép công khai (không có dữ liệu nội bộ)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PublicProgram"
+                  meta:
+                    $ref: "#/components/schemas/PaginationMeta"
+
+  /public/consultations:
+    post:
+      tags: [Public]
+      summary: Gửi yêu cầu tư vấn (tạo lead)
+      operationId: createConsultationLead
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, contact, consent]
+              properties:
+                name:
+                  type: string
+                contact:
+                  type: string
+                interest:
+                  type: string
+                preferred_branch:
+                  type: string
+                preferred_program:
+                  type: string
+                source:
+                  type: string
+                consent:
+                  type: boolean
+                client_submission_key:
+                  type: string
+                  description: Chống gửi trùng (idempotency)
+      responses:
+        "201":
+          description: Đã tiếp nhận
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lead_reference:
+                    type: string
+                  status:
+                    type: string
+                  next_step:
+                    type: string
+
+  # ============================================================
+  # INTEGRATIONS (WEBHOOK)
+  # ============================================================
+  /integrations/{provider}/payment-webhooks:
+    parameters:
+      - name: provider
+        in: path
+        required: true
+        schema:
+          type: string
+          enum: [vnpay, momo]
+    post:
+      tags: [Integrations]
+      summary: |
+        Webhook thanh toán từ gateway.
+        Yêu cầu: validate chữ ký + replay window → persist inbox event → ack an toàn
+        → xử lý bất đồng bộ. Xử lý trùng không có tác động tài chính thứ hai.
+      operationId: paymentWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event_id:
+                  type: string
+                payload:
+                  type: object
+      responses:
+        "200":
+          description: Đã nhận và persist (ack an toàn)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  received:
+                    type: boolean
+                    example: true
+        "400":
+          description: Chữ ký không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  # ============================================================
+  # ADDON ENDPOINTS (P2/P3 — roadmap)
+  # ============================================================
+  /assessments/{assessment_id}/attempts:
+    post:
+      tags: [Addons]
+      x-phase: P2
+      summary: "[P2 Assessment] Tạo lần làm bài (unique business key chống trùng)"
+      operationId: startAssessmentAttempt
+      security:
+        - bearerAuth: []
+      responses:
+        "201":
+          description: Attempt đã tạo
+
+  /classes/{class_id}/online-sessions:
+    post:
+      tags: [Addons]
+      x-phase: P2
+      summary: "[P2 Online] Tạo buổi học online (link tham gia cấp sau khi check enrollment)"
+      operationId: createOnlineSession
+      security:
+        - bearerAuth: []
+      responses:
+        "201":
+          description: Session đã tạo
+
+  /conversations:
+    post:
+      tags: [Addons]
+      x-phase: P2
+      summary: "[P2 Communication] Tạo hội thoại (backend tự loại thành viên ngoài scope)"
+      operationId: createConversation
+      security:
+        - bearerAuth: []
+      responses:
+        "201":
+          description: Hội thoại đã tạo
+
+  /payroll-periods/{period_id}/calculate:
+    post:
+      tags: [Addons]
+      x-phase: P3
+      summary: "[P3 HRM] Tính lương (versioned policy + snapshot nguồn)"
+      operationId: calculatePayroll
+      security:
+        - bearerAuth: []
+      responses:
+        "202":
+          description: Job tính lương đang chạy
+
+  /payroll-periods/{period_id}/approve:
+    post:
+      tags: [Addons]
+      x-phase: P3
+      summary: "[P3 HRM] Duyệt và khóa kỳ lương (sau lock phải dùng adjustment)"
+      operationId: approvePayroll
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Đã khóa kỳ lương
+
+  /ai/tasks:
+    post:
+      tags: [AI]
+      x-phase: P3
+      summary: "[P3 AI] Tạo tác vụ AI (policy check + data minimization trước provider)"
+      operationId: createAiTask
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [purpose]
+              properties:
+                purpose:
+                  type: string
+                context_type:
+                  type: string
+                context_id:
+                  type: string
+                requested_action:
+                  type: string
+                input_refs:
+                  type: object
+      responses:
+        "202":
+          description: Task đã tạo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  task_id:
+                    type: string
+                    format: uuid
+                  state:
+                    type: string
+                  confidence:
+                    type: number
+                  review_required:
+                    type: boolean
+
+  /ai/tasks/{task_id}/review:
+    parameters:
+      - name: task_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags: [AI]
+      x-phase: P3
+      summary: "[P3 AI] Review output AI (bắt buộc cho tác vụ ảnh hưởng điểm/lương/quyền lợi)"
+      operationId: reviewAiTask
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [decision]
+              properties:
+                decision:
+                  type: string
+                  enum: [approved, rejected, needs_revision]
+                feedback:
+                  type: string
+      responses:
+        "200":
+          description: Đã review (audit event tạo tự động)
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PageSizeParam:
+      name: page_size
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    BranchIdParam:
+      name: branch_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    IdempotencyKeyParam:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Key duy nhất cho mỗi lệnh ghi; lặp lại key → trả kết quả cũ, không tạo mới.
+
+  responses:
+    Unauthorized:
+      description: Thiếu hoặc sai token
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Forbidden:
+      description: Không đủ quyền / ngoài scope / module chưa kích hoạt
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    ValidationError:
+      description: Dữ liệu không hợp lệ
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    RateLimited:
+      description: Vượt rate limit
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: VALIDATION_ERROR
+        message:
+          type: string
+        correlation_id:
+          type: string
+          format: uuid
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+        page_size:
+          type: integer
+        total:
+          type: integer
+        total_pages:
+          type: integer
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        accessToken:
+          type: string
+        expiresIn:
+          type: integer
+          example: 900
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+        avatar_url:
+          type: string
+        phone:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive, suspended, deleted]
+        roles:
+          type: array
+          items:
+            $ref: "#/components/schemas/Role"
+        created_at:
+          type: string
+          format: date-time
+
+    UserContext:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        roles:
+          type: array
+          items:
+            type: string
+        branch_scopes:
+          type: array
+          items:
+            type: string
+            format: uuid
+        delegated_student_scopes:
+          type: array
+          items:
+            type: string
+            format: uuid
+        permissions:
+          type: array
+          items:
+            type: string
+            example: "invoice:create"
+        modules:
+          type: array
+          items:
+            $ref: "#/components/schemas/ModuleState"
+
+    Role:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        is_system:
+          type: boolean
+        permissions:
+          type: array
+          items:
+            type: string
+
+    ScopeGrant:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        branch_id:
+          type: string
+          format: uuid
+        class_id:
+          type: string
+          format: uuid
+        student_id:
+          type: string
+          format: uuid
+        effective_from:
+          type: string
+          format: date-time
+        effective_to:
+          type: string
+          format: date-time
+
+    Organization:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
+        timezone:
+          type: string
+        academic_period:
+          type: string
+        currency:
+          type: string
+        brand_settings:
+          type: object
+        contact_settings:
+          type: object
+        status:
+          type: string
+
+    Branch:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        address:
+          type: string
+        manager_user_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [active, inactive]
+        opened_at:
+          type: string
+          format: date
+        closed_at:
+          type: string
+          format: date
+
+    ModuleState:
+      type: object
+      properties:
+        module_key:
+          type: string
+        installed:
+          type: boolean
+        configured_enabled:
+          type: boolean
+        licensed_enabled:
+          type: boolean
+        dependency_satisfied:
+          type: boolean
+        effective_enabled:
+          type: boolean
+        reason:
+          type: string
+
+    Theme:
+      type: object
+      properties:
+        preset_key:
+          type: string
+        light_tokens:
+          type: object
+        dark_tokens:
+          type: object
+        font_tokens:
+          type: object
+        radius_scale:
+          type: number
+        logo_refs:
+          type: object
+        version:
+          type: integer
+
+    Program:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        department_id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        duration_months:
+          type: integer
+        completion_rules:
+          type: object
+        status:
+          type: string
+          enum: [draft, active, archived]
+
+    Class:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        branch_id:
+          type: string
+          format: uuid
+        program_id:
+          type: string
+          format: uuid
+        course_id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        modality:
+          type: string
+          enum: [offline, online, hybrid, flexible]
+        capacity:
+          type: integer
+        enrolled_count:
+          type: integer
+        enrollment_status:
+          type: string
+          enum: [draft, open, closed, full, archived]
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        teachers:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+
+    Student:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        student_code:
+          type: string
+        full_name:
+          type: string
+        date_of_birth:
+          type: string
+          format: date
+        gender:
+          type: string
+        phone:
+          type: string
+        guardian_phone:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive, graduated, dropped]
+
+    Enrollment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        student_id:
+          type: string
+          format: uuid
+        class_id:
+          type: string
+          format: uuid
+        branch_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [pending_payment, active, completed, dropped, suspended, waitlist]
+        enrolled_at:
+          type: string
+          format: date-time
+        progress_percent:
+          type: number
+          format: decimal
+
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        invoice_number:
+          type: string
+        student_id:
+          type: string
+          format: uuid
+        enrollment_id:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          format: decimal
+        discount:
+          type: number
+          format: decimal
+        total_amount:
+          type: number
+          format: decimal
+        paid_amount:
+          type: number
+          format: decimal
+        balance_state:
+          type: string
+          enum: [pending, partially_paid, paid, overdue, void]
+        due_at:
+          type: string
+          format: date-time
+        lines:
+          type: array
+          items:
+            $ref: "#/components/schemas/InvoiceLine"
+
+    InvoiceLine:
+      type: object
+      properties:
+        description:
+          type: string
+        quantity:
+          type: number
+        unit_price:
+          type: number
+          format: decimal
+        line_total:
+          type: number
+          format: decimal
+
+    PaymentAttempt:
+      type: object
+      properties:
+        payment_attempt_id:
+          type: string
+          format: uuid
+        state:
+          type: string
+          enum: [initiated, pending, confirmed, failed, cancelled]
+        provider:
+          type: string
+        provider_handoff:
+          type: object
+          description: Payment URL/QR cho gateway; không chốt paid từ đây
+
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        invoice_id:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          format: decimal
+        payment_method:
+          type: string
+        status:
+          type: string
+          enum: [pending, confirmed, failed, reversed]
+        received_at:
+          type: string
+          format: date-time
+
+    LicenseStatus:
+      type: object
+      properties:
+        license_id:
+          type: string
+        organization_name:
+          type: string
+        term_type:
+          type: string
+          enum: [perpetual, subscription]
+        status:
+          type: string
+          enum: [active, grace, expired, revoked]
+        activated_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        constraints:
+          type: object
+          properties:
+            max_students:
+              type: integer
+            max_branches:
+              type: integer
+            max_storage_gb:
+              type: integer
+        base_modules:
+          type: array
+          items:
+            type: string
+        usage:
+          type: object
+          properties:
+            students:
+              type: integer
+            branches:
+              type: integer
+            storage_gb:
+              type: number
+        signature_valid:
+          type: boolean
+
+    AddonLicense:
+      type: object
+      properties:
+        addon_id:
+          type: string
+        addon_name:
+          type: string
+        serial_key:
+          type: string
+        status:
+          type: string
+          enum: [pending, active, grace, expired, revoked]
+        activated_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+
+    PublicProgram:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        department:
+          type: string
+        branch:
+          type: string
+        duration_months:
+          type: integer
+        enrollment_open:
+          type: boolean
+        call_to_action:
+          type: string

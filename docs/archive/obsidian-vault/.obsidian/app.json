@@ -1,0 +1,21 @@
+{
+  "alwaysUpdateLinks": true,
+  "newFileLocation": "current",
+  "attachmentFolderPath": "_attachments",
+  "showLineNumber": true,
+  "spellcheck": true,
+  "spellcheckLanguages": [
+    "en-US",
+    "vi-VN"
+  ],
+  "strictLineBreaks": false,
+  "tabSize": 2,
+  "useTab": false,
+  "vimMode": false,
+  "showFrontmatter": true,
+  "foldHeading": true,
+  "foldIndent": true,
+  "showIndentGuide": true,
+  "readableLineLength": false,
+  "promptDelete": true
+}

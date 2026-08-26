@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WF-03: Vận hành Tài chính - Sơ đồ Tương tác</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #f7fafc;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .workflow-canvas {
+            position: relative;
+            min-height: 1200px;
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 40px;
+            overflow-x: auto;
+        }
+
+        .phase-section {
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .phase-header {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(17, 153, 142, 0.3);
+        }
+
+        .phase-number {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+
+        .steps-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px 0;
+            align-items: flex-start;
+        }
+
+        .step-node {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 200px;
+            max-width: 280px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .step-node:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .step-node.active {
+            border-color: #11998e;
+            box-shadow: 0 8px 25px rgba(17, 153, 142, 0.3);
+        }
+
+        .step-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .step-desc {
+            color: #718096;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .step-actor {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background: #edf2f7;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            color: #4a5568;
+            display: inline-block;
+        }
+
+        .connector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 0;
+            min-width: 40px;
+        }
+
+        .arrow {
+            color: #cbd5e0;
+            font-size: 2rem;
+        }
+
+        .system-node {
+            background: #f0f0f0;
+            border-left: 4px solid #9e9e9e;
+        }
+
+        .finance-node {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+        }
+
+        .payment-node {
+            background: #fff4e1;
+            border-left: 4px solid #ffa500;
+        }
+
+        .decision-node {
+            background: #fef5e7;
+            border: 3px dashed #f39c12;
+        }
+
+        .info-panel {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            width: 450px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 25px;
+            max-height: 85vh;
+            overflow-y: auto;
+            opacity: 0;
+            transform: translateX(500px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .info-panel.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .info-panel h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .info-panel .detail {
+            margin-bottom: 15px;
+        }
+
+        .info-panel .label {
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 5px;
+        }
+
+        .info-panel .value {
+            color: #718096;
+            line-height: 1.6;
+        }
+
+        .info-panel code {
+            background: #f7fafc;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+        }
+
+        .close-panel {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #a0aec0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .close-panel:hover {
+            background: #edf2f7;
+            color: #2d3748;
+        }
+
+        .metrics {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            color: #11998e;
+            font-weight: 600;
+        }
+
+        .payment-methods {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .payment-method {
+            flex: 1;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .payment-method.online {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+        }
+
+        .payment-method.cash {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+        }
+
+        .payment-method.transfer {
+            background: #fff3e0;
+            border: 2px solid #ff9800;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .info-panel {
+                width: calc(100% - 40px);
+                right: 20px;
+            }
+
+            .steps-container {
+                flex-direction: column;
+            }
+
+            .payment-methods {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 WF-03: Vận hành Tài chính</h1>
+        <p class="subtitle">Quy trình từ hóa đơn đến thu tiền - Click vào từng bước để xem chi tiết</p>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #9e9e9e;"></div>
+                <span>Hệ thống</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #4caf50;"></div>
+                <span>Tài chính</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ffa500;"></div>
+                <span>Thanh toán</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #f39c12;"></div>
+                <span>Quyết định</span>
+            </div>
+        </div>
+
+        <div class="workflow-canvas">
+            <!-- Phase 1: Invoice Generation -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <span class="phase-number">Giai đoạn 1</span>
+                    Tạo hóa đơn (Tự động)
+                </div>
+                <div class="steps-container">
+                    <div class="step-node system-node" data-step="trigger">
+                        <div class="step-icon">🎯</div>
+                        <div class="step-title">Kích hoạt</div>
+                        <div class="step-desc">Học viên hoàn tất ghi danh</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node system-node" data-step="generate-invoice">
+                        <div class="step-icon">📋</div>
+                        <div class="step-title">Tạo hóa đơn</div>
+                        <div class="step-desc">Tự động tạo với số HĐ duy nhất</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node system-node" data-step="calculate-fees">
+                        <div class="step-icon">🧮</div>
+                        <div class="step-title">Tính học phí</div>
+                        <div class="step-desc">Học phí + phí đăng ký + tài liệu</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node system-node" data-step="apply-discount">
+                        <div class="step-icon">🎫</div>
+                        <div class="step-title">Áp dụng giảm giá</div>
+                        <div class="step-desc">Nếu có mã khuyến mãi</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node system-node" data-step="send-invoice">
+                        <div class="step-icon">📧</div>
+                        <div class="step-title">Gửi hóa đơn</div>
+                        <div class="step-desc">Email + SMS cho học viên</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 2: Payment Methods -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <span class="phase-number">Giai đoạn 2</span>
+                    Thu tiền (3 phương thức)
+                </div>
+
+                <div class="payment-methods">
+                    <div class="payment-method online" data-step="online-payment">
+                        <div style="font-size: 3rem;">💳</div>
+                        <h3>Online (60%)</h3>
+                        <p>VNPay / Momo</p>
+                        <small>Tức thì</small>
+                    </div>
+                    <div class="payment-method cash" data-step="cash-payment">
+                        <div style="font-size: 3rem;">💵</div>
+                        <h3>Tiền mặt (25%)</h3>
+                        <p>Tại quầy</p>
+                        <small>Ngay lập tức</small>
+                    </div>
+                    <div class="payment-method transfer" data-step="bank-transfer">
+                        <div style="font-size: 3rem;">🏦</div>
+                        <h3>Chuyển khoản (15%)</h3>
+                        <p>Ngân hàng</p>
+                        <small>1-2 ngày</small>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin: 20px 0; color: #718096;">
+                    ↓ Tất cả đều dẫn đến ↓
+                </div>
+
+                <div class="steps-container" style="justify-content: center;">
+                    <div class="step-node finance-node" data-step="verify-payment">
+                        <div class="step-icon">✓</div>
+                        <div class="step-title">Xác minh thanh toán</div>
+                        <div class="step-desc">Kiểm tra số tiền và tham chiếu</div>
+                        <div class="step-actor">💰 Kế toán</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node finance-node" data-step="record-payment">
+                        <div class="step-icon">💾</div>
+                        <div class="step-title">Ghi nhận thanh toán</div>
+                        <div class="step-desc">Cập nhật trạng thái hóa đơn</div>
+                        <div class="step-actor">💰 Kế toán</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 3: Receipt -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <span class="phase-number">Giai đoạn 3</span>
+                    Xuất biên lai
+                </div>
+                <div class="steps-container">
+                    <div class="step-node system-node" data-step="generate-receipt">
+                        <div class="step-icon">🧾</div>
+                        <div class="step-title">Tạo biên lai</div>
+                        <div class="step-desc">PDF với số biên lai chính thức</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node system-node" data-step="send-receipt">
+                        <div class="step-icon">📧</div>
+                        <div class="step-title">Gửi biên lai</div>
+                        <div class="step-desc">Email kèm file PDF</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node system-node" data-step="activate-enrollment">
+                        <div class="step-icon">🎉</div>
+                        <div class="step-title">Kích hoạt ghi danh</div>
+                        <div class="step-desc">Học viên trở thành active</div>
+                        <div class="step-actor">🤖 Hệ thống</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 4: Daily Reconciliation -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <span class="phase-number">Giai đoạn 4</span>
+                    Đối soát hàng ngày
+                </div>
+                <div class="steps-container">
+                    <div class="step-node finance-node" data-step="count-cash">
+                        <div class="step-icon">💵</div>
+                        <div class="step-title">Kiểm đếm tiền mặt</div>
+                        <div class="step-desc">Đếm số dư trong két</div>
+                        <div class="step-actor">💰 Kế toán</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node finance-node" data-step="compare-records">
+                        <div class="step-icon">📊</div>
+                        <div class="step-title">So sánh với sổ sách</div>
+                        <div class="step-desc">Thực tế vs hệ thống</div>
+                        <div class="step-actor">💰 Kế toán</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node decision-node" data-step="check-variance">
+                        <div class="step-icon">❓</div>
+                        <div class="step-title">Có chênh lệch?</div>
+                        <div class="step-desc">Kiểm tra sai khác</div>
+                        <div class="step-actor">💰 Kế toán</div>
+                    </div>
+                </div>
+                <div class="steps-container" style="margin-top: 20px;">
+                    <div class="step-node finance-node" data-step="investigate">
+                        <div class="step-icon">🔍</div>
+                        <div class="step-title">Điều tra (nếu có lỗi)</div>
+                        <div class="step-desc">Tìm nguyên nhân chênh lệch</div>
+                        <div class="step-actor">💰 Kế toán</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node finance-node" data-step="bank-deposit">
+                        <div class="step-icon">🏦</div>
+                        <div class="step-title">Gửi ngân hàng</div>
+                        <div class="step-desc">Nộp tiền mặt vào tài khoản</div>
+                        <div class="step-actor">💰 Kế toán</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node finance-node" data-step="daily-report">
+                        <div class="step-icon">📄</div>
+                        <div class="step-title">Báo cáo ngày</div>
+                        <div class="step-desc">Tổng hợp doanh thu hôm nay</div>
+                        <div class="step-actor">💰 Kế toán</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 5: Monthly Close -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <span class="phase-number">Giai đoạn 5</span>
+                    Khóa sổ cuối tháng
+                </div>
+                <div class="steps-container">
+                    <div class="step-node finance-node" data-step="month-reconcile">
+                        <div class="step-icon">⚖️</div>
+                        <div class="step-title">Đối soát toàn tháng</div>
+                        <div class="step-desc">Tổng hợp tất cả giao dịch</div>
+                        <div class="step-actor">💰 Kế toán trưởng</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node finance-node" data-step="financial-statements">
+                        <div class="step-icon">📈</div>
+                        <div class="step-title">Báo cáo tài chính</div>
+                        <div class="step-desc">P&L, Balance Sheet, Cash Flow</div>
+                        <div class="step-actor">💰 Kế toán trưởng</div>
+                    </div>
+                    <div class="connector"><div class="arrow">→</div></div>
+                    <div class="step-node finance-node" data-step="analysis">
+                        <div class="step-icon">📊</div>
+                        <div class="step-title">Phân tích & Báo cáo</div>
+                        <div class="step-desc">Trình Ban Giám đốc</div>
+                        <div class="step-actor">💰 Kế toán trưởng</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="metrics">
+            <h3 style="margin-bottom: 15px; color: #2d3748;">📊 Chỉ số quan trọng</h3>
+            <div class="metric-row">
+                <span class="metric-label">Tỷ lệ thu tiền</span>
+                <span class="metric-value">92%</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Tỷ lệ thanh toán thành công</span>
+                <span class="metric-value">98%</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Thời gian thu trung bình</span>
+                <span class="metric-value">4 ngày</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Độ chính xác đối soát</span>
+                <span class="metric-value">99.8%</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Thời gian xuất hóa đơn</span>
+                <span class="metric-value">&lt;1 phút</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-panel" id="infoPanel">
+        <button class="close-panel" onclick="closePanel()">×</button>
+        <h3 id="panelTitle">Chi tiết bước</h3>
+        <div id="panelContent"></div>
+    </div>
+
+    <script>
+        const stepDetails = {
+            'trigger': {
+                title: '🎯 Kích hoạt tạo hóa đơn',
+                actor: 'Hệ thống (Tự động)',
+                duration: 'Tức thì',
+                description: 'Khi tư vấn viên hoàn tất ghi danh học viên, hệ thống tự động kích hoạt quy trình tạo hóa đơn.',
+                trigger: 'Enrollment.status = "pending_payment"',
+                nextSteps: 'Hệ thống bắt đầu quy trình tạo hóa đơn ngay lập tức.'
+            },
+            'generate-invoice': {
+                title: '📋 Tạo hóa đơn tự động',
+                actor: 'Hệ thống',
+                duration: '< 1 phút',
+                description: 'Hệ thống tự động tạo hóa đơn với số hóa đơn duy nhất theo format INV-YYYY-XXXX.',
+                details: [
+                    'Số hóa đơn: INV-2024-0234',
+                    'Ngày phát hành: Hôm nay',
+                    'Hạn thanh toán: 7 ngày sau',
+                    'Trạng thái: Chờ thanh toán',
+                    'Liên kết: Enrollment ID'
+                ],
+                automation: 'Hoàn toàn tự động, không cần can thiệp thủ công.'
+            },
+            'calculate-fees': {
+                title: '🧮 Tính toán học phí',
+                actor: 'Hệ thống',
+                duration: 'Tức thì',
+                description: 'Tự động tính tổng học phí dựa trên chương trình đã chọn.',
+                breakdown: `
+Học phí chương trình: 5,000,000 VND
+Phí đăng ký:           500,000 VND
+Tài liệu học tập:      300,000 VND
+─────────────────────────────────
+Tổng phụ:           5,800,000 VND
+                `,
+                source: 'Lấy từ bảng giá chương trình trong database.'
+            },
+            'apply-discount': {
+                title: '🎫 Áp dụng giảm giá',
+                actor: 'Hệ thống',
+                duration: 'Tức thì',
+                description: 'Nếu có mã khuyến mãi hoặc ưu đãi, tự động áp dụng giảm giá.',
+                example: `
+Tổng phụ:            5,800,000 VND
+Giảm giá (EARLY10):   -580,000 VND (10%)
+─────────────────────────────────
+TỔNG CỘNG:           5,220,000 VND
+                `,
+                validation: [
+                    'Kiểm tra mã còn hiệu lực',
+                    'Kiểm tra số lần sử dụng',
+                    'Kiểm tra điều kiện áp dụng',
+                    'Tính số tiền giảm'
+                ]
+            },
+            'send-invoice': {
+                title: '📧 Gửi hóa đơn cho học viên',
+                actor: 'Hệ thống',
+                duration: 'Tức thì',
+                description: 'Gửi hóa đơn qua email và SMS với link thanh toán.',
+                channels: [
+                    'Email: PDF đính kèm + link thanh toán',
+                    'SMS: Thông báo ngắn + link',
+                    'Portal: Hiển thị trong tài khoản học viên'
+                ],
+                emailContent: `
+Chủ đề: Hóa đơn học phí #INV-2024-0234
+
+Chào em Nguyễn Văn A,
+
+Hóa đơn học phí cho khóa English Intermediate đã sẵn sàng.
+
+Tổng số tiền: 5,220,000 VND
+Hạn thanh toán: 01/09/2024
+
+[Thanh toán Online] [Xem hóa đơn]
+                `
+            },
+            'online-payment': {
+                title: '💳 Thanh toán Online (60%)',
+                actor: 'Học viên + Cổng thanh toán',
+                duration: '2-5 phút',
+                description: 'Học viên thanh toán qua VNPay hoặc Momo, xử lý tức thì.',
+                flow: [
+                    '1. Học viên click "Thanh toán Online"',
+                    '2. Hệ thống tạo link thanh toán',
+                    '3. Chuyển hướng đến VNPay/Momo',
+                    '4. Học viên nhập thông tin thẻ/TK',
+                    '5. Xác thực OTP',
+                    '6. Cổng xử lý thanh toán',
+                    '7. Gửi webhook về LMS',
+                    '8. LMS xác minh và ghi nhận'
+                ],
+                advantages: [
+                    'Tức thì - không chờ đợi',
+                    'Tự động ghi nhận',
+                    'An toàn và bảo mật',
+                    'Tiện lợi 24/7'
+                ],
+                successRate: '98%'
+            },
+            'cash-payment': {
+                title: '💵 Thanh toán Tiền mặt (25%)',
+                actor: 'Học viên + Kế toán',
+                duration: '5-10 phút',
+                description: 'Học viên đến quầy thanh toán bằng tiền mặt trực tiếp.',
+                process: [
+                    '1. Học viên đến quầy với hóa đơn',
+                    '2. Kế toán xác minh thông tin',
+                    '3. Nhận và đếm tiền cẩn thận',
+                    '4. Ghi nhận vào hệ thống',
+                    '5. In biên lai (2 bản)',
+                    '6. Đưa biên lai cho học viên',
+                    '7. Cất tiền vào két',
+                    '8. Ghi vào sổ quỹ'
+                ],
+                security: [
+                    'Đếm tiền trước mặt học viên',
+                    'Sử dụng máy đếm tiền nếu số lượng lớn',
+                    'Hai người chứng kiến cho số tiền >10M',
+                    'Gửi ngân hàng cuối ngày'
+                ]
+            },
+            'bank-transfer': {
+                title: '🏦 Chuyển khoản Ngân hàng (15%)',
+                actor: 'Học viên + Kế toán',
+                duration: '1-2 ngày',
+                description: 'Học viên chuyển khoản qua ngân hàng, cần đối soát thủ công.',
+                instructions: `
+Thông tin chuyển khoản:
+
+Ngân hàng: Vietcombank
+Số TK: 1234567890
+Tên TK: Trung tâm XYZ
+Nội dung: INV-2024-0234 Nguyen Van A
+                `,
+                reconciliation: [
+                    'Kế toán tải sao kê ngân hàng hàng ngày',
+                    'Đối chiếu với danh sách hóa đơn chờ',
+                    'Ghép theo số tiền và nội dung CK',
+                    'Ghi nhận thanh toán trong hệ thống',
+                    'Gửi biên lai cho học viên'
+                ],
+                challenges: [
+                    'Học viên quên ghi nội dung',
+                    'Chuyển sai số tiền',
+                    'Trễ 1-2 ngày',
+                    'Cần đối soát thủ công'
+                ]
+            },
+            'verify-payment': {
+                title: '✓ Xác minh thanh toán',
+                actor: 'Kế toán',
+                duration: '2-5 phút',
+                description: 'Kiểm tra tính hợp lệ của khoản thanh toán trước khi ghi nhận.',
+                checks: [
+                    '✓ Số tiền khớp với hóa đơn',
+                    '✓ Tham chiếu hóa đơn đúng',
+                    '✓ Học viên đúng người',
+                    '✓ Chưa thanh toán trước đó',
+                    '✓ Hóa đơn chưa hủy'
+                ],
+                onlineVerification: 'Tự động với webhook signature từ cổng thanh toán.',
+                manualVerification: 'Thủ công với tiền mặt và chuyển khoản.'
+            },
+            'record-payment': {
+                title: '💾 Ghi nhận thanh toán',
+                actor: 'Kế toán',
+                duration: '1-2 phút',
+                description: 'Cập nhật hệ thống với thông tin thanh toán đã xác minh.',
+                data: [
+                    'ID Hóa đơn: INV-2024-0234',
+                    'Số tiền: 5,220,000 VND',
+                    'Phương thức: Online/Cash/Transfer',
+                    'Tham chiếu: Transaction ID',
+                    'Thời gian: 25/08/2024 14:30',
+                    'Người ghi nhận: Ms. Lan'
+                ],
+                systemActions: [
+                    'Cập nhật Invoice.status = "paid"',
+                    'Tạo PaymentTransaction record',
+                    'Cập nhật Enrollment.status = "active"',
+                    'Trigger receipt generation',
+                    'Log audit trail'
+                ],
+                atomic: 'Toàn bộ thao tác trong một transaction để đảm bảo nhất quán.'
+            },
+            'generate-receipt': {
+                title: '🧾 Tạo biên lai',
+                actor: 'Hệ thống',
+                duration: 'Tức thì',
+                description: 'Tự động tạo biên lai PDF chính thức với số biên lai duy nhất.',
+                receiptNumber: 'RCP-2024-0156',
+                content: [
+                    'Logo và thông tin trường',
+                    'Số biên lai',
+                    'Ngày giờ thanh toán',
+                    'Thông tin học viên',
+                    'Số hóa đơn tham chiếu',
+                    'Số tiền (số và chữ)',
+                    'Phương thức thanh toán',
+                    'Chữ ký người thu',
+                    'Con dấu trường'
+                ],
+                format: 'PDF A4, lưu vĩnh viễn trong hệ thống.'
+            },
+            'send-receipt': {
+                title: '📧 Gửi biên lai',
+                actor: 'Hệ thống',
+                duration: 'Tức thì',
+                description: 'Gửi biên lai PDF qua email cho học viên.',
+                email: `
+Chủ đề: Biên lai thanh toán #RCP-2024-0156
+
+Chào em Nguyễn Văn A,
+
+Cảm ơn em đã thanh toán học phí!
+
+Số tiền: 5,220,000 VND
+Thời gian: 25/08/2024 14:30
+Biên lai: Xem file đính kèm
+
+Chúc em học tốt!
+                `,
+                storage: 'Biên lai lưu trong hệ thống, học viên có thể tải lại bất cứ lúc nào.'
+            },
+            'activate-enrollment': {
+                title: '🎉 Kích hoạt ghi danh',
+                actor: 'Hệ thống',
+                duration: 'Tức thì',
+                description: 'Sau khi thanh toán, tự động kích hoạt tài khoản học viên.',
+                actions: [
+                    'Enrollment.status → "active"',
+                    'Tạo tài khoản LMS',
+                    'Gửi thông tin đăng nhập',
+                    'Thêm vào danh sách lớp',
+                    'Thông báo giáo viên',
+                    'Mở quyền truy cập tài liệu'
+                ],
+                notification: 'Học viên nhận email chào mừng với hướng dẫn đăng nhập.'
+            },
+            'count-cash': {
+                title: '💵 Kiểm đếm tiền mặt',
+                actor: 'Kế toán',
+                duration: '10-15 phút',
+                description: 'Cuối ngày, đếm toàn bộ tiền mặt trong két.',
+                process: [
+                    'Đếm từng loại tiền (500K, 200K, 100K...)',
+                    'Ghi số lượng từng loại',
+                    'Tính tổng',
+                    'Đếm lại để xác nhận',
+                    'So với sổ quỹ'
+                ],
+                expected: `
+Số dư đầu ngày:        500,000 VND
+Thu trong ngày:     12,720,000 VND
+Chi trong ngày:              0 VND
+─────────────────────────────────
+Số dư cuối ngày:    13,220,000 VND
+                `
+            },
+            'compare-records': {
+                title: '📊 So sánh với sổ sách',
+                actor: 'Kế toán',
+                duration: '5 phút',
+                description: 'So sánh số tiền thực tế với ghi nhận trong hệ thống.',
+                comparison: `
+Tiền mặt thực tế:   13,220,000 VND
+Ghi nhận hệ thống:  13,220,000 VND
+─────────────────────────────────
+Chênh lệch:                  0 VND ✓
+                `,
+                ideal: 'Không có chênh lệch = hoàn hảo!'
+            },
+            'check-variance': {
+                title: '❓ Kiểm tra chênh lệch',
+                actor: 'Kế toán',
+                duration: '1 phút',
+                description: 'Xác định có sai khác giữa thực tế và ghi nhận không.',
+                scenarios: [
+                    'Không chênh lệch → Gửi ngân hàng',
+                    'Chênh lệch nhỏ (<10K) → Ghi sổ quỹ',
+                    'Chênh lệch lớn → Điều tra ngay'
+                ]
+            },
+            'investigate': {
+                title: '🔍 Điều tra chênh lệch',
+                actor: 'Kế toán + Quản lý',
+                duration: '30-60 phút',
+                description: 'Tìm nguyên nhân khi có sai khác giữa tiền thực và sổ sách.',
+                causes: [
+                    'Lỗi đếm tiền (đếm lại)',
+                    'Quên ghi biên lai',
+                    'Nhập sai số tiền',
+                    'Biên lai bị mất',
+                    'Trả tiền thừa cho học viên'
+                ],
+                actions: [
+                    'Kiểm tra lại tất cả biên lai',
+                    'So với camera an ninh',
+                    'Phỏng vấn nhân viên',
+                    'Báo cáo quản lý',
+                    'Điều chỉnh sổ sách nếu cần'
+                ],
+                escalation: 'Chênh lệch >500K phải báo Giám đốc ngay lập tức.'
+            },
+            'bank-deposit': {
+                title: '🏦 Gửi ngân hàng',
+                actor: 'Kế toán',
+                duration: '30 phút',
+                description: 'Nộp tiền mặt vào tài khoản ngân hàng của trường.',
+                process: [
+                    'Chuẩn bị tiền nộp (giữ lại quỹ nhỏ)',
+                    'Điền phiếu gửi tiền',
+                    'Đến ngân hàng',
+                    'Nộp tiền và nhận biên lai',
+                    'Chụp/scan biên lai gửi',
+                    'Ghi nhận vào hệ thống',
+                    'Lưu biên lai gốc'
+                ],
+                amount: `
+Tiền mặt tổng:      13,220,000 VND
+Giữ quỹ nhỏ:          -500,000 VND
+─────────────────────────────────
+Gửi ngân hàng:      12,720,000 VND
+                `,
+                security: 'Nên có 2 người đi nộp nếu số tiền >20M VND.'
+            },
+            'daily-report': {
+                title: '📄 Báo cáo ngày',
+                actor: 'Kế toán',
+                duration: '10 phút',
+                description: 'Tổng hợp báo cáo tài chính cuối ngày.',
+                content: `
+BÁO CÁO TÀI CHÍNH NGÀY
+Ngày: 25/08/2024
+Chi nhánh: Hà Nội Central
+
+DOANH THU:
+- Tiền mặt:         12,720,000 VND (3 GD)
+- Online:            8,220,000 VND (2 GD)
+- Chuyển khoản:      5,000,000 VND (1 GD)
+─────────────────────────────────────
+Tổng:               25,940,000 VND
+
+HÓA ĐƠN CHƯA THU:
+- Chờ thanh toán:   18 HĐ, 89,500,000 VND
+- Quá hạn 1-7 ngày:  5 HĐ, 23,000,000 VND
+- Quá hạn >7 ngày:   2 HĐ,  9,500,000 VND
+
+Người lập: Ms. Lan (Kế toán)
+                `,
+                distribution: 'Gửi cho Quản lý chi nhánh và Giám đốc tài chính.'
+            },
+            'month-reconcile': {
+                title: '⚖️ Đối soát toàn tháng',
+                actor: 'Kế toán trưởng',
+                duration: '2-3 giờ',
+                description: 'Đối soát toàn bộ giao dịch tài chính trong tháng.',
+                tasks: [
+                    'Thu thập dữ liệu từ các chi nhánh',
+                    'Đối soát hóa đơn với thanh toán',
+                    'Đối soát ngân hàng với sổ sách',
+                    'Xác định các khoản chưa thu',
+                    'Kiểm tra tính nhất quán',
+                    'Xử lý sai lệch nếu có'
+                ],
+                deadline: 'Hoàn thành trước ngày 5 của tháng sau.'
+            },
+            'financial-statements': {
+                title: '📈 Báo cáo tài chính',
+                actor: 'Kế toán trưởng',
+                duration: '2-3 giờ',
+                description: 'Tạo các báo cáo tài chính chuẩn.',
+                reports: [
+                    'Báo cáo thu nhập (P&L)',
+                    'Bảng cân đối kế toán (Balance Sheet)',
+                    'Báo cáo lưu chuyển tiền tệ (Cash Flow)',
+                    'Phân tích theo chi nhánh',
+                    'Phân tích theo chương trình'
+                ],
+                pl: `
+THÁNG 8/2024
+
+Doanh thu:           305,700,000 VND
+Chi phí giảng dạy:  -120,000,000 VND
+Chi phí vận hành:    -90,000,000 VND
+─────────────────────────────────────
+Lợi nhuận ròng:       90,500,000 VND
+Tỷ suất lợi nhuận:           29.6%
+                `
+            },
+            'analysis': {
+                title: '📊 Phân tích & Báo cáo',
+                actor: 'Kế toán trưởng',
+                duration: '1-2 giờ',
+                description: 'Phân tích xu hướng và trình báo cáo Ban Giám đốc.',
+                analysis: [
+                    'So sánh với tháng trước',
+                    'So sánh với cùng kỳ năm ngoái',
+                    'Xu hướng doanh thu',
+                    'Hiệu quả thu tiền',
+                    'Chi phí bất thường',
+                    'Khuyến nghị cải thiện'
+                ],
+                presentation: 'Meeting với BGĐ vào tuần đầu tháng sau.',
+                actions: [
+                    'Cải thiện quy trình thu tiền',
+                    'Giảm chi phí không cần thiết',
+                    'Tăng hiệu quả hoạt động'
+                ]
+            }
+        };
+
+        // Add click handlers
+        document.querySelectorAll('.step-node, .payment-method').forEach(node => {
+            node.addEventListener('click', function() {
+                const stepId = this.getAttribute('data-step');
+                if (stepId) {
+                    showStepDetails(stepId);
+                    document.querySelectorAll('.step-node, .payment-method').forEach(n => n.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        function showStepDetails(stepId) {
+            const panel = document.getElementById('infoPanel');
+            const content = document.getElementById('panelContent');
+            const title = document.getElementById('panelTitle');
+            const details = stepDetails[stepId];
+
+            if (!details) return;
+
+            title.textContent = details.title;
+
+            let html = `
+                <div class="detail">
+                    <div class="label">👤 Người thực hiện</div>
+                    <div class="value">${details.actor}</div>
+                </div>
+                <div class="detail">
+                    <div class="label">⏱️ Thời gian</div>
+                    <div class="value">${details.duration}</div>
+                </div>
+                <div class="detail">
+                    <div class="label">📋 Mô tả</div>
+                    <div class="value">${details.description}</div>
+                </div>
+            `;
+
+            for (const [key, value] of Object.entries(details)) {
+                if (['title', 'actor', 'duration', 'description'].includes(key)) continue;
+
+                const label = formatKey(key);
+                if (Array.isArray(value)) {
+                    html += `
+                        <div class="detail">
+                            <div class="label">${label}</div>
+                            <div class="value">
+                                <ul style="margin: 5px 0; padding-left: 20px;">
+                                    ${value.map(item => `<li>${item}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                } else if (typeof value === 'string') {
+                    html += `
+                        <div class="detail">
+                            <div class="label">${label}</div>
+                            <div class="value" style="white-space: pre-line;">${value}</div>
+                        </div>
+                    `;
+                }
+            }
+
+            content.innerHTML = html;
+            panel.classList.add('show');
+        }
+
+        function formatKey(key) {
+            const translations = {
+                'trigger': '🎯 Điều kiện kích hoạt',
+                'nextSteps': '➡️ Bước tiếp theo',
+                'details': '📝 Chi tiết',
+                'automation': '🤖 Tự động hóa',
+                'breakdown': '💰 Chi tiết phí',
+                'source': '📊 Nguồn dữ liệu',
+                'example': '📝 Ví dụ',
+                'validation': '✓ Kiểm tra',
+                'channels': '📱 Kênh gửi',
+                'emailContent': '📧 Nội dung email',
+                'flow': '🔄 Luồng xử lý',
+                'advantages': '✨ Ưu điểm',
+                'successRate': '📈 Tỷ lệ thành công',
+                'process': '⚙️ Quy trình',
+                'security': '🔒 An ninh',
+                'instructions': '📋 Hướng dẫn',
+                'reconciliation': '⚖️ Đối soát',
+                'challenges': '⚠️ Thách thức',
+                'checks': '✓ Kiểm tra',
+                'onlineVerification': '💳 Xác minh online',
+                'manualVerification': '👤 Xác minh thủ công',
+                'data': '📊 Dữ liệu ghi nhận',
+                'systemActions': '🤖 Hành động hệ thống',
+                'atomic': '⚛️ Tính nguyên tử',
+                'receiptNumber': '🔢 Số biên lai',
+                'content': '📄 Nội dung',
+                'format': '📐 Định dạng',
+                'email': '📧 Email',
+                'storage': '💾 Lưu trữ',
+                'actions': '🎬 Hành động',
+                'notification': '📧 Thông báo',
+                'expected': '📊 Số liệu mong đợi',
+                'comparison': '⚖️ So sánh',
+                'ideal': '✨ Lý tưởng',
+                'scenarios': '🎯 Tình huống',
+                'causes': '🔍 Nguyên nhân',
+                'escalation': '⚠️ Báo cáo cấp trên',
+                'amount': '💰 Số tiền',
+                'distribution': '📤 Phân phối',
+                'tasks': '📋 Công việc',
+                'deadline': '⏰ Hạn chót',
+                'reports': '📊 Báo cáo',
+                'pl': '📈 P&L',
+                'analysis': '🔍 Phân tích',
+                'presentation': '📊 Trình bày'
+            };
+            return translations[key] || key;
+        }
+
+        function closePanel() {
+            document.getElementById('infoPanel').classList.remove('show');
+            document.querySelectorAll('.step-node, .payment-method').forEach(n => n.classList.remove('active'));
+        }
+
+        document.addEventListener('click', function(e) {
+            const panel = document.getElementById('infoPanel');
+            if (!e.target.closest('.step-node') && !e.target.closest('.payment-method') && !e.target.closest('.info-panel')) {
+                panel.classList.remove('show');
+                document.querySelectorAll('.step-node, .payment-method').forEach(n => n.classList.remove('active'));
+            }
+        });
+    </script>
+</body>
+</html>

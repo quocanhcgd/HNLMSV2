@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduCenter LMS — Progress Tracker (MVP)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={darkMode:'class',theme:{extend:{colors:{primary:'#0d9488',accent:'#f59e0b'}}}};</script>
+<style>body{font-family:Inter,system-ui,sans-serif}</style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+<div id="app"></div>
+<div id="modal" class="fixed inset-0 hidden bg-black/50 z-50 overflow-auto"><div class="max-w-3xl mx-auto my-8 bg-white rounded-xl p-6 shadow-xl" id="modalBox"></div></div>
+
+<script>
+const PROJECT_CONTEXT=`DỰ ÁN: EduCenter LMS — Hệ thống quản lý học tập on-premise đa chi nhánh cho trung tâm đào tạo tư nhân tại Việt Nam.
+STACK: React 19 + Ant Design Pro (Frontend) · NestJS 10 + TypeORM (Backend) · PostgreSQL 15 + Redis 7 (BullMQ) · Nginx + systemd + gói .deb. KHÔNG Docker.
+MVP: 16 tuần / 2 dev (Dev1=backend/DevOps, Dev2=frontend). Phạm vi: Core + Academic + Learning + Finance. Không AI, không hybrid.
+QUYẾT ĐỊNH (D9, 2026-08-26): Hệ thống quản lý license CHƯA triển khai — LMS chạy license MẶC ĐỊNH (dev/evaluation), LicenseService là STUB trả mọi module enabled, không cần kích hoạt/RSA. Bảng licenses/addon_licenses/module_states/feature_flags tạo nhưng RESERVED. Endpoint /license/* là FUTURE (điểm chờ kết nối hệ thống quản lý license sau).
+NỀN TÀI LIỆU (docs/): 00-project-overview, 01-architecture (on-premise, license-core=stub), 02-spec (US0=Installation license mặc định), 03-data-model, 04-database-schema (DDL chuẩn), 05-api/api-spec.yaml (OpenAPI chuẩn), 06-deployment/*, 07-operations/security-checklist, 08-addons, 09-planning/tasks-v2.md.
+QUY TẮC CODING (BẮT BUỘC): tuân thủ 14-agent-guidelines/coding-rules.md — đọc trước khi code; chỉ đổi đúng phạm vi task; không chạm docs/archive; branch-scope enforce backend; không secret trong source/log; migration chỉ tiến về trước; soft-delete/audit; i18n file json; test + DoD đủ; báo cáo file thay đổi.
+QUY ƯỚC: Branch-scoped data (mọi entity gắn organization_id/branch_id). Audit append-only. Không xóa vật lý (soft delete). UUID PK. Migration TypeORM chỉ tiến về trước. i18n vi-VN mặc định + en-US. Khi làm 1 task: đọc tài liệu chuẩn liên quan rồi thực hiện, chạy test, báo DoD.
+HOẠT ĐỘNG: trả lời bằng tiếng Việt (thuật ngữ kỹ thuật giữ tiếng Anh). Kết thúc mỗi task: báo file/spec thay đổi, trạng thái, xác nhận Đầu ra vs Tiêu chí nhận (DoD).`;
+
+/* ============ DATA (76 tasks, mỗi task có quy trình đầy đủ) ============ */
+const TASKS=[
+/* P1 Foundation W1-3 */
+{id:"T001",phase:"P1",phaseName:"Foundation",week:"1-3",pri:"Critical",group:"DevOps",title:"Khởi tạo monorepo",owner:"Dev1",est:1,deps:[],
+ goal:"Thiết lập cấu trúc monorepo dùng chung cho web/api/worker/packages/infra.",
+ input:["01-architecture.md §3 (cây thư mục)","pnpm ≥9, Node ≥20"],
+ steps:["Tạo pnpm workspace + turbo.json","Tạo apps/web, apps/api, worker, packages/shared, packages/license-core, infra/","Cấu hình TypeScript 5.x, ESLint, Prettier"],
+ output:["apps/, packages/, infra/ có package.json","pnpm install chạy được"],
+ dod:["pnpm install hết lỗi","pnpm build package rỗng chạy","Lint+Prettier pass"]},
+
+{id:"T002",phase:"P1",phaseName:"Foundation",week:"1-3",pri:"Critical",group:"Frontend",title:"Setup Vite + React 19 (apps/web)",owner:"Dev2",est:1,deps:["T001"],
+ goal:"Dựng apps/web với Vite + React 19 + Router.",
+ input:["T001","01-architecture.md §4"],
+ steps:["Tạo Vite 5 + React 19 trong apps/web","Thêm React Router 6","Cấu hình alias @/, env, HMR"],
+ output:["Dev server chạy với HMR","1 route demo"],
+ dod:["npm run dev + HMR hoạt động","Router có route demo"]},
+
+{id:"T003",phase:"P1",phaseName:"Foundation",week:"1-3",pri:"Critical",group:"Frontend",title:"Cài Ant Design 5 + Pro",owner:"Dev2",est:1,deps:["T002"],
+ goal:"Tích hợp Ant Design 5 + Pro components.",
+ input:["T002","01-architecture.md §4"],
+ steps:["Cài antd + @ant-design/pro-components","ConfigProvider + ProLayout mẫu","Menu mẫu"],
+ output:["ProLayout render menu mẫu"],
+ dod:["Layout sidebar/header/content hiển thị","Không lỗi console"]},
+
+{id:"T004",phase:"P1",phaseName:"Foundation",week:"1-3",pri:"Critical",group:"Backend",title:"Setup NestJS (apps/api)",owner:"Dev1",est:1,deps:["T001"],
+ input:["T001","01-architecture.md §5"],
+ steps:["NestJS 10 + TypeORM + class-validator","Health check controller","Global validation pipe + exception filter"],
+ output:["GET /health trả 200"],
+ dod:["/health chạy","Env đọc được"]},
+
+{id:"T005",phase:"P1",phaseName:"Foundation",week:"1-3",pri:"Critical",group:"Backend",title:"PostgreSQL schema + TypeORM config",owner:"Dev1",est:2,deps:["T004"],
+ input:["T004","04-database-schema.md (DDL chuẩn)"],
+ steps:["Cấu hình DataSource + env DB","Migration framework TypeORM","Migration 001 tạo base tables"],
+ output:["DB kết nối + migration chạy"],
+ dod:["Migration chạy trên DB sạch","Table base tồn tại"]},
+
+{id:"T006",phase:"P1",phaseName:"Foundation",week:"1-3",pri:"Critical",group:"Backend",title:"Redis + BullMQ",owner:"Dev1",est:1,deps:["T004"],
+ input:["T004","01-architecture.md (worker)"],
+ steps:["Cấu hình Redis client","BullMQ queue + job test"],
+ output:["Queue chạy job test thành công"],
+ dod:["Enqueue → process log ra"]},
+
+{id:"T007",phase:"P1",phaseName:"Foundation",week:"1-3",pri:"Critical",group:"Backend",title:"Worker process",owner:"Dev1",est:1,deps:["T006"],
+ input:["T006"],
+ steps:["Tạo worker/ đọc queue","Xử lý job, log + error"],
+ output:["Worker consume job"],
+ dod:["Worker nhận job từ api"]},
+
+{id:"T008",phase:"P1",phaseName:"Foundation",week:"1-3",pri:"Critical",group:"DevOps",title:"Debian package skeleton",owner:"Dev1",est:2,deps:["T001"],
+ input:["01-architecture.md §3 infra","06-deployment/installation-guide"],
+ steps:["infra/debian: DEBIAN/control, postinst, prerm","Lệnh build dpkg-deb"],
+ output:["Build tạo .deb cấu trúc đúng"],
+ dod:["dpkg -i cài được gói rỗng"]},
+
+{id:"T009",phase:"P1",phaseName:"Foundation",week:"1-3",pri:"Critical",group:"DevOps",title:"Installation wizard (lms-setup)",owner:"Dev1",est:2,deps:["T008"],
+ input:["T008","06-deployment/installation-guide.md"],
+ steps:["CLI interactive: DB creds, admin, org","Ghi api.env","Tự tạo DB + migration"],
+ output:["sudo lms-setup wizard hoàn tất"],
+ dod:["Wizard đủ bước","Cấu hình sinh đúng"]},
+
+{id:"T010",phase:"P1",phaseName:"Foundation",week:"1-3",pri:"Critical",group:"DevOps",title:"Systemd service units",owner:"Dev1",est:1,deps:["T009"],
+ input:["T009"],
+ steps:["lms-web/lms-api/lms-worker.service","Enable + start"],
+ output:["3 services systemd"],
+ dod:["systemctl status: 3 active"]},
+
+/* --------- Phase 2 Auth W4-5 --------- */
+{id:"T011",phase:"P2",phaseName:"Auth",week:"4-5",pri:"Critical",group:"License",title:"LicenseService STUB",owner:"Dev1",est:0.5,deps:[],
+ input:["02-spec.md US0","01-architecture.md §5.2 (D9)"],
+ steps:["Tạo packages/license-core stub","Trả license mặc định (module enabled)","Giữ interface"],
+ output:["LicenseService stub trả license mặc định"],
+ dod:["Không enforce constraint","Mọi module enabled","Không cần kích hoạt"]},
+
+{id:"T012",phase:"P2",phaseName:"Auth",week:"4-5",pri:"Critical",group:"License",title:"Bảng license RESERVED",owner:"Dev1",est:1,deps:["T005"],
+ input:["04-database-schema.md §5"],
+ steps:["Migration tạo licenses/addon_licenses/module_states/feature_flags","Không seed"],
+ output:["Bảng tạo nhưng trống"],
+ dod:["Bảng tồn tại, không seed","Schema khớp 04"]},
+
+{id:"T013",phase:"P2",phaseName:"Auth",week:"4-5",pri:"Critical",group:"License",title:"Contract /license/* FUTURE",owner:"Dev1",est:0.5,deps:["T005"],
+ input:["05-api/api-spec.yaml","02-spec.md US0"],
+ steps:["Đảm bảo OpenAPI giữ /license/* đánh dấu FUTURE","Không hiện UI sản xuất"],
+ output:["Contract license giữ, đánh dấu FUTURE"],
+ dod:["OpenAPI parse OK","Không route hoạt động ở prod"]},
+
+{id:"T015",phase:"P2",phaseName:"Auth",week:"4-5",pri:"Critical",group:"Frontend",title:"License status UI",owner:"Dev2",est:1,deps:["T013"],
+ input:["T013","02-spec.md US0"],
+ steps:["Trang /settings/license","Hiển thị Default (dev/evaluation)","Nút kết nối (disabled)"],
+ output:["Trang license"],
+ dod:["Hiển thị đúng status","Nút FUTURE disabled"]},
+
+{id:"T016",phase:"P2",phaseName:"Auth",week:"4-5",pri:"Critical",group:"Backend",title:"User entity + auth module",owner:"Dev1",est:2,deps:["T005"],
+ input:["T005","03-data-model.md (User)"],
+ steps:["Entity users (email,password_hash,full_name,status)","bcrypt hash","Service create/find"],
+ output:["users table + service"],
+ dod:["CRUD user","Password hash"]},
+
+{id:"T017",phase:"P2",phaseName:"Auth",week:"4-5",pri:"Critical",group:"Backend",title:"JWT authentication",owner:"Dev1",est:2,deps:["T016"],
+ input:["T016","07-operations/security-checklist (JWT)"],
+ steps:["POST /api/auth/login","Sinh access 15m + refresh 7d (HTTP-only)","Refresh logic"],
+ output:["Login trả {access_token,refresh_token,user}"],
+ dod:["Login đúng/sai","Refresh đổi token"]},
+
+{id:"T018",phase:"P2",phaseName:"Auth",week:"4-5",pri:"Critical",group:"Backend",title:"Authorization guards",owner:"Dev1",est:2,deps:["T017"],
+ input:["T017","02-spec.md FR-005"],
+ steps:["@RequireRole, @RequirePermission","Guard kiểm JWT claim"],
+ output:["Guards chạy"],
+ dod:["403 khi thiếu quyền","JWT validate"]},
+
+{id:"T019",phase:"P2",phaseName:"Auth",week:"4-5",pri:"High",group:"Frontend",title:"Login page",owner:"Dev2",est:1,deps:["T017"],
+ input:["T017","13-mockups/01-login-license.html"],
+ steps:["Trang /login (email/password)","Remember me, forgot link"],
+ output:["Trang login hoạt động"],
+ dod:["Login đúng","Validate form"]},
+
+{id:"T020",phase:"P2",phaseName:"Auth",week:"4-5",pri:"High",group:"Frontend",title:"Auth state management",owner:"Dev2",est:1,deps:["T019"],
+ input:["T019"],
+ steps:["Zustand store auth + token refresh","useAuth() hook"],
+ output:["Store + hook"],
+ dod:["Token lưu, refresh tự động"]},
+
+/* --------- Phase 3 Core UI W6-7 --------- */
+{id:"T021",phase:"P3",phaseName:"Core UI",week:"6-7",pri:"High",group:"Frontend",title:"ProLayout configuration",owner:"Dev2",est:2,deps:["T003"],
+ input:["T003"],
+ steps:["Responsive sidebar/header/content","Collapse + mobile drawer"],
+ output:["Layout responsive"],
+ dod:["Mobile drawer hoạt động"]},
+
+{id:"T022",phase:"P3",phaseName:"Core UI",week:"6-7",pri:"High",group:"Frontend",title:"Menu config",owner:"Dev2",est:1,deps:["T021"],
+ input:["T021","02-spec.md roles"],
+ steps:["src/config/menu.config.ts theo role"],
+ output:["File config menu"],
+ dod:["Menu theo role hiển thị đúng"]},
+
+{id:"T023",phase:"P3",phaseName:"Core UI",week:"6-7",pri:"High",group:"Frontend",title:"Role-based menu render",owner:"Dev2",est:1,deps:["T022"],
+ input:["T022"],
+ steps:["Render menu theo quyền","Ẩn menu ngoài quyền"],
+ output:["Menu lọc theo role"],
+ dod:["Ẩn menu không quyền"]},
+
+{id:"T024",phase:"P3",phaseName:"Core UI",week:"6-7",pri:"High",group:"Frontend",title:"Common components",owner:"Dev2",est:3,deps:["T021"],
+ input:["T021"],
+ steps:["PageHeader, DataTable, FormBuilder, ErrorBoundary","src/components/common/"],
+ output:["4 components dùng chung"],
+ dod:["Dùng được trong ≥1 trang"]},
+
+{id:"T025",phase:"P3",phaseName:"Core UI",week:"6-7",pri:"High",group:"Frontend",title:"i18n vi/en",owner:"Dev2",est:1,deps:["T003"],
+ input:["T003","D8"],
+ steps:["react-i18next + language switcher","vi-VN.json, en-US.json"],
+ output:["Switcher + file dịch"],
+ dod:["Đổi ngôn ngữ giữa trang"]},
+
+{id:"T026",phase:"P3",phaseName:"Core UI",week:"6-7",pri:"High",group:"Frontend",title:"Theme configuration",owner:"Dev2",est:1,deps:["T003"],
+ input:["T003"],
+ steps:["ConfigProvider theme tokens","Primary color, dark mode"],
+ output:["Theme + dark toggle"],
+ dod:["Dark mode lưu localStorage"]},
+
+/* --------- Phase 4 Org & Users W8-9 --------- */
+{id:"T027",phase:"P4",phaseName:"Org & Users",week:"8-9",pri:"High",group:"Backend",title:"Organization entity",owner:"Dev1",est:1,deps:["T005"],
+ input:["T005","03-data-model.md Organization"],
+ steps:["Entity organizations (name,timezone,settings jsonb)","CRUD service"],
+ output:["organizations table + service"],
+ dod:["CRUD hoạt động"]},
+
+{id:"T028",phase:"P4",phaseName:"Org & Users",week:"8-9",pri:"High",group:"Backend",title:"Branch entity",owner:"Dev1",est:1,deps:["T027"],
+ input:["T027","03-data-model.md Branch"],
+ steps:["Entity branches (org_id,code,name,address,manager,status)","CRUD service"],
+ output:["branches table + service"],
+ dod:["CRUD, code unique trong org"]},
+
+{id:"T029",phase:"P4",phaseName:"Org & Users",week:"8-9",pri:"High",group:"Backend",title:"Org & Branch API",owner:"Dev1",est:2,deps:["T027","T028"],
+ input:["T027","T028","05-api/api-spec.yaml"],
+ steps:["GET/PUT /api/organization","GET/POST/PUT /api/branches","Admin only"],
+ output:["API org/branches"],
+ dod:["Auth admin chặn đúng"]},
+
+{id:"T030",phase:"P4",phaseName:"Org & Users",week:"8-9",pri:"High",group:"Frontend",title:"Org settings page",owner:"Dev2",est:2,deps:["T029"],
+ input:["T029"],
+ steps:["Form /settings/organization (name,timezone,academic_year)"],
+ output:["Trang cấu hình org"],
+ dod:["Lưu đổi hiển thị"]},
+
+{id:"T031",phase:"P4",phaseName:"Org & Users",week:"8-9",pri:"High",group:"Frontend",title:"Branch management page",owner:"Dev2",est:2,deps:["T029"],
+ input:["T029","13-mockups/02-admin-dashboard"],
+ steps:["List/add/edit/archive branch","ProTable search"],
+ output:["Trang /settings/branches"],
+ dod:["CRUD branch từ UI"]},
+
+{id:"T032",phase:"P4",phaseName:"Org & Users",week:"8-9",pri:"High",group:"Backend",title:"Role & Permission entities",owner:"Dev1",est:2,deps:["T016"],
+ input:["T016","03-data-model.md Role/Permission"],
+ steps:["roles, permissions, role_permissions","Many-to-many"],
+ output:["Bảng + quan hệ"],
+ dod:["Seed role mặc định"]},
+
+{id:"T033",phase:"P4",phaseName:"Org & Users",week:"8-9",pri:"High",group:"Backend",title:"ScopeGrant entity",owner:"Dev1",est:1,deps:["T032"],
+ input:["T032","03-data-model.md ScopeGrant"],
+ steps:["scope_grants (user,branch,effective_from,effective_to)"],
+ output:["Bảng scope_grants"],
+ dod:["Hết hạn tự thu hồi"]},
+
+{id:"T034",phase:"P4",phaseName:"Org & Users",week:"8-9",pri:"High",group:"Backend",title:"Branch scope filtering",owner:"Dev1",est:2,deps:["T033"],
+ input:["T033","02-spec.md FR-004"],
+ steps:["Repository base auto filter theo branch","Áp mọi query"],
+ output:["Auto branch filter"],
+ dod:["User chỉ thấy branch được cấp"]},
+
+{id:"T035",phase:"P4",phaseName:"Org & Users",week:"8-9",pri:"High",group:"Backend",title:"User & Role API",owner:"Dev1",est:2,deps:["T032","T033"],
+ input:["T032","T033"],
+ steps:["/api/users, /api/roles CRUD","Assign roles, grant scope"],
+ output:["API users/roles"],
+ dod:["Assign + scope hoạt động"]},
+
+{id:"T036",phase:"P4",phaseName:"Org & Users",week:"8-9",pri:"High",group:"Frontend",title:"User management page",owner:"Dev2",est:3,deps:["T035"],
+ input:["T035","13-mockups/03-users-roles"],
+ steps:["List/add/edit user, assign role","/settings/users ProTable + modal"],
+ output:["Trang quản lý user"],
+ dod:["CRUD user + gán role"]},
+
+{id:"T037",phase:"P4",phaseName:"Org & Users",week:"8-9",pri:"High",group:"Frontend",title:"Role management page",owner:"Dev2",est:2,deps:["T035"],
+ input:["T035"],
+ steps:["/settings/roles list + edit permissions","Permission tree"],
+ output:["Trang quản lý role"],
+ dod:["Edit permission tree lưu"]},
+
+/* ---------- Phase 5 Academic W10-12 ---------- */
+{id:"T038",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Backend",title:"Academic entities",owner:"Dev1",est:3,deps:["T005"],
+ input:["T005","03-data-model.md Academic"],
+ steps:["departments, programs, courses, classes","Quan hệ dept→program→course→class"],
+ output:["4 bảng + quan hệ"],
+ dod:["CRUD cơ bản"]},
+
+{id:"T039",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Backend",title:"Schedule conflict detection",owner:"Dev1",est:2,deps:["T038"],
+ input:["T038","02-spec.md FR-008"],
+ steps:["Service kiểm teacher/room trùng","Query overlapping time"],
+ output:["Service chống trùng lịch"],
+ dod:["Chặn trùng teacher/room/time"]},
+
+{id:"T040",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Backend",title:"Academic CRUD API",owner:"Dev1",est:3,deps:["T038","T039"],
+ input:["T038","T039","05-api/api-spec.yaml"],
+ steps:["/api/departments, /programs, /courses, /classes","Branch-scoped"],
+ output:["API academic"],
+ dod:["Branch-scope enforce"]},
+
+{id:"T041",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Frontend",title:"Dept & Program mgmt",owner:"Dev2",est:2,deps:["T040"],
+ input:["T040"],
+ steps:["CRUD /academic/departments, /academic/programs"],
+ output:["Trang dept + program"],
+ dod:["CRUD từ UI"]},
+
+{id:"T042",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Frontend",title:"Course management",owner:"Dev2",est:2,deps:["T040"],
+ input:["T040"],
+ steps:["List + form course, link program"],
+ output:["Trang /academic/courses"],
+ dod:["CRUD course"]},
+
+{id:"T043",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Frontend",title:"Class management",owner:"Dev2",est:3,deps:["T040"],
+ input:["T040"],
+ steps:["List class, create form, assign teacher","Schedule picker, capacity, teacher selector"],
+ output:["Trang /academic/classes"],
+ dod:["CRUD class + assign teacher"]},
+
+{id:"T044",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Backend",title:"Student entity",owner:"Dev1",est:1,deps:["T005"],
+ input:["T005","03-data-model.md Student"],
+ steps:["Entity students (full_name,dob,email,phone,status)","CRUD service"],
+ output:["students table + service"],
+ dod:["CRUD hoạt động"]},
+
+{id:"T045",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Backend",title:"Enrollment entity",owner:"Dev1",est:2,deps:["T044","T038"],
+ input:["T044","T038","03-data-model.md Enrollment"],
+ steps:["enrollments table","Check capacity, tạo invoice"],
+ output:["enrollments table + service"],
+ dod:["Check capacity + tạo invoice"]},
+
+{id:"T046",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Backend",title:"Enrollment API",owner:"Dev1",est:2,deps:["T045"],
+ input:["T045"],
+ steps:["POST /api/enrollments, GET /api/students/:id/enrollments","Branch-scoped"],
+ output:["API enrollments"],
+ dod:["Branch-scoped enforce"]},
+
+{id:"T047",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Frontend",title:"Student mgmt page",owner:"Dev2",est:3,deps:["T044","T046"],
+ input:["T044","T046"],
+ steps:["List/add/edit student, xem enrollments","/academic/students ProTable search"],
+ output:["Trang quản lý student"],
+ dod:["CRUD student + xem enrollments"]},
+
+{id:"T048",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Frontend",title:"Enrollment workflow",owner:"Dev2",est:2,deps:["T046"],
+ input:["T046"],
+ steps:["Enroll modal, class selector, confirmation","Student detail → Enrollments tab"],
+ output:["Luồng ghi danh"],
+ dod:["Enroll thành công + invoice"]},
+
+/* ---------- Phase 6 Learning W13 ---------- */
+{id:"T049",phase:"P6",phaseName:"Learning",week:"13",pri:"High",group:"Backend",title:"LearningContent entity",owner:"Dev1",est:1,deps:["T005"],
+ input:["T005","03-data-model.md Learning"],
+ steps:["learning_contents (title,type,file_path,access_scope,class_id)"],
+ output:["learning_contents table"],
+ dod:["Bảng tồn tại"]},
+
+{id:"T050",phase:"P6",phaseName:"Learning",week:"13",pri:"High",group:"Backend",title:"Content upload/storage",owner:"Dev1",est:2,deps:["T049"],
+ input:["T049","07-operations (file upload)"],
+ steps:["POST /api/learning-contents/upload","Lưu local /var/lms/uploads","Virus scan, giới hạn 500MB"],
+ output:["Upload hoạt động"],
+ dod:["Upload + scan + limit"]},
+
+{id:"T051",phase:"P6",phaseName:"Learning",week:"13",pri:"High",group:"Backend",title:"Content authorization",owner:"Dev1",est:1,deps:["T050"],
+ input:["T050","02-spec.md FR-013"],
+ steps:["GET download với auth check","Access: enrolled class hoặc public"],
+ output:["Download có auth"],
+ dod:["Chặn người không có quyền"]},
+
+{id:"T052",phase:"P6",phaseName:"Learning",week:"13",pri:"High",group:"Frontend",title:"Content mgmt (teacher)",owner:"Dev2",est:2,deps:["T050"],
+ input:["T050"],
+ steps:["Upload content, set scope, assign class","/learning/contents"],
+ output:["Trang quản lý content"],
+ dod:["Upload + assign class"]},
+
+{id:"T053",phase:"P6",phaseName:"Learning",week:"13",pri:"High",group:"Frontend",title:"Student dashboard",owner:"Dev2",est:2,deps:["T046","T051"],
+ input:["T046","T051"],
+ steps:["Dashboard: enrolled classes, progress","/student/dashboard"],
+ output:["Student dashboard"],
+ dod:["Hiển thị class + progress"]},
+
+{id:"T054",phase:"P6",phaseName:"Learning",week:"13",pri:"High",group:"Frontend",title:"Student class detail",owner:"Dev2",est:2,deps:["T053"],
+ input:["T053"],
+ steps:["Xem class info, schedule, materials","/student/classes/:id"],
+ output:["Trang class detail"],
+ dod:["Hiển thị đúng"]},
+
+{id:"T055",phase:"P6",phaseName:"Learning",week:"13",pri:"High",group:"Frontend",title:"Library page",owner:"Dev2",est:1,deps:["T051"],
+ input:["T051"],
+ steps:["Browse/search contents","/learning/library, filter category"],
+ output:["Trang library"],
+ dod:["Search + filter hoạt động"]},
+
+/* ---------- Phase 7 Finance W14-15 ---------- */
+{id:"T056",phase:"P7",phaseName:"Finance",week:"14-15",pri:"High",group:"Backend",title:"Invoice entity",owner:"Dev1",est:1,deps:["T005"],
+ input:["T005","03-data-model.md Finance"],
+ steps:["invoices (student_id,enrollment_id,amount_total,amount_paid,status)"],
+ output:["invoices table"],
+ dod:["Bảng tồn tại"]},
+
+{id:"T057",phase:"P7",phaseName:"Finance",week:"14-15",pri:"High",group:"Backend",title:"Auto-create invoice on enrollment",owner:"Dev1",est:1,deps:["T056","T045"],
+ input:["T056","T045"],
+ steps:["Enrollment tạo invoice tự động","Get fee từ program, link enrollment"],
+ output:["Invoice tự sinh"],
+ dod:["Ghi danh → invoice"]},
+
+{id:"T058",phase:"P7",phaseName:"Finance",week:"14-15",pri:"High",group:"Backend",title:"PaymentTransaction entity",owner:"Dev1",est:1,deps:["T056"],
+ input:["T056"],
+ steps:["payment_transactions (invoice_id,amount,method,provider,status,idempotency_key)"],
+ output:["Bảng payment_transactions"],
+ dod:["Bảng tồn tại"]},
+
+{id:"T059",phase:"P7",phaseName:"Finance",week:"14-15",pri:"High",group:"Backend",title:"Manual payment recording",owner:"Dev1",est:1,deps:["T058"],
+ input:["T058"],
+ steps:["POST /api/payments/record (cash/bank)","Cập nhật balance, sinh receipt"],
+ output:["Ghi nhận thanh toán"],
+ dod:["Cập nhật invoice đúng"]},
+
+{id:"T060",phase:"P7",phaseName:"Finance",week:"14-15",pri:"High",group:"Backend",title:"Payment gateway plugin arch",owner:"Dev1",est:2,deps:["T058"],
+ input:["T058","01-architecture.md §5 integrations"],
+ steps:["PaymentGatewayInterface, VNPayAdapter skeleton","generatePaymentUrl(), validateWebhook()"],
+ output:["Plugin architecture + skeleton"],
+ dod:["Interface ổn định"]},
+
+{id:"T061",phase:"P7",phaseName:"Finance",week:"14-15",pri:"High",group:"Backend",title:"VNPay integration",owner:"Dev1",est:3,deps:["T060"],
+ input:["T060","02-spec.md FR-010"],
+ steps:["Generate URL → pay → webhook → update invoice"],
+ output:["VNPay flow E2E"],
+ dod:["Thanh toán VNPay hoàn tất"]},
+
+{id:"T062",phase:"P7",phaseName:"Finance",week:"14-15",pri:"High",group:"Backend",title:"Webhook idempotency",owner:"Dev1",est:1,deps:["T061"],
+ input:["T061","02-spec.md FR-011"],
+ steps:["Duplicate webhook không double-pay","Check idempotency_key"],
+ output:["Idempotent xử lý webhook"],
+ dod:["Trùng webhook trả 200"]},
+
+{id:"T063",phase:"P7",phaseName:"Finance",week:"14-15",pri:"High",group:"Backend",title:"Receipt generation (PDF)",owner:"Dev1",est:2,deps:["T059"],
+ input:["T059"],
+ steps:["Tạo PDF receipt từ invoice","pdfkit"],
+ output:["Receipt PDF"],
+ dod:["PDF tải được"]},
+
+{id:"T064",phase:"P7",phaseName:"Finance",week:"14-15",pri:"High",group:"Frontend",title:"Invoice mgmt page",owner:"Dev2",est:2,deps:["T056"],
+ input:["T056"],
+ steps:["List invoices, filter status/branch","/finance/invoices"],
+ output:["Trang invoice"],
+ dod:["Filter hoạt động"]},
+
+{id:"T065",phase:"P7",phaseName:"Finance",week:"14-15",pri:"High",group:"Frontend",title:"Payment recording UI",owner:"Dev2",est:2,deps:["T059"],
+ input:["T059"],
+ steps:["Record cash/bank, upload proof","Invoice detail"],
+ output:["UI ghi nhận thanh toán"],
+ dod:["Ghi nhận đúng"]},
+
+{id:"T066",phase:"P7",phaseName:"Finance",week:"14-15",pri:"High",group:"Frontend",title:"Payment link generation",owner:"Dev2",est:1,deps:["T061"],
+ input:["T061"],
+ steps:["Button gen VNPay link, copy","Invoice detail"],
+ output:["Sinh link thanh toán"],
+ dod:["Link copy được"]},
+
+{id:"T067",phase:"P7",phaseName:"Finance",week:"14-15",pri:"High",group:"Frontend",title:"Financial reports",owner:"Dev2",est:2,deps:["T064"],
+ input:["T064"],
+ steps:["Revenue by branch/month, receivables","Date picker, branch filter, export Excel"],
+ output:["Trang /finance/reports"],
+ dod:["Filter + export Excel"]},
+
+/* ---------- Phase 8 Testing & Polish W16 ---------- */
+{id:"T068",phase:"P8",phaseName:"Test & Polish",week:"16",pri:"Critical",group:"Testing",title:"Unit tests",owner:"Both",est:2,deps:["T045","T059"],
+ input:["T045","T059"],
+ steps:["Unit test LicenseService(stub), EnrollmentService, PaymentService","≥80% coverage business logic"],
+ output:["Suite unit test"],
+ dod:["Test pass, coverage ≥80%"]},
+
+{id:"T069",phase:"P8",phaseName:"Test & Polish",week:"16",pri:"Critical",group:"Testing",title:"Integration tests",owner:"Both",est:2,deps:["T068"],
+ input:["T068","02-spec.md workflows"],
+ steps:["Enrollment flow, payment flow, branch scope isolation","Vitest + testcontainers PostgreSQL"],
+ output:["Integration tests"],
+ dod:["Test pass trên DB thật"]},
+
+{id:"T070",phase:"P8",phaseName:"Test & Polish",week:"16",pri:"Critical",group:"Testing",title:"E2E tests",owner:"Both",est:2,deps:["T069"],
+ input:["T069","Playwright"],
+ steps:["Login, create class, enroll, record payment","Playwright"],
+ output:["E2E tests"],
+ dod:["E2E pass"]},
+
+{id:"T071",phase:"P8",phaseName:"Test & Polish",week:"16",pri:"Critical",group:"Security",title:"Security audit",owner:"Dev1",est:1,deps:["T005"],
+ input:["07-operations/security-checklist.md"],
+ steps:["SQL injection, XSS, CSRF, auth bypass","OWASP ZAP + manual"],
+ output:["Kết quả audit"],
+ dod:["Không lỗi nghiêm trọng"]},
+
+{id:"T072",phase:"P8",phaseName:"Test & Polish",week:"16",pri:"High",group:"Docs",title:"Installation guide",owner:"Dev1",est:1,deps:["T009"],
+ input:["T009","06-deployment/installation-guide.md"],
+ steps:["Cập nhật hướng dẫn cài Ubuntu 22.04","Khớp quy trình thực tế"],
+ output:["06-deployment/installation-guide.md"],
+ dod:["Người mới cài theo được"]},
+
+{id:"T073",phase:"P8",phaseName:"Test & Polish",week:"16",pri:"High",group:"Docs",title:"User manual",owner:"Dev2",est:1,deps:["T047","T052"],
+ input:["T047","T052"],
+ steps:["Screenshot + hướng dẫn từng module"],
+ output:["docs/user-manual.md"],
+ dod:["Phủ các module MVP"]},
+
+{id:"T074",phase:"P8",phaseName:"Test & Polish",week:"16",pri:"High",group:"Docs",title:"API documentation",owner:"Dev1",est:1,deps:["T005"],
+ input:["05-api/api-spec.yaml","Swagger"],
+ steps:["Export OpenAPI từ Swagger","Đảm bảo khớp chuẩn"],
+ output:["05-api/api-spec.yaml"],
+ dod:["OpenAPI validate OK"]},
+
+{id:"T075",phase:"P8",phaseName:"Test & Polish",week:"16",pri:"Critical",group:"DevOps",title:"Build final .deb",owner:"Dev1",est:1,deps:["T009","T010","T074"],
+ input:["T009","T010"],
+ steps:["Build lms-base-v1.0.0.deb","Test trên Ubuntu sạch"],
+ output:["lms-base-v1.0.0.deb"],
+ dod:["Cài thành công trên Ubuntu sạch"]},
+
+{id:"T076",phase:"P8",phaseName:"Test & Polish",week:"16",pri:"High",group:"DevOps",title:"Kiểm tra license mặc định (D9)",owner:"Dev1",est:0.5,deps:["T075"],
+ input:["T075","02-spec.md US0"],
+ steps:["Khởi động LMS, xác nhận license mặc định","Không cần demo license file"],
+ output:["LMS chạy với license mặc định"],
+ dod:["Không yêu cầu kích hoạt"]}
+];
+
+/* ============ RENDER + STATE (localStorage + export/import JSON) ============ */
+const STORE_KEY='edulms_tracker_v1';
+const STATUS_ORDER=['todo','in_progress','done','blocked'];
+const STATUS_LABEL={todo:'🔘 Chưa',in_progress:'⏳ Đang',done:'✅ Xong',blocked:'⛔ Chặn'};
+let state={status:{},filter:'all',owner:'all',phase:'all'};
+function load(){try{const s=JSON.parse(localStorage.getItem(STORE_KEY));if(s)state=Object.assign(state,s);}catch(e){}}
+function save(){localStorage.setItem(STORE_KEY,JSON.stringify(state));}
+function esc(x){return (x||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function taskPrompt(t){
+  return `BẠN là lập trình viên thực hiện task ${t.id} — ${t.title} (Phase ${t.phaseName}, Week ${t.week}, ${t.pri}, owner ${t.owner}, ~${t.est} ngày) của EduCenter LMS.
+
+━━ PROMPT_CONTEXT ━━
+${PROJECT_CONTEXT}
+
+━━ MỤC TIÊU ━━
+${t.goal}
+
+━━ ĐẦU VÀO (đọc trước) ━━
+${t.input.map(x=>'• '+x).join('\n')}
+
+━━ CÁC BƯỚC THỰC HIỆN ━━
+${t.steps.map((x,i)=>`${i+1}. ${x}`).join('\n')}
+
+━━ ĐẦU RA (Deliverable) ━━
+${t.output.map(x=>'• '+x).join('\n')}
+
+━━ TIÊU CHÍ NHẬN (DoD) ━━
+${t.dod.map(x=>'[ ] '+x).join('\n')}
+
+━━ PHỤ THUỘC ━━
+${t.deps.length?t.deps.join(', '):'Không có'}
+
+YÊU CẦU: Thực hiện đủ quy trình trong codebase. Khi xong trả về: (1) file/dir đã tạo-sửa, (2) xác nhận từng DoD (✓/✗), (3) lệnh test đã chạy + kết quả, (4) cập nhật trạng thái task. Nếu chặn, nêu blocker + điều cần quyết định.`;
+}
+function filtered(){return TASKS.filter(t=>{
+  if(state.phase!=='all'&&t.phase!==state.phase)return false;
+  if(state.owner!=='all'&&t.owner!==state.owner)return false;
+  if(state.filter==='active')return (state.status[t.id]||'todo')!=='done';
+  if(state.filter!=='all')return (state.status[t.id]||'todo')===state.filter;
+  return true;});
+}
+function st(){const a={total:TASKS.length,done:0,ip:0,bl:0,td:0};TASKS.forEach(t=>{const s=state.status[t.id]||'todo';if(s==='done')a.done++;else if(s==='in_progress')a.ip++;else if(s==='blocked')a.bl++;else a.td++;});a.pct=TASKS.length?Math.round(a.done/TASKS.length*100):0;return a;}
+function statusBar(t){const s=state.status[t.id]||'todo';return STATUS_ORDER.map(k=>`<button onclick="setStatus('${t.id}','${k}')" class="px-2 py-1 text-xs rounded border ${s===k?'bg-primary text-white border-primary':'bg-white border-gray-300 hover:bg-gray-100'}">${STATUS_LABEL[k]}</button>`).join(' ');}
+function card(t){const s=state.status[t.id]||'todo';return `<div class="border rounded-lg bg-white p-3 ${s==='done'?'opacity-60':''}">
+<div class="flex justify-between"><span class="font-bold text-teal-700">${t.id}</span><span class="text-xs text-gray-500">W${t.week} · ${t.pri} · ${t.owner}</span></div>
+<div class="font-medium mt-1">${esc(t.title)}</div>
+<div class="text-xs text-gray-500 mt-0.5">${esc(t.group)} · ~${t.est} ngày</div>
+<div class="flex flex-wrap gap-1 mt-2">${statusBar(t)}</div>
+<div class="mt-2 flex gap-2"><button onclick="showPrompt('${t.id}')" class="text-xs bg-teal-600 hover:bg-teal-700 text-white px-2 py-1 rounded">🔑 Prompt</button><button onclick="showDetail('${t.id}')" class="text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded">📋 Quy trình</button></div>
+</div>`;}
+function render(){
+  const st=st();const list=filtered();
+  const filters=[['all','Tất cả'],['active','Chưa xong'],['in_progress','Đang'],['done','Xong'],['blocked','Chặn']];
+  document.getElementById('app').innerHTML=`
+  <div class="max-w-6xl mx-auto p-4">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <div><h1 class="text-2xl font-bold">EduCenter LMS — Progress Tracker <span class="text-sm text-gray-500">(MVP 16 tuần / 2 dev)</span></h1>
+      <p class="text-sm text-gray-600">Tổng ${st.total} · ✅ ${st.done} · ⏳ ${st.ip} · ⛔ ${st.bl} · 🔘 ${st.td} — <b>${st.pct}% hoàn thành</b></p></div>
+      <div class="flex gap-2"><button onclick="exportJson()" class="bg-gray-700 text-white px-3 py-1 rounded text-sm">⬇ Export JSON</button>
+      <button onclick="document.getElementById('importFile').click()" class="bg-gray-500 text-white px-3 py-1 rounded text-sm">⬆ Import</button>
+      <input type="file" id="importFile" class="hidden" accept="application/json" onchange="importJson(event)">
+      <button onclick="resetState()" class="bg-red-600 text-white px-3 py-1 rounded text-sm">Reset</button></div>
+    </div>
+    <div class="flex flex-wrap gap-2 mt-4 items-center">
+      ${filters.map(([k,lb])=>`<button onclick="setFilter('${k}')" class="px-3 py-1 text-sm rounded ${state.filter===k?'bg-primary text-white':'bg-white border'}">${lb}</button>`).join(' ')}
+      <select onchange="setPhase(this.value)" class="ml-2 text-sm border rounded px-2 py-1"><option value="all">All phase</option>${[...new Set(TASKS.map(t=>t.phase))].map(p=>`<option ${state.phase===p?'selected':''} value="${p}">${p} — ${TASKS.find(x=>x.phase===p).phaseName}</option>`).join('')}</select>
+      <select onchange="setOwner(this.value)" class="text-sm border rounded px-2 py-1"><option value="all">All dev</option><option ${state.owner==='Dev1'?'selected':''}>Dev1</option><option ${state.owner==='Dev2'?'selected':''}>Dev2</option><option ${state.owner==='Both'?'selected':''}>Both</option></select>
+    </div>
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">${list.map(card).join('')}</div>
+    <p class="text-xs text-gray-400 mt-6">State lưu localStorage; Export JSON để lưu/đồng bộ từ xa, Import khôi phục. Mỗi task có <b>Prompt</b> (context chuyển hội thoại mới) và <b>Quy trình</b> (mục tiêu/đầu vào/bước/đầu ra/DoD).</p>
+  </div>`;
+}
+function showModal(html){document.getElementById('modalBox').innerHTML=html;document.getElementById('modal').classList.remove('hidden');}
+function closeModal(){document.getElementById('modal').classList.add('hidden');}
+function showPrompt(id){const t=TASKS.find(x=>x.id===id);showModal(`
+  <div class="flex justify-between items-center mb-3"><h2 class="font-bold text-lg text-teal-700">🔑 PROMPT_CONTEXT — ${t.id} · ${esc(t.title)}</h2><button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button></div>
+  <button onclick="copyText('${t.id}')" class="bg-teal-600 text-white px-3 py-1 rounded text-sm mb-3">📋 Copy toàn bộ</button>
+  <pre class="bg-gray-50 border rounded p-3 text-xs whitespace-pre-wrap max-h-[60vh] overflow-auto" id="pc">${esc(taskPrompt(t))}</pre>`);
+  document.getElementById('modal').classList.remove('hidden');
+}
+function showDetail(id){const t=TASKS.find(x=>x.id===id);showModal(`
+  <div class="flex justify-between items-center mb-3"><h2 class="font-bold text-lg text-teal-700">📋 ${t.id} — ${esc(t.title)}</h2><button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button></div>
+  <p class="text-sm"><b>Phase:</b> ${t.phaseName} (Week ${t.week}) · <b>Owner:</b> ${t.owner} · <b>Est:</b> ${t.est} ngày · <b>Deps:</b> ${t.deps.length?t.deps.join(', '):'—'}</p>
+  <div class="mt-3"><b class="text-sm">Mục tiêu:</b><p class="text-sm mt-1">${esc(t.goal)}</p></div>
+  <div class="mt-3"><b class="text-sm">Đầu vào:</b><ul class="text-sm list-disc ml-5 mt-1">${t.input.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+  <div class="mt-3"><b class="text-sm">Các bước:</b><ol class="text-sm list-decimal ml-5 mt-1">${t.steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div>
+  <div class="mt-3"><b class="text-sm">Đầu ra:</b><ul class="text-sm list-disc ml-5 mt-1">${t.output.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+  <div class="mt-3"><b class="text-sm">Tiêu chí nhận (DoD):</b><ul class="text-sm list-disc ml-5 mt-1">${t.dod.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+  <div class="mt-4"><button onclick="showPrompt('${t.id}')" class="bg-teal-600 text-white px-3 py-1 rounded text-sm">🔑 Xem Prompt</button></div>`);
+}
+function copyText(id){const t=TASKS.find(x=>x.id===id);navigator.clipboard.writeText(taskPrompt(t)).then(()=>alert('Đã copy prompt '+t.id)).catch(()=>{const ta=document.getElementById('pc');ta.select();document.execCommand('copy');});}
+function setStatus(id,k){state.status[id]=k;save();render();}
+function setFilter(k){state.filter=k;save();render();}
+function setPhase(v){state.phase=v;save();render();}
+function setOwner(v){state.owner=v;save();render();}
+function resetState(){if(confirm('Xóa toàn bộ trạng thái tiến độ đã lưu?')){localStorage.removeItem(STORE_KEY);state={status:{},filter:'all',owner:'all',phase:'all'};render();}}
+function exportJson(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='edulms-progress.json';a.click();}
+function importJson(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const s=JSON.parse(r.result);if(s&&s.status){state.status=s.status;if(s.filter)state.filter=s.filter;if(s.owner)state.owner=s.owner;if(s.phase)state.phase=s.phase;save();render();alert('Đã import tiến độ');}}catch(err){alert('File JSON không hợp lệ');}};r.readAsText(f);e.target.value='';}
+load();render();
+</script>
+</body>
+</html>

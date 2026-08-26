@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo - EduCenter LMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        :root {
+            --primary: #0d9488; --primary-light: #5eead4; --secondary: #10b981;
+            --accent: #f59e0b; --purple: #8b5cf6; --pink: #ec4899;
+            --bg-1: #ffffff; --bg-2: #f9fafb; --bg-3: #f3f4f6;
+            --text-1: #111827; --text-2: #6b7280; --text-3: #9ca3af; --border: #e5e7eb;
+        }
+        html.dark {
+            --bg-1: #1e293b; --bg-2: #0f172a; --bg-3: #334155;
+            --text-1: #f1f5f9; --text-2: #94a3b8; --text-3: #64748b; --border: #334155;
+        }
+        body { background: var(--bg-2); color: var(--text-1); transition: background .3s, color .3s; }
+        .gradient-teal { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); }
+        .card { background: var(--bg-1); border: 1px solid var(--border); border-radius: 1rem; transition: background .3s, border-color .3s; }
+        .surface { background: var(--bg-1); }
+        .track { background: var(--bg-3); }
+        .text-soft { color: var(--text-2); }
+        .text-faint { color: var(--text-3); }
+        .badge { display: inline-flex; align-items: center; padding: .25rem .75rem; border-radius: 9999px; font-size: .75rem; font-weight: 700; }
+        .badge-primary { background: rgba(13,148,136,.15); color: var(--primary); }
+        .badge-success { background: rgba(16,185,129,.15); color: var(--secondary); }
+        .badge-warning { background: rgba(245,158,11,.15); color: var(--accent); }
+        .badge-gray { background: var(--bg-3); color: var(--text-2); }
+        .nav-item { display: flex; align-items: center; padding: .75rem 1rem; margin: .25rem .5rem; border-radius: .75rem; transition: all .2s; cursor: pointer; color: var(--text-2); font-size: .875rem; }
+        .nav-item:hover { background: var(--bg-2); }
+        .nav-item.active { background: linear-gradient(135deg, rgba(13,148,136,.12) 0%, rgba(16,185,129,.12) 100%); color: var(--primary); font-weight: 600; }
+        .nav-locked { opacity: .55; cursor: not-allowed; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: #fff; padding: .65rem 1.25rem; border-radius: .75rem; font-weight: 600; transition: all .3s; border: none; cursor: pointer; font-size: .875rem; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(13,148,136,.3); }
+        .btn-outline { border: 2px solid var(--border); padding: .6rem 1.25rem; border-radius: .75rem; font-weight: 600; color: var(--text-2); background: var(--bg-1); cursor: pointer; transition: all .2s; font-size: .875rem; }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+        .input-field { width: 100%; padding: .7rem 1rem; border: 2px solid var(--border); border-radius: .75rem; transition: all .3s; font-size: .875rem; background: var(--bg-1); color: var(--text-1); }
+        .input-field:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(13,148,136,.1); }
+        .sidebar { background: var(--bg-1); border-right: 1px solid var(--border); }
+        .type-card { border: 2px solid var(--border); border-radius: 1rem; padding: 1.1rem; cursor: pointer; transition: all .15s; background: var(--bg-1); }
+        .type-card:hover { border-color: var(--primary); box-shadow: 0 8px 20px rgba(13,148,136,.12); transform: translateY(-2px); }
+        .type-card.active { border-color: var(--primary); background: rgba(13,148,136,.06); }
+        .spinner { width: 14px; height: 14px; border: 2px solid var(--primary); border-top-color: transparent; border-radius: 50%; display: inline-block; animation: spin .8s linear infinite; vertical-align: -2px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .job-row { display: flex; align-items: center; gap: 1rem; padding: .85rem 0; border-bottom: 1px solid var(--border); }
+        .lang-btn { padding: .3rem .7rem; font-size: .75rem; font-weight: 700; color: var(--text-2); background: transparent; border: none; cursor: pointer; }
+        .lang-btn.on { background: var(--primary); color: #fff; }
+        .theme-btn { width: 36px; height: 34px; border-radius: .5rem; border: 2px solid var(--border); background: var(--bg-1); cursor: pointer; font-size: .95rem; display: inline-flex; align-items: center; justify-content: center; }
+        .menu-pop { display: flex; align-items: center; gap: .6rem; width: 100%; text-align: left; padding: .55rem .8rem; border-radius: .6rem; font-size: .85rem; color: var(--text-1); background: transparent; cursor: pointer; }
+        .menu-pop:hover { background: var(--bg-2); }
+    </style>
+</head>
+<body>
+<aside class="sidebar fixed top-0 left-0 w-64 h-screen z-20 overflow-y-auto">
+    <div class="flex items-center space-x-3 p-5 border-b" style="border-color: var(--border);">
+        <div class="w-10 h-10 rounded-xl gradient-teal text-white flex items-center justify-center font-bold">E</div>
+        <div><p class="font-bold text-sm">EduCenter LMS</p><p class="text-xs text-faint" data-i18n="org_name"></p></div>
+    </div>
+    <nav class="p-2 pt-3">
+        <div class="nav-item" onclick="go('dashboard')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg><span data-i18n="nav_dashboard"></span></div>
+        <p class="px-3 pt-2 pb-1 text-xs font-bold uppercase text-faint" data-i18n="grp_admin"></p>
+        <div class="nav-item" onclick="go('org')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg><span data-i18n="nav_org"></span></div>
+        <div class="nav-item" onclick="go('license')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><span data-i18n="nav_license"></span></div>
+        <div class="nav-item" onclick="go('users')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg><span data-i18n="nav_users"></span></div>
+        <p class="px-3 pt-3 pb-1 text-xs font-bold uppercase text-faint" data-i18n="grp_biz"></p>
+        <div class="nav-item" onclick="go('academic')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg><span data-i18n="nav_academic"></span></div>
+        <div class="nav-item" onclick="go('enroll')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg><span data-i18n="nav_enroll"></span></div>
+        <div class="nav-item" onclick="go('finance')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg><span data-i18n="nav_finance"></span></div>
+        <div class="nav-item active"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg><span data-i18n="nav_reports"></span></div>
+        <p class="px-3 pt-3 pb-1 text-xs font-bold uppercase text-faint" data-i18n="grp_addon"></p>
+        <div class="nav-item nav-locked"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg><span data-i18n="nav_crm"></span><span class="ml-auto badge badge-warning" data-i18n="not_activated"></span></div>
+        <div class="nav-item nav-locked"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span data-i18n="nav_hrm"></span><span class="ml-auto badge badge-warning" data-i18n="not_activated"></span></div>
+    </nav>
+</aside>
+
+<div class="ml-64 min-h-screen">
+    <div class="surface border-b sticky top-0 z-10" style="border-color: var(--border);">
+        <div class="px-8 py-4 flex items-center justify-between">
+            <div><h2 class="text-xl font-bold" data-i18n="page_reports"></h2><p class="text-sm text-soft" data-i18n="page_sub"></p></div>
+            <div class="flex items-center space-x-3">
+                <select class="text-sm px-3 py-2 rounded-lg border surface" style="border-color: var(--border);" onchange="toast(t('toast_branch'))">
+                    <option data-i18n="all_branches"></option>
+                    <option data-i18n="br_hn"></option>
+                    <option data-i18n="br_hcm"></option>
+                </select>
+                <button id="themeBtn" class="theme-btn" onclick="toggleTheme()" title="Dark/Light">🌙</button>
+                <button id="langBtn" class="theme-btn !w-auto px-3" onclick="toggleLang()" title="Language">🌐 EN</button>
+                <div class="relative" id="userMenu">
+                    <button onclick="toggleUserMenu(event)" class="flex items-center gap-2.5 rounded-xl border px-2.5 py-1.5 transition hover:border-teal-600" style="border-color: var(--border); background: var(--bg-1);">
+                        <div class="w-8 h-8 rounded-lg gradient-teal text-white flex items-center justify-center text-xs font-bold flex-none">NV</div>
+                        <div class="text-left leading-tight hidden sm:block">
+                            <p class="text-xs font-bold" data-i18n="user_name"></p>
+                            <p class="text-[10px] text-faint" data-i18n="user_role"></p>
+                        </div>
+                    </button>
+                    <div id="userDropdown" class="hidden absolute right-0 top-[52px] card shadow-xl w-56 p-2 z-30">
+                        <div class="px-3 py-2.5 mb-1 border-b" style="border-color: var(--border);">
+                            <p class="text-sm font-bold" data-i18n="user_name"></p>
+                            <p class="text-xs text-faint" data-i18n="user_role"></p>
+                        </div>
+                        <button class="menu-pop" onclick="demoMenu('user_profile')"><span>👤</span><span data-i18n="user_profile"></span></button>
+                        <button class="menu-pop" onclick="demoMenu('user_settings')"><span>⚙️</span><span data-i18n="user_settings"></span></button>
+                        <button class="menu-pop" onclick="demoMenu('user_password')"><span>🔑</span><span data-i18n="user_password"></span></button>
+                        <div class="border-t my-1" style="border-color: var(--border);"></div>
+                        <button class="menu-pop" style="color: #dc2626;" onclick="demoMenu('user_logout')"><span>🚪</span><span data-i18n="user_logout"></span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6" id="types"></div>
+
+        <div class="card p-6 mb-6">
+            <h3 class="font-bold mb-4" data-i18n="p_title"></h3>
+            <div class="flex flex-wrap gap-3 items-center">
+                <select class="input-field !w-48"><option data-i18n="all_branches"></option><option data-i18n="br_hn"></option><option data-i18n="br_hcm"></option></select>
+                <input type="date" value="2026-08-01" class="input-field !w-44">
+                <span class="text-faint">→</span>
+                <input type="date" value="2026-08-31" class="input-field !w-44">
+                <select class="input-field !w-40"><option data-i18n="fmt_xlsx"></option><option data-i18n="fmt_pdf"></option><option data-i18n="fmt_csv"></option></select>
+                <span class="flex-1"></span>
+                <button class="btn-primary" onclick="createReport()">🚀 <span data-i18n="btn_create"></span></button>
+            </div>
+            <p class="text-xs mt-3 text-faint" data-i18n="p_note"></p>
+        </div>
+
+        <div class="card p-6 mb-6">
+            <h3 class="font-bold mb-3" data-i18n="jobs_title"></h3>
+            <div id="jobs"></div>
+            <p id="jobsEmpty" class="text-sm py-3 text-soft" data-i18n="jobs_empty"></p>
+        </div>
+
+        <div class="card p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold" id="previewTitle"></h3>
+                <div class="flex space-x-2">
+                    <button class="btn-outline text-xs px-3 py-1.5" onclick="toast(t('toast_export'))">⬇ <span data-i18n="export_xlsx"></span></button>
+                    <button class="btn-outline text-xs px-3 py-1.5" onclick="toast(t('toast_export'))">⬇ <span data-i18n="export_pdf"></span></button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm" id="previewTable"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="hidden fixed top-20 right-8 z-50 card px-5 py-3.5 text-sm font-semibold shadow-xl" style="border-left: 4px solid var(--primary);"></div>
+
+<script>
+    var I18N = {
+        vi: {
+            org_name: 'Trung tâm Ngoại ngữ ABC',
+            grp_admin: 'Quản trị', grp_biz: 'Nghiệp vụ', grp_addon: 'Addon',
+            nav_dashboard: 'Dashboard', nav_org: 'Tổ chức & Chi nhánh', nav_license: 'License',
+            nav_users: 'Người dùng & Vai trò', nav_academic: 'Đào tạo', nav_enroll: 'Học viên & Ghi danh',
+            nav_finance: 'Tài chính', nav_reports: 'Báo cáo', nav_crm: 'Tuyển sinh & CRM', nav_hrm: 'Nhân sự & Lương',
+            not_activated: 'Chưa kích hoạt',
+            user_name: 'Nguyễn Văn Admin', user_role: 'Organization Admin',
+            user_profile: 'Hồ sơ', user_settings: 'Cài đặt', user_password: 'Đổi mật khẩu', user_logout: 'Đăng xuất',
+            all_branches: 'Tất cả chi nhánh', br_hn: 'Chi nhánh Hà Nội', br_hcm: 'Chi nhánh TP.HCM',
+            page_reports: 'Báo cáo', page_sub: 'Tạo và tải báo cáo theo chi nhánh (chạy bất đồng bộ)',
+            t0: '📝 Tổng hợp ghi danh', t0d: 'Số học viên ghi danh theo chương trình / tháng / chi nhánh',
+            t1: '💰 Doanh thu theo chi nhánh', t1d: 'Doanh thu, phương thức thanh toán, công nợ',
+            t2: '📊 Công suất lớp học', t2d: 'Tỷ lệ lấp đầy lớp, giảng viên, phòng',
+            t3: '🎓 Tiến độ học viên', t3d: 'Tiến độ % theo lớp, rủi ro bỏ học',
+            p_title: '⚙️ Tham số báo cáo', fmt_xlsx: 'Excel (.xlsx)', fmt_pdf: 'PDF', fmt_csv: 'CSV',
+            btn_create: 'Tạo báo cáo',
+            p_note: 'Báo cáo chạy bất đồng bộ qua worker — bạn có thể rời trang, sẽ nhận thông báo khi hoàn tất (US8). Dữ liệu giới hạn trong scope chi nhánh của bạn (SEC-010).',
+            jobs_title: '📂 Báo cáo đã tạo gần đây',
+            jobs_empty: 'Chưa có báo cáo nào trong tháng này — bấm "Tạo báo cáo" để bắt đầu.',
+            st_processing: 'Đang xử lý', st_done: 'Hoàn tất',
+            btn_download: '⬇ Tải xuống', sample: '(dữ liệu mẫu)',
+            export_xlsx: 'Xuất Excel', export_pdf: 'Xuất PDF',
+            h0: ['Chương trình', 'Ghi danh mới', 'Đang học', 'Hoàn thành', 'Bỏ học'],
+            h1: ['Chi nhánh', 'Thu học phí', 'Tiền mặt', 'VNPay', 'Chuyển khoản', 'Công nợ'],
+            h2: ['Lớp', 'Chi nhánh', 'Sức chứa', 'Đã ghi danh', 'Tỷ lệ', 'Trạng thái'],
+            h3: ['Học viên', 'Lớp', 'Tiến độ', 'Điểm TB', 'Rủi ro'],
+            s_good: 'Tốt', s_full: 'Đầy', s_open: 'Còn trống', s_normal: 'Bình thường',
+            s_low: 'Thấp', s_med: 'Trung bình', s_high: 'Cao',
+            r0: 'EN — Tiếng Anh tổng quát', r1: 'IELTS luyện thi', r2: 'IT — Lập trình', r3: 'Kỹ năng mềm',
+            r4: 'Hà Nội', r5: 'TP.HCM',
+            r6: 'EN-B1-26 (K41)', r7: 'IT-Python-09', r8: 'IELTS-6.5-03', r9: 'EN-A2-12 (K40)',
+            r10: 'Nguyễn Minh Anh', r11: 'Trần Quốc Bảo', r12: 'Lê Thu Hà', r13: 'Phạm Đức Huy',
+            period: 'T8/2026',
+            toast_branch: 'Đã chuyển phạm vi chi nhánh (demo)',
+            toast_queued: 'Đã đưa báo cáo vào hàng đợi (job #', toast_queued2: ') — chạy qua lms-worker',
+            toast_ready: '✅ Báo cáo "', toast_ready2: '" đã sẵn sàng',
+            toast_export: 'Demo: xuất file (thực tế: kiểm tra quyền report:export + URL có hạn 5 phút)',
+            toast_download: 'Demo: tải file',
+            toast_demo: 'Demo: điều hướng tới "', toast_demo2: '" (mockup này chỉ có Báo cáo)',
+            period2: 'T7/2026'
+        },
+        en: {
+            org_name: 'ABC Language Center',
+            grp_admin: 'Administration', grp_biz: 'Operations', grp_addon: 'Addons',
+            nav_dashboard: 'Dashboard', nav_org: 'Organization & Branches', nav_license: 'License',
+            nav_users: 'Users & Roles', nav_academic: 'Academic', nav_enroll: 'Students & Enrollment',
+            nav_finance: 'Finance', nav_reports: 'Reports', nav_crm: 'Admissions & CRM', nav_hrm: 'HR & Payroll',
+            not_activated: 'Not activated',
+            user_name: 'Nguyen Van Admin', user_role: 'Organization Admin',
+            user_profile: 'Profile', user_settings: 'Settings', user_password: 'Change password', user_logout: 'Log out',
+            all_branches: 'All branches', br_hn: 'Hanoi branch', br_hcm: 'HCMC branch',
+            page_reports: 'Reports', page_sub: 'Create & download branch-scoped reports (async)',
+            t0: '📝 Enrollment summary', t0d: 'Enrollments by program / month / branch',
+            t1: '💰 Revenue by branch', t1d: 'Revenue, payment methods, receivables',
+            t2: '📊 Class utilization', t2d: 'Fill rate, teachers, rooms',
+            t3: '🎓 Student progress', t3d: 'Progress % by class, dropout risk',
+            p_title: '⚙️ Report parameters', fmt_xlsx: 'Excel (.xlsx)', fmt_pdf: 'PDF', fmt_csv: 'CSV',
+            btn_create: 'Generate report',
+            p_note: 'Reports run asynchronously via worker — you can leave the page and get notified when done (US8). Data is limited to your branch scope (SEC-010).',
+            jobs_title: '📂 Recent reports',
+            jobs_empty: 'No reports this month — click "Generate report" to start.',
+            st_processing: 'Processing', st_done: 'Done',
+            btn_download: '⬇ Download', sample: '(sample data)',
+            export_xlsx: 'Export Excel', export_pdf: 'Export PDF',
+            h0: ['Program', 'New enrollments', 'Active', 'Completed', 'Dropouts'],
+            h1: ['Branch', 'Tuition collected', 'Cash', 'VNPay', 'Bank transfer', 'Receivables'],
+            h2: ['Class', 'Branch', 'Capacity', 'Enrolled', 'Rate', 'Status'],
+            h3: ['Student', 'Class', 'Progress', 'Avg score', 'Risk'],
+            s_good: 'Good', s_full: 'Full', s_open: 'Open', s_normal: 'Normal',
+            s_low: 'Low', s_med: 'Medium', s_high: 'High',
+            r0: 'EN — General English', r1: 'IELTS prep', r2: 'IT — Programming', r3: 'Soft skills',
+            r4: 'Hanoi', r5: 'HCMC',
+            r6: 'EN-B1-26 (K41)', r7: 'IT-Python-09', r8: 'IELTS-6.5-03', r9: 'EN-A2-12 (K40)',
+            r10: 'Nguyen Minh Anh', r11: 'Tran Quoc Bao', r12: 'Le Thu Ha', r13: 'Pham Duc Huy',
+            period: 'Aug 2026',
+            toast_branch: 'Branch scope switched (demo)',
+            toast_queued: 'Report queued (job #', toast_queued2: ') — running on lms-worker',
+            toast_ready: '✅ Report "', toast_ready2: '" is ready',
+            toast_export: 'Demo: export (real: check report:export permission + 5-min signed URL)',
+            toast_download: 'Demo: download file',
+            toast_demo: 'Demo: navigating to "', toast_demo2: '" (this mockup covers Reports only)',
+            period2: 'Jul 2026'
+        }
+    };
+
+    var LANG = localStorage.getItem('ec-lang') || 'vi';
+    var THEME = localStorage.getItem('ec-theme') || 'light';
+    var currentType = 0, jobSeq = 0;
+    var jobsStore = [];
+    function t(k) { return (I18N[LANG] && I18N[LANG][k] !== undefined) ? I18N[LANG][k] : k; }
+
+    function applyTheme() {
+        document.documentElement.classList.toggle('dark', THEME === 'dark');
+        var b = document.getElementById('themeBtn'); if (b) b.textContent = THEME === 'dark' ? '☀️' : '🌙';
+    }
+    function toggleTheme() { THEME = THEME === 'dark' ? 'light' : 'dark'; localStorage.setItem('ec-theme', THEME); applyTheme(); }
+    function toggleLang() { setLang(LANG === 'vi' ? 'en' : 'vi'); }
+    function updateLangBtns() {
+        var b = document.getElementById('langBtn'); if (b) b.textContent = '🌐 ' + (LANG === 'vi' ? 'EN' : 'VI');
+    }
+    function setLang(l) {
+        LANG = l; localStorage.setItem('ec-lang', l);
+        document.documentElement.lang = l;
+        document.querySelectorAll('[data-i18n]').forEach(function (el) { el.textContent = I18N[l][el.getAttribute('data-i18n')]; });
+        updateLangBtns(); renderTypes(); renderPreview(); renderJobs();
+    }
+
+    var toastTimer = null;
+    function toast(msg) {
+        var el = document.getElementById('toast');
+        el.textContent = msg; el.classList.remove('hidden');
+        clearTimeout(toastTimer); toastTimer = setTimeout(function () { el.classList.add('hidden'); }, 2600);
+    }
+    function go(p) { toast(t('toast_demo') + p + t('toast_demo2')); }
+
+    var TYPES = [
+        { t: 't0', d: 't0d', heads: ['h0'], rows: [['r0', '148', '612', '58', '6'], ['r1', '52', '183', '21', '2'], ['r2', '63', '240', '30', '4'], ['r3', '24', '96', '12', '1']] },
+        { t: 't1', d: 't1d', heads: ['h1'], rows: [['r4', '790tr', '180tr', '410tr', '200tr', '98tr'], ['r5', '630tr', '130tr', '370tr', '130tr', '88tr']] },
+        { t: 't2', d: 't2d', heads: ['h2'], rows: [['r6', 'r4', '20', '18', '90%', 's_good'], ['r7', 'r5', '16', '16', '100%', 's_full'], ['r8', 'r5', '15', '9', '60%', 's_open'], ['r9', 'r4', '20', '14', '70%', 's_normal']] },
+        { t: 't3', d: 't3d', heads: ['h3'], rows: [['r10', 'r6', '78%', '7.5', 's_low'], ['r11', 'r7', '45%', '6.8', 's_med'], ['r12', 'r9', '92%', '8.2', 's_low'], ['r13', 'r8', '20%', '5.5', 's_high']] }
+    ];
+    var BADGE = { s_good: 'badge-success', s_full: 'badge-warning', s_open: 'badge-gray', s_normal: 'badge-primary', s_low: 'badge-success', s_med: 'badge-warning', s_high: 'badge-danger' };
+    function cell(v) {
+        if (TYPES[currentType].heads[0] === 'h2' || TYPES[currentType].heads[0] === 'h3') {
+            if (BADGE[v]) return '<span class="badge ' + BADGE[v] + '">' + t(v) + '</span>';
+        }
+        return t(v);
+    }
+    function renderTypes() {
+        var box = document.getElementById('types'); var h = '';
+        TYPES.forEach(function (x, i) {
+            h += '<div class="type-card' + (i === currentType ? ' active' : '') + '" onclick="pickType(' + i + ')">' +
+                '<p class="text-2xl mb-2">' + x.t.split(' ')[0] + '</p><b class="block mb-1">' + t(x.t) + '</b>' +
+                '<span class="text-xs text-soft">' + t(x.d) + '</span></div>';
+        });
+        box.innerHTML = h;
+    }
+    function pickType(i) { currentType = i; renderTypes(); renderPreview(); }
+    function renderPreview() {
+        var d = TYPES[currentType];
+        document.getElementById('previewTitle').innerHTML = t(d.t) + ' — ' + t('period') + ' <span class="text-xs font-normal text-faint">' + t('sample') + '</span>';
+        var h = '<thead><tr class="text-left text-soft" style="border-bottom: 1px solid var(--border);">' +
+            t(d.heads[0]).split(',').map(function (x) { return '<th class="py-2.5 px-3 font-semibold">' + x + '</th>'; }).join('') +
+            '</tr></thead><tbody>';
+        d.rows.forEach(function (r) {
+            h += '<tr class="border-b" style="border-color: var(--border);">' + r.map(function (c) { return '<td class="py-3 px-3">' + cell(c) + '</td>'; }).join('') + '</tr>';
+        });
+        h += '</tbody>';
+        document.getElementById('previewTable').innerHTML = h;
+    }
+
+    function jobName(j) {
+        return t(TYPES[j.type].t) + ' · ' + (j.period === 'period' ? t('period') : t('period2')) + ' · ' + t(j.branch);
+    }
+    function renderJobs() {
+        var box = document.getElementById('jobs'); var h = '';
+        jobsStore.forEach(function (j) {
+            var pctLabel = j.pct >= 100 ? '' : ' <span class="text-xs text-faint">' + j.pct + '%</span>';
+            h += '<div class="job-row" id="' + j.id + '">' +
+                (j.pct >= 100 ? '<span style="color: var(--secondary);">✅</span>' : '<span class="spinner"></span>') +
+                '<b class="flex-1 text-sm">' + jobName(j) + '</b>' +
+                (j.pct >= 100
+                    ? '<span class="badge badge-success">' + t('st_done') + '</span><span class="text-xs text-faint">' + j.size + '</span>' +
+                      '<button class="btn-primary px-4 py-1.5 text-xs" onclick="toast(t(\'toast_download\'))">' + t('btn_download') + '</button>'
+                    : '<span class="badge badge-warning">' + t('st_processing') + '</span>' +
+                      '<div class="h-2 rounded-full track w-32"><div class="h-2 rounded-full gradient-teal" style="width:' + j.pct + '%"></div></div>' + pctLabel);
+            h += '</div>';
+        });
+        box.innerHTML = h;
+        document.getElementById('jobsEmpty').style.display = jobsStore.length ? 'none' : 'block';
+    }
+    function createReport() {
+        var j = { id: 'job-' + (++jobSeq), type: currentType, period: 'period', branch: 'all_branches', pct: 0, size: '1,2 MB' };
+        jobsStore.unshift(j);
+        renderJobs();
+        toast(t('toast_queued') + jobSeq + t('toast_queued2'));
+        var iv = setInterval(function () {
+            j.pct += 7 + Math.floor(Math.random() * 14);
+            if (j.pct >= 100) { clearInterval(iv); j.pct = 100; renderJobs(); toast(t('toast_ready') + t(TYPES[j.type].t) + t('toast_ready2')); }
+            else {
+                var el = document.getElementById(j.id);
+                if (el) { el.querySelector('.gradient-teal').style.width = j.pct + '%'; el.querySelector('span:last-child').textContent = j.pct + '%'; }
+            }
+        }, 180);
+    }
+
+    /* seed one completed job */
+    jobsStore.push({ id: 'job-seed', type: 1, period: 'period2', branch: 'br_hn', pct: 100, size: '980 KB' });
+
+    /* ===== user menu (popup) ===== */
+    function toggleUserMenu(e) {
+        e.stopPropagation();
+        document.getElementById('userDropdown').classList.toggle('hidden');
+    }
+    document.addEventListener('click', function (e) {
+        var d = document.getElementById('userDropdown');
+        if (d && !d.classList.contains('hidden') && !e.target.closest('#userMenu')) d.classList.add('hidden');
+    });
+    function demoMenu(key) {
+        var d = document.getElementById('userDropdown'); if (d) d.classList.add('hidden');
+        toast(t(key));
+    }
+
+    applyTheme(); setLang(LANG); renderJobs();
+</script>
+</body>
+</html>
