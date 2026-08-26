@@ -132,8 +132,119 @@ function extract(file, idx){
   data.nodes.forEach(n=>{ n.p = mapNodeToPhase(n, phases); });
   let scope='MVP';
   if(/Roadmap P3/.test(txt)) scope='P3'; else if(/Roadmap P2/.test(txt)) scope='P2';
-  return { id:'wf_'+String(idx).padStart(2,'0'), file, title:stripEmoji(title), category:meta.category||'', phases:meta.phases||'', estimated:meta.estimated_time||'', scope, nodes:data.nodes, edges:data.edges, phases };
+  return { id:'wf_'+String(idx).padStart(2,'0'), file, title:stripEmoji(title), category:meta.category||'', phases:meta.phases||'', estimated:meta.estimated_time||'', scope, nodes:data.nodes, edges:data.edges, phases, doc:renderDoc(txt) };
 }
+// ---------- Markdown -> HTML (Obsidian-style document view) ----------
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function inline(s){
+  s=esc(s);
+  s=s.replace(/`([^`]+)`/g,(m,c)=>'<code>'+c+'</code>');
+  s=s.replace(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/g,(m,alt,src,t)=>'<img alt="'+alt+'" src="'+src+'"'+(t?' title="'+t+'"':'')+'>');
+  s=s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+  s=s.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g,(m,a,b)=>'<span class="wl">'+esc(b||a)+'</span>');
+  s=s.replace(/\*\*\*([^*]+)\*\*\*/g,'<b><i>$1</i></b>');
+  s=s.replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>');
+  s=s.replace(/__([^_]+)__/g,'<b>$1</b>');
+  s=s.replace(/\*([^*]+)\*/g,'<i>$1</i>');
+  s=s.replace(/_([^_]+)_/g,'<i>$1</i>');
+  s=s.replace(/~~([^~]+)~~/g,'<s>$1</s>');
+  return s;
+}
+function slug(s){return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-');}
+function renderTable(lines){
+  const sep=lines[1]||'';
+  if(sep.indexOf('-')<0||!/^\|?[\s:|-]+\|?$/.test(sep)) return null;
+  const cells=ln=>ln.split('|').slice(1,-1).map(s=>s.trim());
+  const head=cells(lines[0]);
+  const aligns=(sep.split('|').slice(1,-1)).map(s=>{const t=s.trim();return t.startsWith(':')&&t.endsWith(':')?'center':t.endsWith(':')?'right':'left';});
+  const body=lines.slice(2).map(cells);
+  let h='<table><thead><tr>'+head.map((c,i)=>'<th style="text-align:'+(aligns[i]||'left')+'">'+inline(c)+'</th>').join('')+'</tr></thead><tbody>';
+  body.forEach(r=>{h+='<tr>'+head.map((_,i)=>'<td style="text-align:'+(aligns[i]||'left')+'">'+inline(r[i]||'')+'</td>').join('')+'</tr>';});
+  return h+'</tbody></table>';
+}
+function renderList(lines){
+  const items=[];
+  for(const l of lines){
+    const m=l.match(/^(\s*)(?:\d+[.)]|[-*+])\s+(.*)$/);
+    if(!m) return null;
+    items.push({ind:Math.floor(m[1].length/2), txt:m[2]});
+  }
+  const ordered=/^\s*\d+[.)]\s/.test(lines[0]);
+  let out='',i=0;
+  function walk(ind){
+    let r='',cur=null;
+    while(i<items.length&&items[i].ind===ind){
+      const it=items[i];
+      const tag=ordered?'ol':'ul';
+      if(cur!==tag){ if(cur) r+='</'+cur+'>'; r+='<'+tag+(ordered?' start="1"':'')+'>'; cur=tag; }
+      let txt=inline(it.txt);
+      const tm=txt.match(/^(\[([ xX])\]\s*)/);
+      if(tm){ txt='<span class="task">'+(/x/i.test(tm[2])?'☑':'☐')+'</span> '+txt.slice(tm[1].length); }
+      r+='<li>'+txt;
+      if(i+1<items.length&&items[i+1].ind>ind){i++;r+=walk(ind+1);}
+      r+='</li>';i++;
+    }
+    if(cur)r+='</'+cur+'>';
+    return r;
+  }
+  return walk(items[0].ind);
+}
+function renderQuote(lines){
+  const body=lines.map(l=>l.replace(/^\s*>\s?/,'')).join('\n');
+  const cm=lines[0].replace(/^\s*>\s?/,'').match(/^\[!(\w+)\]\s*(.*)$/);
+  if(cm){
+    const t=cm[1].toLowerCase();
+    const colors={note:'#3b82f6',tip:'#10b981',warning:'#f59e0b',danger:'#ef4444',info:'#38bdf8'};
+    const c=colors[t]||'#3b82f6';
+    return '<div class="callout" style="border-left-color:'+c+'"><b style="color:'+c+'">'+esc(cm[2]||t)+'</b><div>'+inline(body.replace(/^\[!\w+\]\s*[^\n]*\n?/,''))+'</div></div>';
+  }
+  return '<blockquote>'+inline(body)+'</blockquote>';
+}
+function renderPara(lines){
+  return '<p>'+lines.map(l=>inline(l.replace(/ {2,}$/,' @@BR@@'))).join(' ').replace(/@@BR@@/g,'<br>')+'</p>';
+}
+function renderBlock(lines){
+  const t=renderTable(lines); if(t) return t;
+  if(lines.length===1&&/^\s*(---+|\*\*\*+|___+)\s*$/.test(lines[0])) return '<hr>';
+  const hm=lines[0].match(/^(#{1,6})\s+(.*)$/);
+  if(hm){
+    const lv=hm[1].length;
+    let h='<h'+lv+' id="'+slug(hm[2])+'">'+inline(hm[2])+'</h'+lv+'>';
+    if(lines.length>1) h+=renderBlock(lines.slice(1));
+    return h;
+  }
+  if(lines.every(l=>/^\s*>\s?/.test(l))) return renderQuote(lines);
+  const li0=lines.findIndex(l=>/^\s*(?:[-*+]|\d+[.)])\s+/.test(l));
+  if(li0>0) return renderPara(lines.slice(0,li0))+renderBlock(lines.slice(li0));
+  const lst=renderList(lines); if(lst) return lst;
+  return renderPara(lines);
+}
+function renderBlocks(txt){
+  const blocks=[];let cur=[];
+  const flush=()=>{if(cur.length){blocks.push(cur);cur=[];}};
+  for(const l of txt.split('\n')){ if(l.trim()==='')flush(); else cur.push(l); }
+  flush();
+  return blocks.map(renderBlock).join('\n');
+}
+function renderDoc(md){
+  let txt=md.replace(/^---\s*\n[\s\S]*?\n---\s*\n/,'');
+  const fenceRe=/^```([^\n]*)$/gm;
+  const mms=[...txt.matchAll(fenceRe)];
+  let out='', pos=0;
+  for(let k=0;k<mms.length;k+=2){
+    const open=mms[k], close=mms[k+1];
+    if(!close){ out+=renderBlocks(txt.slice(pos)); pos=txt.length; break; }
+    out+=renderBlocks(txt.slice(pos, open.index));
+    const lang=(open[1]||'').trim();
+    const code=txt.slice(open.index+open[0].length, close.index).replace(/^\n+/,'').replace(/\n+$/,'');
+    if(lang==='mermaid'){ out+='<div class="md-hint">📐 Sơ đồ tương tác của workflow này nằm ở chế độ <b>Sơ đồ</b> (nút phía trên).</div>'; }
+    else{ out+='<pre><code class="lang-'+esc(lang||'txt')+'">'+esc(code)+'</code></pre>'; }
+    pos=close.index+close[0].length;
+  }
+  if(pos<txt.length) out+=renderBlocks(txt.slice(pos));
+  return out;
+}
+
 const list = files.map(extract);
 const json = JSON.stringify(list).replace(/</g,'\\u003c');
 const tplPath = path.join(root,'docs','12-diagrams','Workflows-Canvas.template.html');

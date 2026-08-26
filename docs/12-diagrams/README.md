@@ -17,7 +17,11 @@
 
 Mở trong browser — click từng bước để xem chi tiết (tiếng Việt):
 
-> 🧭 **Tổng hợp toàn hệ thống (Canvas)**: [**Workflows-Canvas.html**](./Workflows-Canvas.html) — trình bày **đầy đủ 8 workflow** trên một trang Canvas duy nhất: tự động layout, kéo/zoom, màu theo vai trò, badge MVP/Roadmap. **Click node → drill-down nội dung giai đoạn** (mục tiêu, các bước thực hiện, vai trò tham gia, tiêu chí đạt) trích từ `../11-workflows/WF-*.md` + kết nối vào/ra của node. Dữ liệu tự tái tạo bằng `scripts/generate-workflows-canvas.js`.
+> 🧭 **Tổng hợp toàn hệ thống (Canvas)**: [**Workflows-Canvas.html**](./Workflows-Canvas.html) — trình bày **đầy đủ 8 workflow** trên một trang duy nhất với **2 chế độ xem**:
+> - **🗺️ Sơ đồ**: canvas tương tác — tự động layout, kéo/zoom, màu theo vai trò, badge MVP/Roadmap. **Click node → drill-down nội dung giai đoạn** (mục tiêu, các bước thực hiện, vai trò tham gia, tiêu chí đạt) trích từ `../11-workflows/WF-*.md` + kết nối vào/ra của node.
+> - **📄 Tài liệu**: toàn bộ `WF-*.md` **render đầy đủ như Obsidian preview** — tiêu đề, bảng, wiki-link `[[Role]]`, code block, mục lục tự động; nút "📄 Xem toàn bộ tài liệu" trong panel drill-down sẽ nhảy thẳng tới đúng giai đoạn của node.
+>
+> Dữ liệu tự tái tạo bằng `scripts/generate-workflows-canvas.js` (mermaid + markdown → HTML).
 
 | # | File | Workflow |
 |---|---|---|

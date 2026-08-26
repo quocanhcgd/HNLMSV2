@@ -83,6 +83,48 @@
   .card .bar{height:4px;border-radius:99px;margin-top:12px;background:var(--line);overflow:hidden}
   .card .bar>div{height:100%;border-radius:99px}
   #hint{position:absolute;left:50%;transform:translateX(-50%);bottom:10px;z-index:5;color:var(--dim);font-size:11px;background:rgba(17,26,46,.7);padding:4px 12px;border-radius:99px;border:1px solid var(--line);white-space:nowrap}
+  #mode{display:flex;gap:6px}
+  .mbtn{border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:8px;padding:6px 10px;font-size:11px;cursor:pointer;white-space:nowrap;transition:.15s}
+  .mbtn:hover{background:var(--panel2)}
+  .mbtn.on{background:var(--accent);color:#0b1220;border-color:var(--accent);font-weight:700}
+
+  #doc{position:absolute;inset:0;overflow-y:auto;background:var(--bg);display:none;z-index:5;scrollbar-color:var(--line) transparent}
+  #doc::-webkit-scrollbar{width:10px}
+  #doc::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
+  .doc-inner{max-width:900px;margin:0 auto;padding:24px 34px 90px;font-size:14px;line-height:1.75;color:#dbe2f0}
+  .doc-inner h1{font-size:24px;font-weight:800;margin:10px 0 14px;color:#fff}
+  .doc-inner h2{font-size:19px;font-weight:700;margin:30px 0 10px;padding-bottom:7px;border-bottom:1px solid var(--line);color:#fff;scroll-margin-top:84px}
+  .doc-inner h3{font-size:16px;font-weight:700;margin:22px 0 8px;color:#fff;scroll-margin-top:84px}
+  .doc-inner h4,.doc-inner h5,.doc-inner h6{font-size:14px;margin:16px 0 6px;color:#e7eaf2}
+  .doc-inner p{margin:8px 0}
+  .doc-inner ul,.doc-inner ol{margin:8px 0;padding-left:26px}
+  .doc-inner li{margin:3px 0}
+  .doc-inner .task{color:#6ee7b7;margin-right:4px}
+  .doc-inner code{background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-size:12px;color:#f2c879}
+  .doc-inner pre{background:#0c1322;border:1px solid var(--line);border-radius:10px;padding:12px 14px;overflow:auto;max-height:460px;margin:12px 0}
+  .doc-inner pre code{background:none;border:none;padding:0;color:#c8d3ea;font-size:12px;line-height:1.6}
+  .doc-inner table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13px}
+  .doc-inner th,.doc-inner td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
+  .doc-inner th{background:var(--panel2);color:#fff;font-weight:700}
+  .doc-inner tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+  .doc-inner blockquote{margin:10px 0;padding:8px 14px;border-left:3px solid var(--accent);background:var(--panel);border-radius:0 8px 8px 0;color:#b6c2d9}
+  .doc-inner .callout{margin:12px 0;padding:10px 14px;border-radius:10px;border-left:3px solid #3b82f6;background:var(--panel)}
+  .doc-inner a{color:#7dd3fc;text-decoration:none}
+  .doc-inner a:hover{text-decoration:underline}
+  .doc-inner .wl{display:inline-block;background:rgba(129,140,248,.14);border:1px solid rgba(129,140,248,.35);color:#a5b4fc;border-radius:999px;padding:0 9px;font-size:12px;margin:0 1px}
+  .doc-inner hr{border:none;border-top:1px solid var(--line);margin:20px 0}
+  .doc-inner img{max-width:100%;border-radius:10px}
+  .doc-inner .md-hint{margin:14px 0;padding:10px 14px;border:1px dashed var(--dim);border-radius:10px;color:var(--muted);font-size:12px;background:var(--panel)}
+  .doc-inner .toc{margin:12px 0 6px;padding:10px 14px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+  .doc-inner .toc summary{cursor:pointer;color:var(--muted);font-size:12px;user-select:none}
+  .doc-inner .toc ul{margin:8px 0 0;padding-left:0;list-style:none}
+  .doc-inner .toc li{margin:3px 0}
+  .doc-inner .toc a{color:#a5b4fc;cursor:pointer;font-size:12px}
+  .doc-inner .toc a:hover{text-decoration:underline}
+  .doc-inner .toc .lvl3{margin-left:16px}
+  .dtb{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;padding:10px 14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;position:sticky;top:0;z-index:3}
+  .dtb b{color:#fff;font-size:13px}
+  .dtb .sc{margin-left:auto;padding:2px 9px;border-radius:999px;font-size:10px;font-weight:700;color:#0b1220}
   #loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);z-index:20;background:var(--bg)}
 </style>
 </head>
@@ -94,6 +136,10 @@
       <div><h1>EduCenter LMS</h1><small>Hệ thống Workflow · Canvas</small></div>
     </div>
     <nav id="tabs"></nav>
+    <div id="mode">
+      <button class="mbtn on" id="mCanvas" title="Chế độ sơ đồ tương tác">🗺️ Sơ đồ</button>
+      <button class="mbtn" id="mDoc" title="Chế độ tài liệu — render đầy đủ như Obsidian">📄 Tài liệu</button>
+    </div>
     <div id="navbtns">
       <button class="nbtn" id="prev" title="Workflow trước">‹</button>
       <button class="nbtn" id="next" title="Workflow sau">›</button>
@@ -107,6 +153,7 @@
     </div>
     <div id="detail"></div>
     <canvas id="cv"></canvas>
+    <div id="doc"><div class="doc-inner" id="docInner"></div></div>
     <div id="overview"></div>
     <div id="toolbar">
       <button class="tl" id="zin" title="Phóng to">＋</button>
@@ -115,7 +162,7 @@
       <button class="tl" id="zreset" title="Trang chủ">⌂</button>
     </div>
     <div id="legend"></div>
-    <div id="hint">Kéo = di chuyển · Lăn = zoom · Click node = chi tiết · ←/→ hoặc Esc</div>
+    <div id="hint">Kéo = di chuyển · Lăn = zoom · Click node = chi tiết · 📄 Tài liệu = render đầy đủ như Obsidian · ←/→ hoặc Esc</div>
   </main>
 </div>
 <div id="loading">Đang tải…</div>
@@ -134,6 +181,8 @@ const wfAccent={};WORKFLOWS.forEach((w,i)=>wfAccent[w.id]=ACCENT[i%ACCENT.length
 const $=id=>document.getElementById(id);
 const cv=$('cv'),cx=cv.getContext('2d');
 const tabs=$('tabs'),ov=$('overview'),detail=$('detail'),legend=$('legend');
+const doc=$('doc'),docInner=$('docInner');
+let mode='canvas';
 const bTitle=$('bTitle'),bMeta=$('bMeta');
 let vw=0,vh=0,dpr=1;
 const lay={};
@@ -214,6 +263,8 @@ addEventListener('mouseup',()=>{drag=null;cv.style.cursor=hover?'pointer':'grab'
 cv.addEventListener('wheel',e=>{e.preventDefault();const f=e.deltaY>0?0.9:1.11;const m=toWorld(e.clientX,e.clientY);T.s=Math.max(0.12,Math.min(3,T.s*f));T.tx=e.clientX-m.x*T.s;T.ty=e.clientY-m.y*T.s;draw();},{passive:false});
 cv.addEventListener('click',e=>{if(drag){drag=null;return;}const h=hit(e.clientX,e.clientY);if(h)showDetail(h);else hideDetail();draw();});
 $('zin').onclick=()=>zoomBy(1.25);$('zout').onclick=()=>zoomBy(0.8);
+$('mCanvas').onclick=()=>setMode('canvas');
+$('mDoc').onclick=()=>setMode('doc');
 function zoomBy(f){const m=toWorld(vw/2,vh/2);T.s=Math.max(0.12,Math.min(3,T.s*f));T.tx=vw/2-m.x*T.s;T.ty=vh/2-m.y*T.s;draw();}
 $('zfit').onclick=()=>{if(cur>=0){fit(cur);draw();}};
 $('zreset').onclick=showOverview;
@@ -249,10 +300,48 @@ function showDetail(n){
     outs.forEach(e=>flow.push('➡ <b>'+escHtml(e.to)+'</b>'+(e.label?' — '+escHtml(e.label):'')));
     out.push('<div class="blk"><div class="bk">Kết nối</div><div class="flow">'+flow.join('<br>')+'</div></div>');
   }
+  out.push('<div style="text-align:center;margin-top:10px"><button class="mbtn" onclick="window.openDocFromNode()">📄 Xem toàn bộ tài liệu workflow</button></div>');
   detail.innerHTML=out.join('');detail.classList.add('open');
 }
 function hideDetail(){sel=null;detail.classList.remove('open');}
 window.closeDetail=hideDetail;
+function setMode(m){
+  mode=m;
+  $('mCanvas').classList.toggle('on',m==='canvas');
+  $('mDoc').classList.toggle('on',m==='doc');
+  doc.style.display=m==='doc'?'block':'none';
+  cv.style.display=m==='canvas'?'block':'none';
+  if(m==='doc'){ if(cur>=0)renderDoc(null); }
+  else if(cur>=0)draw();
+}
+function renderDoc(phaseIdx){
+  if(cur<0)return;
+  const w=WORKFLOWS[cur];
+  docInner.innerHTML='';
+  const tb=document.createElement('div');tb.className='dtb';
+  tb.innerHTML='<b>📄 '+escHtml(w.id.toUpperCase())+' — '+escHtml(w.title)+'</b>'
+    +'<span class="sc" style="background:'+(SCOPE_COLOR[w.scope]||'var(--dim)')+'">'+(SCOPE_LABEL[w.scope]||'')+'</span>'
+    +'<button class="mbtn" onclick="window.toCanvas()">🗺️ Xem sơ đồ</button>';
+  docInner.appendChild(tb);
+  const body=document.createElement('div');
+  body.innerHTML=w.doc||'<p style="color:var(--muted)">Chưa có nội dung tài liệu.</p>';
+  docInner.appendChild(body);
+  const hs=[...body.querySelectorAll('h2,h3')];
+  if(hs.length>2){
+    const toc=document.createElement('details');toc.className='toc';
+    const sum=document.createElement('summary');sum.textContent='📑 Mục lục ('+hs.length+' mục)';
+    const ul=document.createElement('ul');
+    hs.forEach((h,i)=>{h.id='h'+i;const li=document.createElement('li');li.className=h.tagName==='H3'?'lvl3':'';const a=document.createElement('a');a.textContent=h.textContent;a.onclick=()=>h.scrollIntoView({behavior:'smooth',block:'start'});li.appendChild(a);ul.appendChild(li);});
+    toc.appendChild(sum);toc.appendChild(ul);
+    body.insertBefore(toc,body.firstChild);
+  }
+  if(phaseIdx!=null){
+    const target=hs.find(h=>new RegExp('(Phase|Giai đoạn)\\s*'+(phaseIdx+1)+'\\b').test(h.textContent));
+    if(target)setTimeout(()=>target.scrollIntoView({block:'start'}),40);
+  }
+}
+window.toCanvas=()=>setMode('canvas');
+window.openDocFromNode=()=>{ if(cur<0)return; setMode('doc'); renderDoc(sel?sel.p:null); };
 function buildTabs(){
   const ov=document.createElement('button');ov.className='tab';ov.textContent='🏠 Tổng quan';ov.onclick=showOverview;tabs.appendChild(ov);
   WORKFLOWS.forEach((w,i)=>{const b=document.createElement('button');b.className='tab';b.innerHTML=escHtml(w.title)+' <span class="scope">· '+(SCOPE_LABEL[w.scope]||'')+'</span>';b.onclick=()=>openWorkflow(i);tabs.appendChild(b);});
@@ -263,9 +352,12 @@ function openWorkflow(i){
   ov.style.display='none';hideDetail();
   bTitle.textContent=WORKFLOWS[i].id.toUpperCase()+' · '+WORKFLOWS[i].title;
   bMeta.textContent=WORKFLOWS[i].nodes.length+' node · '+WORKFLOWS[i].edges.length+' nối · '+(SCOPE_LABEL[WORKFLOWS[i].scope]||'');
-  markTabs();fit(i);draw();
+  markTabs();fit(i);
+  if(mode==='doc'){ doc.style.display='block'; cv.style.display='none'; renderDoc(null); }
+  else draw();
 }
 function showOverview(){
+  setMode('canvas');
   cur=-1;hideDetail();ov.style.display='block';
   bTitle.textContent='Tổng quan hệ thống';bMeta.textContent=WORKFLOWS.length+' workflow · '+WORKFLOWS.reduce((s,w)=>s+w.nodes.length,0)+' node';
   markTabs();draw();
