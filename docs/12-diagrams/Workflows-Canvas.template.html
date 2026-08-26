@@ -47,7 +47,7 @@
   #badge h2{font-size:14px;margin-bottom:2px}
   #badge .meta{color:var(--muted);font-size:11px}
 
-  #detail{position:absolute;right:16px;top:14px;width:250px;z-index:6;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;font-size:12px;box-shadow:0 8px 24px rgba(0,0,0,.4);display:none}
+  #detail{position:absolute;right:16px;top:14px;width:350px;max-height:calc(100% - 70px);overflow-y:auto;z-index:6;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;font-size:12px;box-shadow:0 8px 24px rgba(0,0,0,.4);display:none}
   #detail.open{display:block}
   #detail .dh{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
   #detail h3{font-size:13px}
@@ -57,6 +57,14 @@
   #detail .k{color:var(--muted)}
   #detail .v{color:var(--text);text-align:right;max-width:150px}
   #detail .chip{display:inline-block;padding:1px 7px;border-radius:999px;font-size:10px;font-weight:600;color:#0b1220}
+  #detail .ph{margin:6px 0 10px;padding:7px 10px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;background:var(--panel2);color:var(--text)}
+  #detail .ph b{color:var(--accent)}
+  #detail .blk{margin-top:9px;padding-top:8px;border-top:1px dashed var(--line)}
+  #detail .bk{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+  #detail .blk ol,#detail .blk ul{margin:4px 0 0 16px;color:var(--text);line-height:1.5}
+  #detail .blk li{margin:2px 0}
+  #detail .flow{color:var(--text);line-height:1.6;font-size:11px}
+  #detail .flow b{color:var(--muted)}
 
   #overview{position:absolute;inset:0;overflow:auto;padding:34px;z-index:4;background:
     radial-gradient(1200px 600px at 20% -10%, rgba(99,102,241,.14), transparent),
@@ -218,15 +226,30 @@ addEventListener('keydown',e=>{
 });
 function escHtml(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
 function showDetail(n){
-  sel=n;const w=WORKFLOWS[cur];const role=n.role?('<span class="chip" style="background:'+(ROLE_COLOR[n.role]||'#818cf8')+'">'+escHtml(n.role)+'</span>'):'—';
-  const outN=w.edges.filter(e=>e.from===n.id).length, inN=w.edges.filter(e=>e.to===n.id).length;
-  detail.innerHTML='<div class="dh"><h3>'+escHtml(n.label)+'</h3><button class="x" onclick="window.closeDetail()">✕</button></div>'
-    +'<div class="row"><span class="k">Node ID</span><span class="v">'+n.id+'</span></div>'
-    +'<div class="row"><span class="k">Hình dạng</span><span class="v">'+n.shape+'</span></div>'
-    +'<div class="row"><span class="k">Vai trò</span><span class="v">'+role+'</span></div>'
-    +'<div class="row"><span class="k">Nối ra</span><span class="v">'+outN+'</span></div>'
-    +'<div class="row"><span class="k">Nối vào</span><span class="v">'+inN+'</span></div>';
-  detail.classList.add('open');
+  sel=n;const w=WORKFLOWS[cur];
+  const ph=(w.phases&&n.p>=0)?w.phases[n.p]:null;
+  const role=n.role?('<span class="chip" style="background:'+(ROLE_COLOR[n.role]||'#818cf8')+'">'+escHtml(n.role)+'</span>'):'—';
+  const out=[];
+  out.push('<div class="dh"><h3>'+escHtml(n.label)+'</h3><button class="x" onclick="window.closeDetail()">✕</button></div>');
+  if(ph) out.push('<div class="ph"><b>Giai đoạn '+(n.p+1)+'</b> · '+escHtml(ph.title)+'</div>');
+  out.push('<div class="row"><span class="k">Node ID</span><span class="v">'+n.id+'</span></div>');
+  out.push('<div class="row"><span class="k">Hình dạng</span><span class="v">'+n.shape+'</span></div>');
+  out.push('<div class="row"><span class="k">Vai trò</span><span class="v">'+role+'</span></div>');
+  if(ph){
+    if(ph.objective) out.push('<div class="blk"><div class="bk">Mục tiêu</div><div>'+escHtml(ph.objective)+'</div></div>');
+    if(ph.trigger) out.push('<div class="blk"><div class="bk">Kích hoạt</div><div>'+escHtml(ph.trigger)+'</div></div>');
+    if(ph.actions&&ph.actions.length) out.push('<div class="blk"><div class="bk">Các bước thực hiện</div><ol>'+ph.actions.slice(0,10).map(a=>'<li>'+escHtml(a)+'</li>').join('')+'</ol></div>');
+    if(ph.actors&&ph.actors.length) out.push('<div class="blk"><div class="bk">Vai trò tham gia</div><ul>'+ph.actors.map(a=>'<li>'+escHtml(a)+'</li>').join('')+'</ul></div>');
+    if(ph.criteria&&ph.criteria.length) out.push('<div class="blk"><div class="bk">Tiêu chí đạt</div><ul>'+ph.criteria.map(c=>'<li>'+escHtml(c)+'</li>').join('')+'</ul></div>');
+  }
+  const outs=w.edges.filter(e=>e.from===n.id),ins=w.edges.filter(e=>e.to===n.id);
+  if(ins.length||outs.length){
+    const flow=[];
+    ins.forEach(e=>flow.push('⬅ <b>'+escHtml(e.from)+'</b>'+(e.label?' — '+escHtml(e.label):'')));
+    outs.forEach(e=>flow.push('➡ <b>'+escHtml(e.to)+'</b>'+(e.label?' — '+escHtml(e.label):'')));
+    out.push('<div class="blk"><div class="bk">Kết nối</div><div class="flow">'+flow.join('<br>')+'</div></div>');
+  }
+  detail.innerHTML=out.join('');detail.classList.add('open');
 }
 function hideDetail(){sel=null;detail.classList.remove('open');}
 window.closeDetail=hideDetail;

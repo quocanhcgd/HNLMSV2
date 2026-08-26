@@ -11,6 +11,73 @@ function stripEmoji(s){ return (s||'')
   .replace(/[\u{2300}-\u{23FF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{1F000}-\u{1FAFF}\u{FE0F}\u200D\u200E\u2066-\u2069\u061C]/gu,'')
   .replace(/^[\s\[]+/,'').replace(/[\s\]]+$/,'').replace(/\s{2,}/g,' ').trim(); }
 
+// Split a phase block into "**Label:**" sections.
+function phaseSections(b){
+  const out={}; const re=/\*\*([A-Za-z0-9 ,&/]+?)\*\*:\s*([\s\S]*?)(?=\*\*[A-Za-z0-9 ,&/]+?\*\*:|^### |^---$|\n## |\z)/gm;
+  let mm; while((mm=re.exec(b))){
+    const key=mm[1].trim(), val=mm[2];
+    const lines=val.split('\n').map(s=>s.trim()).filter(Boolean);
+    const items=lines.filter(s=>/^[-*▶🔹📝🧾✅📌]|\d+[.)]/.test(s)).map(s=>s.replace(/^(?:[-*▶🔹📝🧾✅📌]+|\d+[.)])\s*/,'').replace(/\[\[|\]\]/g,'').trim());
+    out[key]={text:val.trim(), list:items.length?items:[]};
+  }
+  return out;
+}
+function clean(x){return String(x||'').replace(/\[\[|\]\]/g,'').trim();}
+// Condensed numbered steps (e.g. "1. Trigger Event:") from a phase body.
+function numberedSteps(body){
+  const out=[]; const re=/^\s*\d+\.\s+\*{0,2}\s*([A-Za-z][^\*\n:]{0,70})\*{0,2}\s*:/gm; let m;
+  while((m=re.exec(body))){ const t=m[1].replace(/\s+/g,' ').trim(); if(t&&out.indexOf(t)<0) out.push(t); }
+  return out;
+}
+function parsePhases(txt){
+  const lines=txt.split('\n');
+  let start=-1, kind='h3';
+  for(let i=0;i<lines.length;i++){ if(/^##\s*Phase Breakdown/.test(lines[i])){start=i;kind='h3';break;} }
+  if(start<0){ for(let i=0;i<lines.length;i++){ if(/^##\s+(Phase|Channel)\b/.test(lines[i])){start=i;kind='h2';break;} } }
+  if(start<0) return [];
+  let end=lines.length;
+  for(let i=start+1;i<lines.length;i++){
+    if(/^##\s+/.test(lines[i])){
+      if(kind==='h3'){ end=i; break; }
+      if(!/^##\s*(Phase|Channel)\b/.test(lines[i])){ end=i; break; }
+    }
+  }
+  const region=lines.slice(start,end).join('\n');
+  const re=kind==='h3'?/^###\s+Phase\b[^\n]*/gm:/^##\s+(?:Phase|Channel)\b[^\n]*/gm;
+  const heads=[...region.matchAll(re)];
+  const phases=[];
+  for(let hi=0;hi<heads.length;hi++){
+    const hl=heads[hi][0];
+    const title=hl.replace(/^#{1,3}\s+(?:Phase|Channel)\s*\d+[.:]?\s*/,'').trim();
+    const b0=heads[hi].index+hl.length;
+    const b1=hi+1<heads.length?heads[hi+1].index:region.length;
+    const body=region.slice(b0,b1);
+    const sec=phaseSections(body);
+    const act=(sec['Actors']||{list:[],text:''});
+    phases.push({
+      title: clean(title)||hl.trim(),
+      objective: clean((sec['Objective']||{}).text),
+      trigger: clean((sec['Trigger']||{}).text),
+      actors: (act.list.length?act.list:[act.text]).filter(Boolean).map(clean),
+      actions: (function(){ var a=((((sec['Actions']||{}).list)||[]).concat(((sec['Process']||{}).list)||[])).map(s=>clean(s)).filter(Boolean); return (a.length?a:numberedSteps(body)).slice(0,16); })(),
+      criteria: (((sec['Success Criteria']||{}).list)||[]).map(clean).filter(Boolean)
+    });
+  }
+  return phases;
+}
+function norm(t){return String(t||'').toLowerCase().replace(/[^\p{L}\p{N}\s]/gu,' ').replace(/\s+/g,' ').trim();}
+function toks(t){return norm(t).split(' ').filter(w=>w.length>1);}
+function phaseScore(label, ph){
+  const ntok=new Set(toks(label)); const btok=new Set(toks(ph.title+' '+ph.objective+' '+(ph.actions||[]).join(' ')));
+  let sc=0; toks(ph.title).forEach(t=>{ if(ntok.has(t)) sc+=3; }); ntok.forEach(t=>{ if(btok.has(t)) sc+=1; });
+  return sc;
+}
+function mapNodeToPhase(n, phases){
+  let best=0, bi=0;
+  for(let i=0;i<phases.length;i++){ const s=phaseScore(n.label, phases[i]); if(s>best){best=s;bi=i;} }
+  return phases.length?bi:-1;
+}
+
 function parseMermaid(block){
   const lines = block.split('\n');
   const nodes = new Map(); const edges = []; const roles = {}; const order = [];
@@ -61,9 +128,11 @@ function extract(file, idx){
   if(fm){ for(const l of fm[1].split('\n')){ const mm=l.match(/^(\w+):\s*(.*)$/); if(mm) meta[mm[1]]=mm[2].trim(); } }
   const m = txt.match(/```mermaid\s*\n([\s\S]*?)```/);
   const data = m ? parseMermaid(m[1]) : {nodes:[],edges:[]};
+  const phases = parsePhases(txt);
+  data.nodes.forEach(n=>{ n.p = mapNodeToPhase(n, phases); });
   let scope='MVP';
   if(/Roadmap P3/.test(txt)) scope='P3'; else if(/Roadmap P2/.test(txt)) scope='P2';
-  return { id:'wf_'+String(idx).padStart(2,'0'), file, title:stripEmoji(title), category:meta.category||'', phases:meta.phases||'', estimated:meta.estimated_time||'', scope, nodes:data.nodes, edges:data.edges };
+  return { id:'wf_'+String(idx).padStart(2,'0'), file, title:stripEmoji(title), category:meta.category||'', phases:meta.phases||'', estimated:meta.estimated_time||'', scope, nodes:data.nodes, edges:data.edges, phases };
 }
 const list = files.map(extract);
 const json = JSON.stringify(list).replace(/</g,'\\u003c');
