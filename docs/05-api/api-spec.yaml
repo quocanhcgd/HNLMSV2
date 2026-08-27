@@ -1136,6 +1136,7 @@ paths:
             type: string
         - name: branch_id
           in: query
+          description: Lọc học viên có ghi danh ở chi nhánh
           schema:
             type: string
             format: uuid
@@ -1184,6 +1185,7 @@ paths:
                   type: string
                 branch_id:
                   type: string
+                  description: Chi nhánh thao tác — kiểm tra scope, KHÔNG lưu (students không có cột branch)
                   format: uuid
       responses:
         "201":
@@ -1192,11 +1194,70 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Student"
+    put:
+      tags: ["Students & Enrollment"]
+      summary: Cập nhật hồ sơ học viên (DEVIATION: thêm ngoài api-spec gốc, theo T047)
+      operationId: updateStudent
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                date_of_birth:
+                  type: string
+                  format: date
+                gender:
+                  type: string
+                phone:
+                  type: string
+                guardian_phone:
+                  type: string
+                identity_ref:
+                  type: string
+                status:
+                  type: string
+                  enum: [active, inactive, graduated, dropped]
+                notes:
+                  type: string
+      responses:
+        "200":
+          description: Đã cập nhật
+
+  /students/{student_id}/enrollments:
+    get:
+      tags: ["Students & Enrollment"]
+      summary: Danh sách ghi danh của học viên (DEVIATION — theo T046/T048)
+      operationId: listStudentEnrollments
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Danh sách ghi danh (kèm class/program/course)
 
   /enrollments:
     post:
       tags: ["Students & Enrollment"]
-      summary: "Ghi danh học viên vào lớp (transaction: enrollment + invoice)"
+      summary: "Ghi danh học viên vào lớp (409: trùng hoặc lớp đầy). DEVIATION: invoice=null — bảng invoices thuộc phase Finance"
       operationId: createEnrollment
       security:
         - bearerAuth: []
@@ -1259,6 +1320,26 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Enrollment"
+    put:
+      tags: ["Students & Enrollment"]
+      summary: Đổi trạng thái ghi danh (DEVIATION — trigger sync enrolled_count; theo T046)
+      operationId: updateEnrollment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [pending_payment, active, completed, dropped, suspended, waitlist]
+      responses:
+        "200":
+          description: Đã cập nhật
 
   # ============================================================
   # LEARNING

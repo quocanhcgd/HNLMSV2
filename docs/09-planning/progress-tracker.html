@@ -286,33 +286,33 @@ const TASKS=[
 
 {id:"T044",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Backend",title:"Student entity",owner:"Dev1",est:1,deps:["T005"],
  input:["T005","03-data-model.md Student"],
- steps:["Entity students (full_name,dob,email,phone,status)","CRUD service"],
+ steps:["Entity students (full_name,dob,gender,phone,guardian_phone,identity_ref,status)","CRUD service","migration 1787800000006","3-layer model: user_id nullable (users=account, students=registry)"],
  output:["students table + service"],
- dod:["CRUD hoạt động"]},
+ dod:["CRUD hoạt động","Verify 19/19 (CRUD + trùng 409 + search)"]},
 
 {id:"T045",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Backend",title:"Enrollment entity",owner:"Dev1",est:2,deps:["T044","T038"],
  input:["T044","T038","03-data-model.md Enrollment"],
- steps:["enrollments table","Check capacity, tạo invoice"],
+ steps:["enrollments + enrollment_progress","Trigger sync_class_enrolled_count (tự cập nhật classes.enrolled_count)","Check capacity + trùng (UNIQUE)","DEVIATION: invoice=null (bảng invoices phase Finance — D9)","Data-fix 0007: +enrollment:create cho branch_manager"],
  output:["enrollments table + service"],
- dod:["Check capacity + tạo invoice"]},
+ dod:["Check capacity + trùng","Verify trigger sync (enrolled_count tăng/giảm đúng)"]},
 
 {id:"T046",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Backend",title:"Enrollment API",owner:"Dev1",est:2,deps:["T045"],
  input:["T045"],
- steps:["POST /api/enrollments, GET /api/students/:id/enrollments","Branch-scoped"],
+ steps:["POST /api/enrollments, GET /api/students/:id/enrollments","Branch-scoped (class.branch)","+ GET /enrollments/:id + PUT /enrollments/:id (đổi status)","Phân quyền: enrollment:create cho create/update, user:read cho đọc"],
  output:["API enrollments"],
- dod:["Branch-scoped enforce"]},
+ dod:["Branch-scoped enforce","Verify 19/19 (BM scope 403/201, student 403 enroll)"]},
 
 {id:"T047",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Frontend",title:"Student mgmt page",owner:"Dev2",est:3,deps:["T044","T046"],
- input:["T044","T046"],
- steps:["List/add/edit student, xem enrollments","/academic/students ProTable search"],
+ input:["T044","T046","mockup 02 nav_enroll (không có screen — design system)"],
+ steps:["List/add/edit student, xem enrollments","/students (thay /academic/students — theo nav)","Search q + lọc branch + phân trang + i18n"],
  output:["Trang quản lý student"],
- dod:["CRUD student + xem enrollments"]},
+ dod:["CRUD student + xem enrollments","E2E 6/6"]},
 
 {id:"T048",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Frontend",title:"Enrollment workflow",owner:"Dev2",est:2,deps:["T046"],
  input:["T046"],
- steps:["Enroll modal, class selector, confirmation","Student detail → Enrollments tab"],
+ steps:["Enroll modal, class selector (chỉ lớp còn chỗ X/Y), confirmation","Student detail → Enrollments tab","409 trùng/đầy hiện toast message"],
  output:["Luồng ghi danh"],
- dod:["Enroll thành công + invoice"]},
+ dod:["Enroll thành công","E2E 6/6 (tạo học viên → ghi danh → bảng có dòng)"]},
 
 /* ---------- Phase 6 Learning W13 ---------- */
 {id:"T049",phase:"P6",phaseName:"Learning",week:"13",pri:"High",group:"Backend",title:"LearningContent entity",owner:"Dev1",est:1,deps:["T005"],
@@ -493,7 +493,7 @@ const STATUS_LABEL={todo:'🔘 Chưa',in_progress:'⏳ Đang',done:'✅ Xong',bl
 let state={status:{},filter:'all',owner:'all',phase:'all'};
 /* Trạng thái mặc định — tự đồng bộ theo milestone (khớp docs/09-planning/tracker-state-export.json).
    localStorage ghi đè khi user tự chấm; các key chưa có trong localStorage sẽ lấy giá trị mặc định này. */
-const DEFAULT_STATUS={T001:'done',T002:'done',T003:'done',T004:'done',T005:'done',T006:'done',T007:'done',T011:'done',T012:'done',T013:'done',T015:'done',T016:'done',T017:'done',T018:'done',T019:'done',T020:'done',T027:'done',T028:'done',T029:'done',T030:'done',T031:'done',T032:'done',T033:'done',T034:'done',T035:'done',T036:'done',T037:'done',T038:'done',T039:'done',T040:'done',T041:'done',T042:'done',T043:'done',T067:'done'};
+const DEFAULT_STATUS={T001:'done',T002:'done',T003:'done',T004:'done',T005:'done',T006:'done',T007:'done',T011:'done',T012:'done',T013:'done',T015:'done',T016:'done',T017:'done',T018:'done',T019:'done',T020:'done',T027:'done',T028:'done',T029:'done',T030:'done',T031:'done',T032:'done',T033:'done',T034:'done',T035:'done',T036:'done',T037:'done',T038:'done',T039:'done',T040:'done',T041:'done',T042:'done',T043:'done',T044:'done',T045:'done',T046:'done',T047:'done',T048:'done',T067:'done'};
 function load(){try{const s=JSON.parse(localStorage.getItem(STORE_KEY));if(s)state=Object.assign(state,s);}catch(e){}state.status=Object.assign({},DEFAULT_STATUS,state.status||{});}
 function save(){localStorage.setItem(STORE_KEY,JSON.stringify(state));}
 function esc(x){return (x||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}

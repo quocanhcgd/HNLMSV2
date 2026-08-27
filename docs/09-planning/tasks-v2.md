@@ -404,41 +404,46 @@ team: "2 Full-stack Developers"
 > - `ParentLink`/`Delegation` = **(P2 addon Parent)** — parent user ↔ student + relationship + hiệu lực từ/đến + người duyệt; quyền phụ huynh là ủy quyền theo từng học viên, có thời hạn, thu hồi được. CHƯA thêm vào DDL; KHÔNG thêm role `Parent` vào seed trước khi có machinery delegation (role rỗng vô dụng).
 > - Luồng US4: tạo student profile (registry) → chọn class → invoice → enrollment Pending Payment → active. Phone user (DDL đã có) chưa đưa vào form tạo user — bổ sung khi cần.
 
-- [ ] **T044** [Backend] Create Student entity
+- [x] **T044** [Backend] Create Student entity
       - Estimate: 1 day
       - Owner: Dev1
       - Dependencies: T005
       - Deliverable: students table, CRUD service
       - Fields: theo DDL chuẩn — org_id, user_id (nullable), student_code (unique), full_name, dob, gender, phone, guardian_phone, identity_ref, status (active|inactive|graduated|dropped), notes (KHÔNG có email — email thuộc users account)
+      - DONE: migration 1787800000006 (students + enrollments + enrollment_progress + trigger sync_class_enrolled_count); CRUD GET/POST/PUT /students (paged + tìm q + lọc branch qua EXISTS enrollment→class); branchId khi tạo chỉ kiểm tra scope (KHÔNG lưu — students không có cột branch); scope-restricted user phải chọn chi nhánh (400 nếu thiếu).
 
-- [ ] **T045** [Backend] Create Enrollment entity
+- [x] **T045** [Backend] Create Enrollment entity
       - Estimate: 2 days
       - Owner: Dev1
       - Dependencies: T044, T038
       - Deliverable: enrollments table, enrollment service
       - Logic: Check class capacity, create invoice
+      - DONE: entity + service; kiểm tra trùng (UNIQUE → 409 'Đã ghi danh') + capacity (409 'Lớp đã đầy X/Y'); trigger DB tự đồng bộ classes.enrolled_count (insert/đổi status). DEVIATION: invoice=null (bảng invoices thuộc phase Finance — ghi D9). Data-fix migration 1787800000007: cấp thêm enrollment:create cho branch_manager (quầy chi nhánh) — seed gốc chỉ có academic_manager/teacher.
 
-- [ ] **T046** [Backend] Enrollment API endpoints
+- [x] **T046** [Backend] Enrollment API endpoints
       - Estimate: 2 days
       - Owner: Dev1
       - Dependencies: T045
       - Deliverable: POST /api/enrollments, GET /api/students/:id/enrollments
       - Authorization: Branch-scoped
+      - DONE: POST /enrollments (guard enrollment:create + scope theo class.branch), GET /enrollments/:id (kèm progress), GET /students/:id/enrollments, PUT /enrollments/:id (đổi status — DEVIATION thêm ngoài api-spec, trigger sync count). Phân quyền đọc: user:read (student có user:read nên xem được registry — contract B). Verify API 19/19 (CRUD + trùng + đầy + trigger sync + drop giảm count + BM scope 403/201 + student 403 enroll).
 
-- [ ] **T047** [Frontend] Student management page
+- [x] **T047** [Frontend] Student management page
       - Estimate: 3 days
       - Owner: Dev2
       - Dependencies: T044, T046
       - Deliverable: Student list, add/edit student, view enrollments
       - Route: /academic/students
       - Features: ProTable with search by name/email
+      - DONE: route /students (nav 'Học viên & Ghi danh'); bảng + tìm q + lọc branch + phân trang + thêm/sửa học viên (branch select khi thêm — bắt buộc, status khi sửa); chi tiết học viên hiển thị thông tin + danh sách ghi danh. i18n vi/en. (Route dùng /students thay /academic/students — theo nav mockup 02 nav_enroll.)
 
-- [ ] **T048** [Frontend] Enrollment workflow
+- [x] **T048** [Frontend] Enrollment workflow
       - Estimate: 2 days
       - Owner: Dev2
       - Dependencies: T046
       - Deliverable: Enroll student modal, class selector, confirmation
       - Location: Student detail page → Enrollments tab
+      - DONE: modal Ghi danh (chỉ liệt kê lớp còn chỗ, hiện X/Y), 409 (trùng/đầy) hiện toast message backend; sau ghi danh reload danh sách. E2E UI 6/6 (nav → tạo học viên → tìm → chi tiết → ghi danh → bảng có dòng).
 
 ---
 

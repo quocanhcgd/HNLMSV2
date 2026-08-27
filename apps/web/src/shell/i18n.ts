@@ -134,6 +134,18 @@ export interface AdminDict {
   class_detail: string; sched_title: string; opt_none: string;
   mod_offline: string; mod_online: string; mod_hybrid: string; mod_flexible: string;
   rec_weekly: string; rec_biweekly: string; rec_once: string;
+  // --- Students & Enrollment screen (T047–T048 — mockup 02 nav_enroll) ---
+  page_sub_students: string;
+  btn_add_student: string; modal_add_student: string; modal_edit_student: string;
+  col_full_name: string; col_gender: string; col_phone: string; col_guardian_phone: string;
+  f_student_code: string; f_full_name: string; f_date_of_birth: string; f_gender: string; f_identity_ref: string;
+  gen_male: string; gen_female: string; gen_other: string;
+  st_student_active: string; st_student_inactive: string; st_student_graduated: string; st_student_dropped: string;
+  st_enr_pending: string; st_enr_active: string; st_enr_completed: string; st_enr_dropped: string; st_enr_suspended: string; st_enr_waitlist: string;
+  no_students: string; no_enrollments: string;
+  total_students: string; page_label: string; f_class: string;
+  btn_enroll: string; modal_enroll: string; toast_student_created: string; toast_student_updated: string;
+  toast_enrolled: string; tab_enrollments: string; ph_search_student: string; student_detail: string;
 }
 
 export const I18N: Record<'vi' | 'en', AdminDict> = {
@@ -324,6 +336,18 @@ export const I18N: Record<'vi' | 'en', AdminDict> = {
     class_detail: 'Chi tiết lớp', sched_title: 'Lịch học', opt_none: '— Không chọn —',
     mod_offline: 'Offline', mod_online: 'Online', mod_hybrid: 'Hybrid', mod_flexible: 'Linh hoạt',
     rec_weekly: 'Hàng tuần', rec_biweekly: '2 tuần/lần', rec_once: '1 lần',
+    // Students & Enrollment (T047–T048)
+    page_sub_students: 'Quản lý hồ sơ học viên và ghi danh vào lớp',
+    btn_add_student: 'Thêm học viên', modal_add_student: 'Thêm học viên', modal_edit_student: 'Sửa hồ sơ học viên',
+    col_full_name: 'Họ tên', col_gender: 'Giới tính', col_phone: 'SĐT', col_guardian_phone: 'SĐT người giám hộ',
+    f_student_code: 'Mã học viên *', f_full_name: 'Họ tên *', f_date_of_birth: 'Ngày sinh', f_gender: 'Giới tính', f_identity_ref: 'CMND/CCCD',
+    gen_male: 'Nam', gen_female: 'Nữ', gen_other: 'Khác',
+    st_student_active: '● Đang học', st_student_inactive: 'Không hoạt động', st_student_graduated: 'Đã tốt nghiệp', st_student_dropped: 'Đã nghỉ',
+    st_enr_pending: 'Chờ thanh toán', st_enr_active: 'Đang học', st_enr_completed: 'Hoàn thành', st_enr_dropped: 'Đã nghỉ', st_enr_suspended: 'Tạm dừng', st_enr_waitlist: 'Chờ lớp',
+    no_students: 'Chưa có học viên nào', no_enrollments: 'Chưa ghi danh lớp nào',
+    total_students: 'Tổng {n} học viên', page_label: 'Trang {page}/{total}', f_class: 'Lớp',
+    btn_enroll: 'Ghi danh', modal_enroll: 'Ghi danh vào lớp', toast_student_created: '✅ Đã tạo hồ sơ học viên', toast_student_updated: '✅ Đã cập nhật hồ sơ',
+    toast_enrolled: '✅ Đã ghi danh', tab_enrollments: 'Ghi danh', ph_search_student: '🔍 Tìm theo tên / mã học viên...', student_detail: 'Hồ sơ học viên',
   },
   en: {
     org_name: 'ABC Language Center',
@@ -512,5 +536,17 @@ export const I18N: Record<'vi' | 'en', AdminDict> = {
     class_detail: 'Class detail', sched_title: 'Schedule', opt_none: '— None —',
     mod_offline: 'Offline', mod_online: 'Online', mod_hybrid: 'Hybrid', mod_flexible: 'Flexible',
     rec_weekly: 'Weekly', rec_biweekly: 'Biweekly', rec_once: 'Once',
+    // Students & Enrollment (T047–T048)
+    page_sub_students: 'Student profiles & class enrollment',
+    btn_add_student: 'Add student', modal_add_student: 'Add student', modal_edit_student: 'Edit student',
+    col_full_name: 'Full name', col_gender: 'Gender', col_phone: 'Phone', col_guardian_phone: 'Guardian phone',
+    f_student_code: 'Student code *', f_full_name: 'Full name *', f_date_of_birth: 'Date of birth', f_gender: 'Gender', f_identity_ref: 'ID/Passport',
+    gen_male: 'Male', gen_female: 'Female', gen_other: 'Other',
+    st_student_active: '● Active', st_student_inactive: 'Inactive', st_student_graduated: 'Graduated', st_student_dropped: 'Dropped',
+    st_enr_pending: 'Pending payment', st_enr_active: 'Active', st_enr_completed: 'Completed', st_enr_dropped: 'Dropped', st_enr_suspended: 'Suspended', st_enr_waitlist: 'Waitlist',
+    no_students: 'No students yet', no_enrollments: 'No enrollments yet',
+    total_students: 'Total {n} students', page_label: 'Page {page}/{total}', f_class: 'Class',
+    btn_enroll: 'Enroll', modal_enroll: 'Enroll to class', toast_student_created: '✅ Student created', toast_student_updated: '✅ Student updated',
+    toast_enrolled: '✅ Enrolled', tab_enrollments: 'Enrollments', ph_search_student: '🔍 Search by name / code...', student_detail: 'Student profile',
   },
 };
