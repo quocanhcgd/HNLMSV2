@@ -1,7 +1,7 @@
 # 13. UI Mockups — EduCenter LMS (MVP)
 
-**Version**: 1.3
-**Date**: 2026-08-26
+**Version**: 1.4
+**Date**: 2026-08-27
 **Status**: ✅ Nguồn chuẩn — mockup phong cách **Tailwind CSS** (thống nhất với bộ mockup cũ trong `mockups/` root)
 
 ---
@@ -30,6 +30,7 @@ Bộ mockup HTML interactive cho các màn hình **MVP** (trước khi vào codi
 | 02 | [`02-admin-dashboard.html`](./02-admin-dashboard.html) | Dashboard Admin: KPI, biểu đồ, branch selector, cảnh báo | US1, US8 |
 | 03 | [`03-users-roles.html`](./03-users-roles.html) | Người dùng & Vai trò: CRUD user, phân quyền theo module, scope grants | US2 |
 | 04 | [`04-reports.html`](./04-reports.html) | Báo cáo: 4 loại, filter branch/thời gian, async + export | US8 |
+| 05 | [`05-student-portal.html`](./05-student-portal.html) | **Portal học viên (T053–T055)**: Tổng quan (lớp + tiến độ), Lớp của tôi (bảng), Chi tiết lớp (lịch + học liệu + hoàn thành), Thư viện (tìm kiếm + tải) | US1 (góc học viên) |
 
 ## Cách dùng
 

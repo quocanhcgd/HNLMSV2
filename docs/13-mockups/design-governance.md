@@ -66,6 +66,7 @@ Mỗi thành phần có **1 component duy nhất** trong code (Storybook để p
 | Component | Mô tả | Nguồn mockup |
 |---|---|---|
 | `AppShell` | Sidebar (w-64) + Header sticky + Content `p-8` | tất cả |
+| `AppShell (portal variant)` | Tài khoản student → sidebar gọn 1 nhóm (Học viên) + header **bỏ branch select** (học viên không có scope chi nhánh) — mockup [`05-student-portal.html`](./05-student-portal.html) | 05 |
 | `Sidebar` / `NavItem` / `NavGroup` | Menu; item active = tint teal; group uppercase faint | tất cả |
 | `NavLocked` (addon) | Menu addon + badge "Chưa kích hoạt" (module gate) | tất cả |
 | `Header` | Breadcrumb, branch select, 🌙, 🌐 (1 nút), UserMenu | tất cả |

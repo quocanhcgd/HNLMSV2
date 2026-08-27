@@ -27,7 +27,7 @@ function PortalShell() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const { t, theme, lang, toggleTheme, toggleLang } = useShell();
+  const { t, theme, lang, toggleTheme, toggleLang, toast } = useShell();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -76,6 +76,7 @@ function PortalShell() {
           </div>
         </div>
         <nav className="p-2 pt-3">
+          <p className="px-3 pt-2 pb-1 text-xs font-bold uppercase text-faint">{t('grp_student')}</p>
           {NAV_PORTAL.map((it) => (
             <div
               key={it.key}
@@ -99,6 +100,12 @@ function PortalShell() {
               <p className="text-sm text-soft">{meta.sub}</p>
             </div>
             <div className="flex items-center space-x-3">
+              <button className="relative text-xl" onClick={() => toast(t('toast_notif'))}>
+                🔔
+                <span className="absolute -top-1.5 -right-2 text-[10px] font-bold text-white rounded-full px-1.5" style={{ background: '#ef4444' }}>
+                  3
+                </span>
+              </button>
               <button id="themeBtn" className="theme-btn" onClick={toggleTheme} title="Dark/Light">
                 {theme === 'dark' ? '☀️' : '🌙'}
               </button>
@@ -108,14 +115,17 @@ function PortalShell() {
               <div className="relative" ref={menuRef}>
                 <button
                   id="userChip"
-                  className="flex items-center space-x-2 px-3 py-1.5 rounded-lg border surface text-sm"
-                  style={{ borderColor: 'var(--border)' }}
+                  className="flex items-center gap-2.5 rounded-xl border px-2.5 py-1.5 transition hover:border-teal-600"
+                  style={{ borderColor: 'var(--border)', background: 'var(--bg-1)' }}
                   onClick={() => setMenuOpen((v) => !v)}
                 >
-                  <span className="w-7 h-7 rounded-full gradient-teal text-white text-xs font-bold flex items-center justify-center">
+                  <span className="w-8 h-8 rounded-lg gradient-teal text-white flex items-center justify-center text-xs font-bold flex-none">
                     {initialsOf(user?.fullName ?? '')}
                   </span>
-                  <span>{user?.fullName?.split(' ').slice(0, 2).join(' ') || user?.email}</span>
+                  <span className="text-left leading-tight hidden sm:block">
+                    <span className="block text-xs font-bold">{user?.fullName || user?.email}</span>
+                    <span className="block text-[10px] text-faint">{t('role_student')}</span>
+                  </span>
                 </button>
                 {menuOpen && (
                   <div className="absolute right-0 mt-2 w-44 surface border rounded-xl shadow-lg p-1" style={{ borderColor: 'var(--border)' }}>
@@ -132,7 +142,7 @@ function PortalShell() {
             </div>
           </div>
         </div>
-        <main className="p-6">
+        <main className="p-8">
           <Outlet />
         </main>
       </div>

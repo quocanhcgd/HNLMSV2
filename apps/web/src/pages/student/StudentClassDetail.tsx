@@ -110,7 +110,7 @@ export function StudentClassDetail() {
               {detail.schedules.map((s) => (
                 <tr key={s.id} className="border-b" style={{ borderColor: 'var(--border)' }}>
                   <td className="py-2.5 px-3">{t(DAY_KEYS[s.dayOfWeek - 1] ?? 'day_1')}</td>
-                  <td className="py-2.5 px-3">{s.startTime} – {s.endTime}</td>
+                  <td className="py-2.5 px-3">{s.startTime?.slice(0, 5)} – {s.endTime?.slice(0, 5)}</td>
                   <td className="py-2.5 px-3">{s.teacherName}</td>
                   <td className="py-2.5 px-3">{s.roomName ?? '—'}</td>
                 </tr>

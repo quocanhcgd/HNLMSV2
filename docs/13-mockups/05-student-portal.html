@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Học viên - EduCenter LMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        :root {
+            --primary: #0d9488; --primary-light: #5eead4; --secondary: #10b981;
+            --accent: #f59e0b; --purple: #8b5cf6; --pink: #ec4899;
+            --bg-1: #ffffff; --bg-2: #f9fafb; --bg-3: #f3f4f6;
+            --text-1: #111827; --text-2: #6b7280; --text-3: #9ca3af; --border: #e5e7eb;
+        }
+        html.dark {
+            --bg-1: #1e293b; --bg-2: #0f172a; --bg-3: #334155;
+            --text-1: #f1f5f9; --text-2: #94a3b8; --text-3: #64748b; --border: #334155;
+        }
+        body { background: var(--bg-2); color: var(--text-1); transition: background .3s, color .3s; }
+        .gradient-teal { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); }
+        .card { background: var(--bg-1); border: 1px solid var(--border); border-radius: 1rem; transition: background .3s, border-color .3s; }
+        .surface { background: var(--bg-1); }
+        .track { background: var(--bg-3); }
+        .text-soft { color: var(--text-2); }
+        .text-faint { color: var(--text-3); }
+        .badge { display: inline-flex; align-items: center; padding: .25rem .75rem; border-radius: 9999px; font-size: .75rem; font-weight: 700; }
+        .badge-primary { background: rgba(13,148,136,.15); color: var(--primary); }
+        .badge-success { background: rgba(16,185,129,.15); color: var(--secondary); }
+        .badge-warning { background: rgba(245,158,11,.15); color: var(--accent); }
+        .badge-gray { background: var(--bg-3); color: var(--text-2); }
+        .nav-item { display: flex; align-items: center; padding: .75rem 1rem; margin: .25rem .5rem; border-radius: .75rem; transition: all .2s; cursor: pointer; color: var(--text-2); font-size: .875rem; }
+        .nav-item:hover { background: var(--bg-2); }
+        .nav-item.active { background: linear-gradient(135deg, rgba(13,148,136,.12) 0%, rgba(16,185,129,.12) 100%); color: var(--primary); font-weight: 600; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: #fff; padding: .65rem 1.25rem; border-radius: .75rem; font-weight: 600; transition: all .3s; border: none; cursor: pointer; font-size: .875rem; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(13,148,136,.3); }
+        .btn-outline { border: 2px solid var(--border); padding: .6rem 1.25rem; border-radius: .75rem; font-weight: 600; color: var(--text-2); background: var(--bg-1); cursor: pointer; transition: all .2s; font-size: .875rem; }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+        .input-field { width: 100%; padding: .75rem 1rem; border: 2px solid var(--border); border-radius: .75rem; transition: all .3s; font-size: .875rem; background: var(--bg-1); color: var(--text-1); }
+        .input-field:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(13,148,136,.1); }
+        .sidebar { background: var(--bg-1); border-right: 1px solid var(--border); }
+        .theme-btn { width: 36px; height: 34px; border-radius: .5rem; border: 2px solid var(--border); background: var(--bg-1); cursor: pointer; font-size: .95rem; display: inline-flex; align-items: center; justify-content: center; }
+        .menu-pop { display: flex; align-items: center; gap: .6rem; width: 100%; text-align: left; padding: .55rem .8rem; border-radius: .6rem; font-size: .85rem; color: var(--text-1); background: transparent; cursor: pointer; }
+        .menu-pop:hover { background: var(--bg-2); }
+        .progress-track { height: 8px; border-radius: 9999px; background: var(--bg-3); overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 9999px; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); }
+    </style>
+</head>
+<body>
+<!-- ===== SIDEBAR PORTAL (AppShell như mockup 02 — chỉ 1 nhóm nav HỌC VIÊN) ===== -->
+<aside class="sidebar fixed top-0 left-0 w-64 h-screen z-20 overflow-y-auto">
+    <div class="flex items-center space-x-3 p-5 border-b" style="border-color: var(--border);">
+        <div class="w-10 h-10 rounded-xl gradient-teal text-white flex items-center justify-center font-bold">E</div>
+        <div><p class="font-bold text-sm">EduCenter LMS</p><p class="text-xs text-faint" data-i18n="nav_portal"></p></div>
+    </div>
+    <nav class="p-2 pt-3">
+        <p class="px-3 pt-2 pb-1 text-xs font-bold uppercase text-faint" data-i18n="grp_student"></p>
+        <div class="nav-item active" id="nav-dash" onclick="show('dash')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg><span data-i18n="nav_portal_dash"></span></div>
+        <div class="nav-item" id="nav-classes" onclick="show('classes')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg><span data-i18n="nav_portal_classes"></span></div>
+        <div class="nav-item" id="nav-lib" onclick="show('lib')"><svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg><span data-i18n="nav_portal_library"></span></div>
+    </nav>
+</aside>
+
+<div class="ml-64 min-h-screen">
+    <!-- ===== HEADER (y hệt mockup 02 — bỏ branch select vì học viên không có scope chi nhánh) ===== -->
+    <div class="surface border-b sticky top-0 z-10" style="border-color: var(--border);">
+        <div class="px-8 py-4 flex items-center justify-between">
+            <div><h2 class="text-xl font-bold" id="pageTitle">Tổng quan</h2><p class="text-sm text-soft" id="pageSub">Lớp học, lịch học và học liệu của bạn</p></div>
+            <div class="flex items-center space-x-3">
+                <button class="relative text-xl" onclick="toast(t('toast_notif'))">🔔<span class="absolute -top-1.5 -right-2 text-[10px] font-bold text-white rounded-full px-1.5" style="background: #ef4444;">3</span></button>
+                <button id="themeBtn" class="theme-btn" onclick="toggleTheme()" title="Dark/Light">🌙</button>
+                <button id="langBtn" class="theme-btn !w-auto px-3" onclick="toggleLang()" title="Language">🌐 EN</button>
+                <div class="relative" id="userMenu">
+                    <button onclick="toggleUserMenu(event)" class="flex items-center gap-2.5 rounded-xl border px-2.5 py-1.5 transition hover:border-teal-600" style="border-color: var(--border); background: var(--bg-1);">
+                        <div class="w-8 h-8 rounded-lg gradient-teal text-white flex items-center justify-center text-xs font-bold flex-none">NA</div>
+                        <div class="text-left leading-tight hidden sm:block">
+                            <p class="text-xs font-bold">Nguyễn Văn A</p>
+                            <p class="text-[10px] text-faint" data-i18n="role_student"></p>
+                        </div>
+                    </button>
+                    <div id="userDropdown" class="hidden absolute right-0 top-[52px] card shadow-xl w-56 p-2 z-30">
+                        <div class="px-3 py-2.5 mb-1 border-b" style="border-color: var(--border);">
+                            <p class="text-sm font-bold">Nguyễn Văn A</p>
+                            <p class="text-xs text-faint" data-i18n="role_student"></p>
+                        </div>
+                        <button class="menu-pop" onclick="demoMenu('user_profile')"><span>👤</span><span data-i18n="user_profile"></span></button>
+                        <button class="menu-pop" onclick="demoMenu('user_password')"><span>🔑</span><span data-i18n="user_password"></span></button>
+                        <div class="border-t my-1" style="border-color: var(--border);"></div>
+                        <button class="menu-pop" style="color: #dc2626;" onclick="demoMenu('user_logout')"><span>🚪</span><span data-i18n="user_logout"></span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-8">
+        <!-- ===== SCREEN 1: TỔNG QUAN (/student/dashboard) ===== -->
+        <section id="sc-dash">
+            <div class="card p-6 mb-6">
+                <h3 class="text-xl font-bold mb-1">Chào Nguyễn Văn A 👋</h3>
+                <p class="text-sm text-soft">Mã học viên <b>SV-2026-0012</b> · Nguyễn Văn A</p>
+            </div>
+            <div class="flex items-center justify-between mb-3">
+                <p class="text-xs font-bold uppercase text-faint" data-i18n="my_classes"></p>
+                <button class="btn-outline text-xs px-3 py-1.5" onclick="show('classes')"><span data-i18n="view_all"></span> →</button>
+            </div>
+            <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+                <div class="card p-5 hover:shadow-md transition-shadow cursor-pointer" onclick="show('detail')">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="badge badge-primary">EN-B1-26</span><span class="text-xs text-faint">12/08/2026</span>
+                    </div>
+                    <p class="font-bold">Tiếng Anh Giao tiếp B1</p>
+                    <p class="text-sm text-soft mt-1">Master · EN-M1</p>
+                    <div class="mt-4">
+                        <div class="flex justify-between text-xs mb-1"><span class="text-soft" data-i18n="my_progress"></span><b>64%</b></div>
+                        <div class="progress-track"><div class="progress-fill" style="width: 64%;"></div></div>
+                    </div>
+                </div>
+                <div class="card p-5 hover:shadow-md transition-shadow cursor-pointer" onclick="show('detail')">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="badge badge-primary">IELTS-6.5-03</span><span class="text-xs text-faint">01/09/2026</span>
+                    </div>
+                    <p class="font-bold">Luyện thi IELTS 6.5</p>
+                    <p class="text-sm text-soft mt-1">IELTS · IL-1</p>
+                    <div class="mt-4">
+                        <div class="flex justify-between text-xs mb-1"><span class="text-soft" data-i18n="my_progress"></span><b>28%</b></div>
+                        <div class="progress-track"><div class="progress-fill" style="width: 28%;"></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center justify-between mt-8 mb-3">
+                <p class="text-xs font-bold uppercase text-faint" data-i18n="nav_portal_library"></p>
+                <button class="btn-outline text-xs px-3 py-1.5" onclick="show('lib')"><span data-i18n="view_all"></span> →</button>
+            </div>
+            <div class="card p-5 flex items-center space-x-4 hover:shadow-md transition-shadow cursor-pointer" onclick="show('lib')">
+                <span class="text-3xl">📚</span>
+                <span><span class="font-bold block" data-i18n="nav_portal_library"></span><span class="text-sm text-soft" data-i18n="page_sub_library"></span></span>
+            </div>
+        </section>
+
+        <!-- ===== SCREEN 2: LỚP CỦA TÔI (/student/classes) ===== -->
+        <section id="sc-classes" class="hidden">
+            <p class="text-sm text-soft mb-4">Mã học viên <b>SV-2026-0012</b> · Nguyễn Văn A</p>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead><tr class="text-left text-soft" style="border-bottom: 1px solid var(--border);">
+                        <th class="py-2.5 px-3 font-semibold" data-i18n="col_class"></th>
+                        <th class="py-2.5 px-3 font-semibold" data-i18n="f_program"></th>
+                        <th class="py-2.5 px-3 font-semibold" data-i18n="f_course"></th>
+                        <th class="py-2.5 px-3 font-semibold" data-i18n="col_enrolled_at"></th>
+                        <th class="py-2.5 px-3 font-semibold" data-i18n="col_progress"></th>
+                        <th class="py-2.5 px-3 font-semibold text-right" data-i18n="col_actions"></th>
+                    </tr></thead>
+                    <tbody>
+                        <tr class="border-b" style="border-color: var(--border);">
+                            <td class="py-3 px-3"><span class="badge badge-primary">EN-B1-26</span> <b>Tiếng Anh Giao tiếp B1</b></td>
+                            <td class="py-3 px-3 text-soft">Master</td>
+                            <td class="py-3 px-3 text-soft">EN-M1</td>
+                            <td class="py-3 px-3 text-soft">12/08/2026</td>
+                            <td class="py-3 px-3"><div class="flex items-center space-x-2"><div class="w-28 progress-track"><div class="progress-fill" style="width: 64%;"></div></div><span class="text-xs">64%</span></div></td>
+                            <td class="py-3 px-3 text-right"><button class="btn-outline text-xs px-3 py-1" onclick="show('detail')"><span data-i18n="btn_details"></span></button></td>
+                        </tr>
+                        <tr class="border-b" style="border-color: var(--border);">
+                            <td class="py-3 px-3"><span class="badge badge-primary">IELTS-6.5-03</span> <b>Luyện thi IELTS 6.5</b></td>
+                            <td class="py-3 px-3 text-soft">IELTS</td>
+                            <td class="py-3 px-3 text-soft">IL-1</td>
+                            <td class="py-3 px-3 text-soft">01/09/2026</td>
+                            <td class="py-3 px-3"><div class="flex items-center space-x-2"><div class="w-28 progress-track"><div class="progress-fill" style="width: 28%;"></div></div><span class="text-xs">28%</span></div></td>
+                            <td class="py-3 px-3 text-right"><button class="btn-outline text-xs px-3 py-1" onclick="show('detail')"><span data-i18n="btn_details"></span></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ===== SCREEN 3: CHI TIẾT LỚP (/student/classes/:id) ===== -->
+        <section id="sc-detail" class="hidden">
+            <button class="text-sm text-soft mb-3" onclick="show('classes')">← <span data-i18n="back"></span></button>
+            <div class="card p-6 mb-5">
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="text-xl font-bold"><span class="badge badge-primary mr-2">EN-B1-26</span>Tiếng Anh Giao tiếp B1</h3>
+                </div>
+                <p class="text-sm text-soft mb-3">Master · EN-M1</p>
+                <div class="flex flex-wrap gap-4 text-sm">
+                    <div><span class="text-soft" data-i18n="col_teachers"></span>: <b>Ms. Thu Hà</b>, <b>Mr. Quang</b></div>
+                </div>
+            </div>
+            <p class="text-xs font-bold uppercase text-faint mb-2" data-i18n="col_schedule"></p>
+            <div class="overflow-x-auto mb-6">
+                <table class="w-full text-sm">
+                    <thead><tr class="text-left text-soft" style="border-bottom: 1px solid var(--border);">
+                        <th class="py-2 px-3 font-semibold" data-i18n="col_day"></th>
+                        <th class="py-2 px-3 font-semibold" data-i18n="col_time"></th>
+                        <th class="py-2 px-3 font-semibold" data-i18n="col_teacher"></th>
+                        <th class="py-2 px-3 font-semibold" data-i18n="col_room"></th>
+                    </tr></thead>
+                    <tbody>
+                        <tr class="border-b" style="border-color: var(--border);"><td class="py-2.5 px-3" data-i18n="day_2"></td><td class="py-2.5 px-3">18:00 – 19:30</td><td class="py-2.5 px-3">Ms. Thu Hà</td><td class="py-2.5 px-3">Phòng A1</td></tr>
+                        <tr class="border-b" style="border-color: var(--border);"><td class="py-2.5 px-3" data-i18n="day_5"></td><td class="py-2.5 px-3">18:00 – 19:30</td><td class="py-2.5 px-3">Ms. Thu Hà</td><td class="py-2.5 px-3">Phòng A1</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-xs font-bold uppercase text-faint" data-i18n="col_materials"></p>
+                <button class="btn-outline text-xs px-3 py-1.5" onclick="show('lib')"><span data-i18n="nav_portal_library"></span> →</button>
+            </div>
+            <div class="space-y-2">
+                <div class="card p-4 flex items-center space-x-4">
+                    <input type="checkbox" class="w-4 h-4" checked>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold truncate">Giáo trình Unit 1 – Greetings <span class="badge badge-success ml-2" data-i18n="completed"></span></p>
+                        <p class="text-xs text-soft">Tài liệu · 2,4 MB</p>
+                    </div>
+                    <button class="btn-outline text-xs px-3 py-1" data-i18n="btn_download"></button>
+                </div>
+                <div class="card p-4 flex items-center space-x-4">
+                    <input type="checkbox" class="w-4 h-4">
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold truncate">Video bài giảng – Unit 2</p>
+                        <p class="text-xs text-soft">Video · 84 MB</p>
+                    </div>
+                    <button class="btn-outline text-xs px-3 py-1" data-i18n="btn_download"></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SCREEN 4: THƯ VIỆN (/learning/library) ===== -->
+        <section id="sc-lib" class="hidden">
+            <div class="flex flex-wrap gap-3 mb-5">
+                <input class="input-field !w-80" placeholder="🔍 Tìm học liệu...">
+                <input class="input-field !w-48" placeholder="Môn học">
+            </div>
+            <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+                <div class="card p-5 flex flex-col">
+                    <div class="flex items-center justify-between mb-2"><span class="badge badge-primary">Tài liệu</span><span class="text-xs text-faint">2,4 MB</span></div>
+                    <p class="font-bold mb-1">Giáo trình Unit 1 – Greetings</p>
+                    <p class="text-xs text-soft mb-3 flex-1">Lớp: EN-B1-26</p>
+                    <button class="btn-outline text-xs px-3 py-1.5 self-start" data-i18n="btn_download"></button>
+                </div>
+                <div class="card p-5 flex flex-col">
+                    <div class="flex items-center justify-between mb-2"><span class="badge badge-primary">Video</span><span class="text-xs text-faint">84 MB</span></div>
+                    <p class="font-bold mb-1">Video bài giảng – Unit 2</p>
+                    <p class="text-xs text-soft mb-3 flex-1" data-i18n="sc_public"></p>
+                    <button class="btn-outline text-xs px-3 py-1.5 self-start" data-i18n="btn_download"></button>
+                </div>
+                <div class="card p-5 flex flex-col">
+                    <div class="flex items-center justify-between mb-2"><span class="badge badge-primary">Bài tập</span><span class="text-xs text-faint">1,1 MB</span></div>
+                    <p class="font-bold mb-1">Bài tập luyện nghe IELTS</p>
+                    <p class="text-xs text-soft mb-3 flex-1">Lớp: IELTS-6.5-03</p>
+                    <button class="btn-outline text-xs px-3 py-1.5 self-start" data-i18n="btn_download"></button>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<div id="toast" class="hidden fixed top-5 right-5 z-50 card px-5 py-3.5 border-l-4 text-sm shadow-lg" style="border-left-color: var(--primary); max-width: 380px;"></div>
+
+<script>
+    var I18N = {
+        vi: {
+            nav_portal: 'Cổng học viên', grp_student: 'Học viên',
+            nav_portal_dash: 'Tổng quan', nav_portal_classes: 'Lớp của tôi', nav_portal_library: 'Thư viện',
+            role_student: 'Học viên',
+            page_sub_portal: 'Lớp học, lịch học và học liệu của bạn', page_sub_library: 'Tìm kiếm học liệu của trung tâm',
+            my_classes: 'Lớp đang học', my_progress: 'Tiến độ', view_all: 'Xem tất cả', back: 'Quay lại',
+            col_teachers: 'Giảng viên', col_schedule: 'Lịch học', col_day: 'Thứ', col_time: 'Giờ', col_teacher: 'Giảng viên', col_room: 'Phòng',
+            col_materials: 'Học liệu', completed: 'Hoàn thành', btn_download: '⬇ Tải xuống', btn_details: 'Chi tiết',
+            col_class: 'Lớp', f_program: 'Chương trình', f_course: 'Khóa học', col_enrolled_at: 'Ngày ghi danh', col_progress: 'Tiến độ', col_actions: '',
+            sc_public: 'Công khai',
+            user_profile: 'Hồ sơ', user_password: 'Đổi mật khẩu', user_logout: 'Đăng xuất',
+            toast_notif: 'Demo: 3 thông báo chưa đọc', toast_demo: 'Demo: ',
+            day_2: 'Thứ 2', day_5: 'Thứ 5'
+        },
+        en: {
+            nav_portal: 'Student Portal', grp_student: 'Student',
+            nav_portal_dash: 'Overview', nav_portal_classes: 'My classes', nav_portal_library: 'Library',
+            role_student: 'Student',
+            page_sub_portal: 'Your classes, schedules and materials', page_sub_library: 'Browse center learning materials',
+            my_classes: 'My classes', my_progress: 'Progress', view_all: 'View all', back: 'Back',
+            col_teachers: 'Teachers', col_schedule: 'Schedule', col_day: 'Day', col_time: 'Time', col_teacher: 'Teacher', col_room: 'Room',
+            col_materials: 'Materials', completed: 'Completed', btn_download: '⬇ Download', btn_details: 'Details',
+            col_class: 'Class', f_program: 'Program', f_course: 'Course', col_enrolled_at: 'Enrolled at', col_progress: 'Progress', col_actions: '',
+            sc_public: 'Public',
+            user_profile: 'Profile', user_password: 'Change password', user_logout: 'Log out',
+            toast_notif: 'Demo: 3 unread notifications', toast_demo: 'Demo: ',
+            day_2: 'Monday', day_5: 'Thursday'
+        }
+    };
+    var LANG = localStorage.getItem('ec-lang') || 'vi';
+    var THEME = localStorage.getItem('ec-theme') || 'light';
+    function t(k) { return (I18N[LANG] && I18N[LANG][k] !== undefined) ? I18N[LANG][k] : k; }
+    function applyTheme() {
+        document.documentElement.classList.toggle('dark', THEME === 'dark');
+        var b = document.getElementById('themeBtn'); if (b) b.textContent = THEME === 'dark' ? '☀️' : '🌙';
+    }
+    function toggleTheme() { THEME = THEME === 'dark' ? 'light' : 'dark'; localStorage.setItem('ec-theme', THEME); applyTheme(); }
+    function toggleLang() { setLang(LANG === 'vi' ? 'en' : 'vi'); }
+    function setLang(l) {
+        LANG = l; localStorage.setItem('ec-lang', l);
+        document.documentElement.lang = l;
+        document.querySelectorAll('[data-i18n]').forEach(function (el) { el.textContent = I18N[l][el.getAttribute('data-i18n')]; });
+        document.getElementById('langBtn').textContent = '🌐 ' + (LANG === 'vi' ? 'EN' : 'VI');
+    }
+    var toastTimer = null;
+    function toast(msg) {
+        var el = document.getElementById('toast');
+        el.textContent = msg; el.classList.remove('hidden');
+        clearTimeout(toastTimer); toastTimer = setTimeout(function () { el.classList.add('hidden'); }, 2600);
+    }
+    var TITLES = {
+        dash: ['nav_portal_dash', 'page_sub_portal'],
+        classes: ['nav_portal_classes', 'page_sub_portal'],
+        detail: ['nav_portal_classes', 'page_sub_portal'],
+        lib: ['nav_portal_library', 'page_sub_library']
+    };
+    function show(screen) {
+        ['dash', 'classes', 'detail', 'lib'].forEach(function (s) {
+            document.getElementById('sc-' + s).classList.toggle('hidden', s !== screen);
+        });
+        ['dash', 'classes', 'lib'].forEach(function (s) {
+            document.getElementById('nav-' + s).classList.toggle('active', s === (screen === 'detail' ? 'classes' : screen));
+        });
+        document.getElementById('pageTitle').textContent = t(TITLES[screen][0]);
+        document.getElementById('pageSub').textContent = t(TITLES[screen][1]);
+    }
+    function toggleUserMenu(e) {
+        e.stopPropagation();
+        document.getElementById('userDropdown').classList.toggle('hidden');
+    }
+    document.addEventListener('click', function (e) {
+        var d = document.getElementById('userDropdown');
+        if (d && !d.classList.contains('hidden') && !e.target.closest('#userMenu')) d.classList.add('hidden');
+    });
+    function demoMenu(key) { document.getElementById('userDropdown').classList.add('hidden'); toast(t(key)); }
+    applyTheme(); setLang(LANG);
+</script>
+</body>
+</html>

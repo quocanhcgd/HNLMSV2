@@ -31,16 +31,24 @@ export function StudentDashboard() {
 
   const firstName = (user?.fullName ?? '').split(' ').slice(0, 2).join(' ') || user?.email;
 
-  return (
-    <div>
-      <div className="card p-6 mb-6">
-        <h3 className="text-xl font-bold mb-1">
-          {t('portal_greeting').replace('{name}', firstName ?? '')}
-        </h3>
-        <p className="text-sm text-soft">
-          {student ? `${t('f_student_code')} ${student.studentCode} · ${student.fullName}` : t('loading')}
-        </p>
-      </div>
+/** dd/mm/yyyy — y hệt mockup 05 (portal). Parse bằng regex (chịu được mọi format timestamp). */
+function fmtDate(iso?: string | null): string {
+  if (!iso) return '—';
+  const m = iso.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${m[3]}/${m[2]}/${m[1]}`;
+  return iso.slice(0, 10);
+}
+
+return (
+  <div>
+    <div className="card p-6 mb-6">
+      <h3 className="text-xl font-bold mb-1">
+        {t('portal_greeting').replace('{name}', firstName ?? '')}
+      </h3>
+      <p className="text-sm text-soft">
+        {student ? `${t('col_student_code')} ${student.studentCode} · ${student.fullName}` : t('loading')}
+      </p>
+    </div>
 
       <div className="flex items-center justify-between mb-3">
         <p className="text-xs font-bold uppercase text-faint">{t('my_classes')}</p>
@@ -61,7 +69,7 @@ export function StudentDashboard() {
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="badge badge-primary">{e.class?.code}</span>
-                <span className="text-xs text-faint">{e.enrolledAt?.slice(0, 10)}</span>
+                <span className="text-xs text-faint">{fmtDate(e.enrolledAt)}</span>
               </div>
               <p className="font-bold">{e.class?.name}</p>
               <p className="text-sm text-soft mt-1">
