@@ -2,6 +2,19 @@
    Design Tokens — nguồn duy nhất (docs/13-mockups/design-governance.md §2)
    Light + Dark. KHÔNG hardcode màu trong code — dùng biến/class này.
    ============================================================ */
+
+/* Inter self-hosted (variable 300–800) — giống mockup (Google Fonts CDN), đảm bảo render y hệt dù máy không có internet */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url('../assets/fonts/Inter-var.woff2') format('woff2');
+}
+
+/* Rule universal Y HỆT mockup (01-login-license.html line 10): mọi element đều Inter */
+* { font-family: 'Inter', sans-serif; }
+
 :root {
   --primary: #0d9488;
   --primary-light: #5eead4;
