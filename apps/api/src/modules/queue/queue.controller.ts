@@ -1,7 +1,9 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { Body, Controller, Post } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
 import { Queue } from 'bullmq';
+import { RequireRoles } from '../auth/authz.decorators';
 
 export class EnqueueTestJobDto {
   @IsString()
@@ -10,6 +12,9 @@ export class EnqueueTestJobDto {
   message!: string;
 }
 
+@ApiTags('queue')
+@ApiBearerAuth()
+@RequireRoles('Admin') // T018: chỉ Admin mới được enqueue job thử nghiệm
 @Controller('queue')
 export class QueueController {
   constructor(@InjectQueue('default') private readonly queue: Queue) {}
@@ -19,6 +24,7 @@ export class QueueController {
    * Worker (worker/) sẽ nhận và log. Phục vụ verify T006/T007.
    */
   @Post('test')
+  @ApiOperation({ summary: 'Đẩy 1 job thử nghiệm vào queue default (Admin)' })
   async enqueue(@Body() dto: EnqueueTestJobDto) {
     const job = await this.queue.add(
       'test-job',

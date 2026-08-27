@@ -155,7 +155,7 @@ team: "2 Full-stack Developers"
       - Deliverable: POST /api/auth/login, JWT tokens
       - Response: { access_token, refresh_token, user }
 
-- [ ] **T018** [Backend] Implement authorization guards
+- [x] **T018** [Backend] Implement authorization guards
       - Estimate: 2 days
       - Owner: Dev1
       - Dependencies: T017

@@ -1,9 +1,12 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import configuration from './config/configuration';
 import { AuthModule } from './modules/auth/auth.module';
+import { AuthzGuard } from './modules/auth/authz.guard';
+import { JwtAuthGuard } from './modules/auth/jwt-auth.guard';
 import { HealthModule } from './modules/health/health.module';
 import { LicenseModule } from './modules/license/license.module';
 import { QueueModule } from './modules/queue/queue.module';
@@ -38,6 +41,11 @@ import { UsersModule } from './modules/users/users.module';
     LicenseModule,
     QueueModule,
     UsersModule,
+  ],
+  providers: [
+    // T018: mọi endpoint mặc định cần JWT (SEC-006) + phân quyền; @Public() để mở.
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: AuthzGuard },
   ],
 })
 export class AppModule {}

@@ -4,7 +4,9 @@ import { JwtService } from '@nestjs/jwt';
 import { LicenseService } from '../license/license.service';
 import { UsersService, type SafeUser } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './register.dto';
 import type { JwtPayload } from './jwt-payload.interface';
+import { ROLE_PERMISSIONS } from './permissions';
 
 export interface TokenPair {
   accessToken: string;
@@ -32,6 +34,17 @@ export class AuthService {
   ) {
     this.accessTtl = config.get<number>('jwt.accessTtlSeconds') ?? 900;
     this.refreshTtl = config.get<number>('jwt.refreshTtlSeconds') ?? 604800;
+  }
+
+  /** POST /auth/register — tạo user, băm mật khẩu bcrypt (T016). */
+  async register(dto: RegisterDto): Promise<{ user: SafeUser }> {
+    const user = await this.users.create({
+      email: dto.email,
+      password: dto.password,
+      fullName: dto.fullName,
+      role: dto.role ?? 'Student',
+    });
+    return { user };
   }
 
   /** POST /auth/login — kiểm tra bcrypt, phát token, ghi last_login. */
@@ -77,7 +90,7 @@ export class AuthService {
     return {
       user,
       roles: [user.role],
-      permissions: [], // T018: @RequirePermission + permission map
+      permissions: [...(ROLE_PERMISSIONS[user.role] ?? [])], // T018: permission theo role
       scopes: {}, // module users/roles + scope_grants: giai đoạn sau
       modules,
     };

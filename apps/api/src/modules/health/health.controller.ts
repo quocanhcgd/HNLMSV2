@@ -2,6 +2,7 @@ import { Controller, Get, Inject } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import Redis from 'ioredis';
 import { DataSource } from 'typeorm';
+import { Public } from '../auth/public.decorator';
 
 interface HealthResponse {
   status: 'ok' | 'degraded';
@@ -11,6 +12,7 @@ interface HealthResponse {
   timestamp: string;
 }
 
+@Public() // health check công khai (uptime, db, redis)
 @Controller('health')
 export class HealthController {
   constructor(

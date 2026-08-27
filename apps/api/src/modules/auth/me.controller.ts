@@ -1,16 +1,17 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { JwtAuthGuard, type AuthedRequest } from './jwt-auth.guard';
-import { Req } from '@nestjs/common';
+import { RequirePermissions } from './authz.decorators';
+import type { AuthedRequest } from './jwt-auth.guard';
 
 /**
  * GET /me/context — thông tin user + roles + scopes + module states cho UI.
  * (docs/05-api/api-spec.md — endpoint /me/context.)
+ * Bảo vệ bởi global JwtAuthGuard + AuthzGuard (T018).
  */
 @ApiTags('auth')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@RequirePermissions('auth:context')
 @Controller('me')
 export class MeController {
   constructor(private readonly auth: AuthService) {}

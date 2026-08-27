@@ -1,15 +1,26 @@
 import { Body, Controller, HttpCode, Post, Req, Res } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './register.dto';
+import { Public } from './public.decorator';
 
 const REFRESH_COOKIE = 'refresh_token';
 
 @ApiTags('auth')
+@Public() // login/register/refresh/logout công khai (T018)
 @Controller('auth')
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
+
+  @Post('register')
+  @HttpCode(201)
+  @ApiOperation({ summary: 'Đăng ký tài khoản (băm mật khẩu bcrypt — T016)' })
+  @ApiCreatedResponse({ description: 'Đã tạo user' })
+  register(@Body() dto: RegisterDto) {
+    return this.auth.register(dto);
+  }
 
   @Post('login')
   @HttpCode(200)

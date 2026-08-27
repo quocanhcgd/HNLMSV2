@@ -1,6 +1,7 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { LicenseInfo, LicenseModuleState } from '@lms/license-core';
+import { RequirePermissions } from '../auth/authz.decorators';
 import { LicenseService } from './license.service';
 
 /**
@@ -10,6 +11,8 @@ import { LicenseService } from './license.service';
  * hệ thống quản lý license.
  */
 @ApiTags('license')
+@ApiBearerAuth()
+@RequirePermissions('license:read') // T018: cần đăng nhập (Admin/Teacher/Student đều có)
 @Controller('license')
 export class LicenseController {
   constructor(private readonly license: LicenseService) {}
