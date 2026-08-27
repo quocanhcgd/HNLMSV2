@@ -5,6 +5,7 @@ import { AdminLayout } from './layouts/AdminLayout';
 import { DashboardPage } from './pages/Dashboard';
 import { LoginPage } from './pages/Login';
 import { LicensePage } from './pages/License';
+import { OrgPage } from './pages/Org';
 import { UsersRolesPage } from './pages/UsersRoles';
 import { ReportsPage } from './pages/Reports';
 import { PlaceholderPage } from './pages/Placeholder';
@@ -39,6 +40,7 @@ export default function App() {
         >
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/org" element={<OrgPage />} />
           <Route path="/license" element={<LicensePage />} />
           <Route path="/users" element={<UsersRolesPage />} />
           <Route path="/reports" element={<ReportsPage />} />

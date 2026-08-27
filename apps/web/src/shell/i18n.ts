@@ -81,6 +81,20 @@ export interface AdminDict {
   period: string; period2: string;
   toast_queued: string; toast_queued2: string; toast_ready: string; toast_ready2: string;
   toast_export: string; toast_download: string;
+  // --- Org & Branches screen (T030/T031 — mockup 02 nav_org) ---
+  page_sub_org: string;
+  tab_org: string; tab_branches: string;
+  f_org_name: string; f_timezone: string; f_academic_period: string;
+  org_slug: string; org_currency: string;
+  toast_org_saved: string;
+  br_code: string; br_name: string; br_address: string; br_status: string;
+  br_active: string; br_archived: string;
+  btn_add_branch: string; btn_edit: string; btn_archive: string;
+  modal_add_branch: string; modal_edit_branch: string;
+  ph_branch_code: string; ph_branch_name: string; ph_branch_addr: string;
+  toast_branch_created: string; toast_branch_updated: string; toast_branch_archived: string;
+  no_branches: string; col_code: string;
+  confirm_archive: string; toast_failed: string; loading: string;
 }
 
 export const I18N: Record<'vi' | 'en', AdminDict> = {
@@ -213,6 +227,23 @@ export const I18N: Record<'vi' | 'en', AdminDict> = {
     toast_export: 'Demo: xuất file (thực tế: kiểm tra quyền report:export + URL có hạn 5 phút)',
     toast_download: 'Demo: tải file',
     period2: 'T7/2026',
+    page_sub_org: 'Cấu hình tổ chức và quản lý chi nhánh',
+    tab_org: 'Tổ chức', tab_branches: 'Chi nhánh',
+    f_org_name: 'Tên tổ chức', f_timezone: 'Múi giờ', f_academic_period: 'Năm học / kỳ hiện tại',
+    org_slug: 'Slug (định danh)', org_currency: 'Tiền tệ',
+    toast_org_saved: '✅ Đã lưu cấu hình tổ chức',
+    br_code: 'Mã CN', br_name: 'Tên chi nhánh', br_address: 'Địa chỉ', br_status: 'Trạng thái',
+    br_active: '● Hoạt động', br_archived: 'Đã đóng cửa',
+    btn_add_branch: 'Thêm chi nhánh', btn_edit: 'Sửa', btn_archive: 'Đóng cửa',
+    modal_add_branch: 'Thêm chi nhánh', modal_edit_branch: 'Sửa chi nhánh',
+    ph_branch_code: 'VD: HN1', ph_branch_name: 'VD: Chi nhánh Hà Nội', ph_branch_addr: 'Số 123, đường ABC',
+    toast_branch_created: '✅ Đã tạo chi nhánh', toast_branch_updated: '✅ Đã cập nhật chi nhánh',
+    toast_branch_archived: '✅ Đã đóng cửa chi nhánh',
+    no_branches: 'Chưa có chi nhánh nào',
+    col_code: 'Mã',
+    confirm_archive: 'Đóng cửa chi nhánh này? Người dùng và scope gắn chi nhánh sẽ không bị xóa.',
+    toast_failed: '❌ Thao tác thất bại',
+    loading: 'Đang tải...',
   },
   en: {
     org_name: 'ABC Language Center',
@@ -343,5 +374,22 @@ export const I18N: Record<'vi' | 'en', AdminDict> = {
     toast_export: 'Demo: export (real: check report:export permission + 5-min signed URL)',
     toast_download: 'Demo: download file',
     period2: 'Jul 2026',
+    page_sub_org: 'Organization configuration & branch management',
+    tab_org: 'Organization', tab_branches: 'Branches',
+    f_org_name: 'Organization name', f_timezone: 'Timezone', f_academic_period: 'Current academic period',
+    org_slug: 'Slug', org_currency: 'Currency',
+    toast_org_saved: '✅ Organization settings saved',
+    br_code: 'Code', br_name: 'Branch name', br_address: 'Address', br_status: 'Status',
+    br_active: '● Active', br_archived: 'Archived',
+    btn_add_branch: 'Add branch', btn_edit: 'Edit', btn_archive: 'Archive',
+    modal_add_branch: 'Add branch', modal_edit_branch: 'Edit branch',
+    ph_branch_code: 'e.g. HN1', ph_branch_name: 'e.g. Hanoi branch', ph_branch_addr: '123 ABC street',
+    toast_branch_created: '✅ Branch created', toast_branch_updated: '✅ Branch updated',
+    toast_branch_archived: '✅ Branch archived',
+    no_branches: 'No branches yet',
+    col_code: 'Code',
+    confirm_archive: 'Archive this branch? Users and scopes linked to it will not be deleted.',
+    toast_failed: '❌ Action failed',
+    loading: 'Loading...',
   },
 };

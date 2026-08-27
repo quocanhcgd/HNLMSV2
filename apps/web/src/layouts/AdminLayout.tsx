@@ -77,6 +77,7 @@ const NAV_ADDON: NavItem[] = [
 
 const HEADER_META: Record<string, { title: string[]; sub: string }> = {
   '/dashboard': { title: ['page_dash'], sub: 'page_sub' },
+  '/org': { title: ['nav_org'], sub: 'page_sub_org' },
   '/license': { title: ['crumb_settings', 'page_license'], sub: 'page_sub_lic' },
   '/users': { title: ['page_users'], sub: 'page_sub_users' },
   '/reports': { title: ['page_reports'], sub: 'page_sub_reports' },
@@ -102,11 +103,26 @@ function Shell() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const activeKey = location.pathname === '/license' ? 'license' : location.pathname === '/users' ? 'users' : location.pathname === '/reports' ? 'reports' : location.pathname === '/dashboard' ? 'dashboard' : null;
+  const activeKey =
+    location.pathname === '/license'
+      ? 'license'
+      : location.pathname === '/users'
+        ? 'users'
+        : location.pathname === '/org'
+          ? 'org'
+          : location.pathname === '/reports'
+            ? 'reports'
+            : location.pathname === '/dashboard'
+              ? 'dashboard'
+              : null;
 
   const go = (key: string) => {
     if (key === 'dashboard') {
       navigate('/dashboard');
+      return;
+    }
+    if (key === 'org') {
+      navigate('/org');
       return;
     }
     if (key === 'license') {

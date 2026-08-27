@@ -259,20 +259,22 @@ team: "2 Full-stack Developers"
       - Authorization: Admin only
       - Done: OrganizationController (/api/organization GET/PUT, /api/organization/branches GET/POST, /{id} GET/PUT); guard @RequirePermissions (org:read/update, branch:read/create/update — Admin '*' pass, Teacher/Student 403); scope-grant branch ảo → 400 (FK catch)
 
-- [ ] **T030** [Frontend] Organization settings page
+- [x] **T030** [Frontend] Organization settings page
       - Estimate: 2 days
       - Owner: Dev2
       - Dependencies: T029
       - Deliverable: Form to edit org name, timezone, academic year
       - Route: /settings/organization
+      - Done: form (name/timezone/academicPeriod) wire GET/PUT /api/organization, lưu → toast + reload hiển thị (E2E browser 13/13). DEVIATION: mockup 02 không có screen org → dựng theo design system mockup 02/03, nằm trong trang /org (tab "Tổ chức", theo nav mockup nav_org thay vì route /settings/organization)
 
-- [ ] **T031** [Frontend] Branch management page
+- [x] **T031** [Frontend] Branch management page
       - Estimate: 2 days
       - Owner: Dev2
       - Dependencies: T029
       - Deliverable: List branches, add/edit/archive branch
       - Route: /settings/branches
       - Features: ProTable with search/filter
+      - Done: tab "Chi nhánh" trong /org — bảng (code/name/address/status badge) + search client-side + modal thêm/sửa + đóng cửa (status inactive); wire CRUD /api/organization/branches; E2E browser 13/13 (tạo/sửa/archive + toast)
 
 ### User & Role Module
 
