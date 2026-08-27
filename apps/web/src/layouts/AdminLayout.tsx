@@ -79,6 +79,7 @@ const HEADER_META: Record<string, { title: string[]; sub: string }> = {
   '/dashboard': { title: ['page_dash'], sub: 'page_sub' },
   '/license': { title: ['crumb_settings', 'page_license'], sub: 'page_sub_lic' },
   '/users': { title: ['page_users'], sub: 'page_sub_users' },
+  '/reports': { title: ['page_reports'], sub: 'page_sub_reports' },
   '/students': { title: ['nav_enroll'], sub: '' },
   '/finance': { title: ['nav_finance'], sub: '' },
   '/courses': { title: ['nav_academic'], sub: '' },
@@ -101,7 +102,7 @@ function Shell() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const activeKey = location.pathname === '/license' ? 'license' : location.pathname === '/users' ? 'users' : location.pathname === '/dashboard' ? 'dashboard' : null;
+  const activeKey = location.pathname === '/license' ? 'license' : location.pathname === '/users' ? 'users' : location.pathname === '/reports' ? 'reports' : location.pathname === '/dashboard' ? 'dashboard' : null;
 
   const go = (key: string) => {
     if (key === 'dashboard') {
@@ -114,6 +115,10 @@ function Shell() {
     }
     if (key === 'users') {
       navigate('/users');
+      return;
+    }
+    if (key === 'reports') {
+      navigate('/reports');
       return;
     }
     // mockup go(p): toast demo — chưa có màn hình thật

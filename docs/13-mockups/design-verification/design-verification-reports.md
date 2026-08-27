@@ -1,11 +1,11 @@
-# Design Verification — License (mockup 01 appScreen vs app /license)
+# Design Verification — Reports (mockup 04 vs app /reports)
 
-- Ngày chạy: 2026-08-27T06:23:46.409Z
+- Ngày chạy: 2026-08-27T06:23:46.410Z
 - Môi trường: Edge (channel msedge) headless · viewport 1280x900 + 390x844
-- Mockup: `docs/13-mockups/01-login-license.html` (file://) · App: `http://localhost:5517`
+- Mockup: `docs/13-mockups/04-reports.html` (file://) · App: `http://localhost:5517`
 - Cách chạy lại: `node apps/web/scripts/verify-design.mjs` (cần API + web dev server đang chạy)
 
-## Kết quả: **72/72 khớp** · 0 khác biệt
+## Kết quả: **53/53 khớp** · 0 khác biệt
 
 | # | Thuộc tính | Mockup | App |
 |---|------------|--------|-----|

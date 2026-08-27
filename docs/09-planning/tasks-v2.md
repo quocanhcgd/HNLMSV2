@@ -545,13 +545,15 @@ team: "2 Full-stack Developers"
       - Deliverable: Button to generate VNPay link, copy link
       - Location: Invoice detail page
 
-- [ ] **T067** [Frontend] Financial reports
+- [x] **T067** [Frontend] Financial reports
       - Estimate: 2 days
       - Owner: Dev2
       - Dependencies: T064
-      - Deliverable: Revenue by branch/month, receivables report
-      - Route: /finance/reports
-      - Features: Date picker, branch filter, export Excel
+      - Deliverable: Trang /reports theo docs/13-mockups/04-reports.html: 4 type cards (ghi danh/doanh thu/công suất/tiến độ),
+        params (branch, from/to date, format), jobs async (seed 1 job + tạo job 180ms), preview table + export buttons
+      - Deviation: route /reports theo mockup (task cũ /finance/reports, chỉ báo cáo tài chính); demo async — wire worker (US8) sau
+      - Verify: design verification audit — Reports 53/53 computed style khớp (DIFF=0)
+      - Mockup fix: mockup 04 .input-field .7rem → .75rem (đồng bộ mockup 01/03); fix crash t('h0').split(',') (h0 là mảng)
 
 ---
 

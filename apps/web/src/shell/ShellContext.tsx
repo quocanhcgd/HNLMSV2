@@ -7,7 +7,7 @@ type Theme = 'light' | 'dark';
 export interface ShellState {
   lang: Lang;
   theme: Theme;
-  /** dịch key — dict mockup 02 (data-i18n) */
+  /** dịch key — dict mockup (data-i18n) */
   t: (k: keyof typeof I18N.vi | string) => string;
   toggleTheme: () => void;
   toggleLang: () => void;

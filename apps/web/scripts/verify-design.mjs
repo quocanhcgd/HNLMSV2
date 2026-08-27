@@ -238,6 +238,50 @@ const MOBILE_USERS = [
   ['.tab', 'font-size'],
 ];
 
+/** ===== REPORTS SCREEN (mockup 04) — đo trước khi click type card ===== */
+const CHECKS_REPORTS_BEFORE = [
+  // type cards
+  ['#types', 'grid-template-columns'],
+  ['.type-card', 'padding-top'], ['.type-card', 'border-width'], ['.type-card', 'border-radius'], ['.type-card', 'background-color'],
+  ['.type-card.active', 'border-color'], ['.type-card.active', 'background-color'],
+  ['.type-card p.text-2xl', 'font-size'], ['.type-card b', 'font-size'], ['.type-card b', 'margin-bottom'],
+  ['.type-card .text-xs', 'color'],
+  // params
+  ['.card .input-field', 'width'],
+  ['input[type=date]', 'width'], ['input[type=date]', 'padding-top'],
+  ['.card .btn-primary', 'font-size'], ['.card .btn-primary', 'padding-top'],
+  ['.card p.text-xs.mt-3', 'font-size'], ['.card p.text-xs.mt-3', 'color'],
+  // jobs (seed job hoàn tất)
+  ['.job-row', 'padding-top'], ['.job-row', 'gap'], ['.job-row', 'border-bottom-width'],
+  ['.job-row b', 'font-size'],
+  ['.job-row .badge-success', 'color'], ['.job-row .badge-success', 'background-color'],
+  ['.job-row .btn-primary', 'font-size'], ['.job-row .btn-primary', 'padding-top'], ['.job-row .btn-primary', 'padding-left'],
+  ['.job-row .text-xs', 'font-size'], ['.job-row .text-xs', 'color'],
+  ['#jobsEmpty', 'display'],
+  // preview (type 0 — h0)
+  ['#previewTitle', 'font-size'], ['#previewTitle', 'font-weight'],
+  ['#previewTitle .text-xs', 'font-size'], ['#previewTitle .text-xs', 'color'],
+  ['.flex.space-x-2 .btn-outline', 'font-size'], ['.flex.space-x-2 .btn-outline', 'padding-top'],
+  ['.flex.space-x-2 .btn-outline', 'padding-left'], ['.flex.space-x-2 .btn-outline', 'border-width'],
+  ['#previewTable th', 'font-size'], ['#previewTable th', 'font-weight'], ['#previewTable th', 'padding-top'],
+  ['#previewTable td', 'padding-top'], ['#previewTable td', 'font-size'],
+];
+
+/** ===== đo SAU khi click type card thứ 3 (Công suất lớp học — có badge) ===== */
+const CHECKS_REPORTS = [
+  ['.type-card.active', 'border-color'], ['.type-card.active', 'background-color'],
+  ['#previewTable .badge', 'font-size'], ['#previewTable .badge', 'padding-left'], ['#previewTable .badge', 'border-radius'],
+  ['#previewTable .badge-success', 'color'], ['#previewTable .badge-success', 'background-color'],
+  ['#previewTable .badge-warning', 'color'], ['#previewTable .badge-warning', 'background-color'],
+  ['#previewTable .badge-gray', 'color'], ['#previewTable .badge-gray', 'background-color'],
+  ['#previewTable td', 'font-size'],
+];
+const MOBILE_REPORTS = [
+  ['#types', 'grid-template-columns'],
+  ['.type-card', 'width'],
+  ['.type-card p.text-2xl', 'font-size'],
+];
+
 /** đo 1 trang */
 async function collect(page, checks) {
   const rows = {};
@@ -351,6 +395,7 @@ function printResult(r) {
 function mockupFileFor(slug) {
   if (slug === 'login' || slug === 'license') return '01-login-license.html';
   if (slug === 'users') return '03-users-roles.html';
+  if (slug === 'reports') return '04-reports.html';
   return '02-admin-dashboard.html';
 }
 
@@ -422,16 +467,32 @@ try {
     mobileChecks: MOBILE_USERS,
   });
 
+  const rRep = await audit(browser, {
+    name: 'Reports (mockup 04 vs app /reports)',
+    mockupFile: '04-reports.html',
+    appPath: '/login',
+    needLogin: true,
+    appFinalPath: '/reports',
+    waitSel: '#types',
+    beforeChecks: CHECKS_REPORTS_BEFORE,
+    midClickSel: '.type-card:nth-child(3)',
+    midWaitSel: '#previewTable',
+    checks: CHECKS_REPORTS,
+    mobileChecks: MOBILE_REPORTS,
+  });
+
   printResult(rLogin);
   printResult(rDash);
   printResult(rLic);
   printResult(rUsers);
+  printResult(rRep);
   saveReport(rLogin, 'login');
   saveReport(rDash, 'dashboard');
   saveReport(rLic, 'license');
   saveReport(rUsers, 'users');
-  console.log(`Saved: ${resolve(OUT_DIR, 'report-{login,dashboard,license,users}.json')}`);
-  console.log(`Saved: ${resolve(OUT_DIR, 'design-verification-{login,dashboard,license,users}.md')}`);
+  saveReport(rRep, 'reports');
+  console.log(`Saved: ${resolve(OUT_DIR, 'report-{login,dashboard,license,users,reports}.json')}`);
+  console.log(`Saved: ${resolve(OUT_DIR, 'design-verification-{login,dashboard,license,users,reports}.md')}`);
 } finally {
   await browser.close();
 }

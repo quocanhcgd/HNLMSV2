@@ -425,10 +425,10 @@ const TASKS=[
  dod:["Link copy được"]},
 
 {id:"T067",phase:"P7",phaseName:"Finance",week:"14-15",pri:"High",group:"Frontend",title:"Financial reports",owner:"Dev2",est:2,deps:["T064"],
- input:["T064"],
- steps:["Revenue by branch/month, receivables","Date picker, branch filter, export Excel"],
- output:["Trang /finance/reports"],
- dod:["Filter + export Excel"]},
+ input:["T064","13-mockups/04-reports.html"],
+ steps:["Trang /reports theo mockup 04 (route theo mockup, không /finance/reports)","4 type cards (ghi danh/doanh thu/công suất/tiến độ)","Params: branch, from/to date, format + Tạo báo cáo","Jobs async (seed 1 job hoàn tất + tạo job 180ms)","Preview table + export buttons","Design verification audit"],
+ output:["Trang Báo cáo khớp mockup 04"],
+ dod:["Khớp mockup 04","Audit computed style DIFF=0","Demo async — wire worker (US8) sau"]},
 
 /* ---------- Phase 8 Testing & Polish W16 ---------- */
 {id:"T068",phase:"P8",phaseName:"Test & Polish",week:"16",pri:"Critical",group:"Testing",title:"Unit tests",owner:"Both",est:2,deps:["T045","T059"],
@@ -493,7 +493,7 @@ const STATUS_LABEL={todo:'🔘 Chưa',in_progress:'⏳ Đang',done:'✅ Xong',bl
 let state={status:{},filter:'all',owner:'all',phase:'all'};
 /* Trạng thái mặc định — tự đồng bộ theo milestone (khớp docs/09-planning/tracker-state-export.json).
    localStorage ghi đè khi user tự chấm; các key chưa có trong localStorage sẽ lấy giá trị mặc định này. */
-const DEFAULT_STATUS={T001:'done',T002:'done',T003:'done',T004:'done',T005:'done',T006:'done',T007:'done',T011:'done',T012:'done',T013:'done',T015:'done',T016:'done',T017:'done',T018:'done',T019:'done',T020:'done',T036:'done',T037:'done'};
+const DEFAULT_STATUS={T001:'done',T002:'done',T003:'done',T004:'done',T005:'done',T006:'done',T007:'done',T011:'done',T012:'done',T013:'done',T015:'done',T016:'done',T017:'done',T018:'done',T019:'done',T020:'done',T036:'done',T037:'done',T067:'done'};
 function load(){try{const s=JSON.parse(localStorage.getItem(STORE_KEY));if(s)state=Object.assign(state,s);}catch(e){}state.status=Object.assign({},DEFAULT_STATUS,state.status||{});}
 function save(){localStorage.setItem(STORE_KEY,JSON.stringify(state));}
 function esc(x){return (x||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}

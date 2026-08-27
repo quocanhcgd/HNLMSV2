@@ -68,6 +68,19 @@ export interface AdminDict {
   modal_scope: string; scope_type: string; scope_branch: string; scope_class: string; scope_student: string;
   scope_object: string; from: string; to: string; f_reason: string; ph_reason: string; grant: string;
   toast_reset: string; toast_saved: string; toast_created: string; toast_scope_granted: string;
+  // --- Reports screen (mockup 04) ---
+  page_sub_reports: string;
+  t0: string; t0d: string; t1: string; t1d: string; t2: string; t2d: string; t3: string; t3d: string;
+  p_title: string; fmt_xlsx: string; fmt_pdf: string; fmt_csv: string; btn_create: string; p_note: string;
+  jobs_title: string; jobs_empty: string; st_processing: string; st_done: string; btn_download: string;
+  sample: string; export_xlsx: string; export_pdf: string;
+  h0: string[]; h1: string[]; h2: string[]; h3: string[];
+  s_good: string; s_full: string; s_open: string; s_normal: string; s_low: string; s_med: string; s_high: string;
+  r0: string; r1: string; r2: string; r3: string; r4: string; r5: string; r6: string; r7: string;
+  r8: string; r9: string; r10: string; r11: string; r12: string; r13: string;
+  period: string; period2: string;
+  toast_queued: string; toast_queued2: string; toast_ready: string; toast_ready2: string;
+  toast_export: string; toast_download: string;
 }
 
 export const I18N: Record<'vi' | 'en', AdminDict> = {
@@ -170,6 +183,36 @@ export const I18N: Record<'vi' | 'en', AdminDict> = {
     toast_reset: 'Demo: reset thay đổi', toast_saved: '✅ Đã lưu quyền cho vai trò — audit event được tạo',
     toast_created: '✅ Đã tạo người dùng (demo) — email mời được gửi',
     toast_scope_granted: '✅ Đã cấp scope — hiệu lực từ 2026-09-01, được ghi audit',
+    // Reports (mockup 04)
+    page_sub_reports: 'Tạo và tải báo cáo theo chi nhánh (chạy bất đồng bộ)',
+    t0: '📝 Tổng hợp ghi danh', t0d: 'Số học viên ghi danh theo chương trình / tháng / chi nhánh',
+    t1: '💰 Doanh thu theo chi nhánh', t1d: 'Doanh thu, phương thức thanh toán, công nợ',
+    t2: '📊 Công suất lớp học', t2d: 'Tỷ lệ lấp đầy lớp, giảng viên, phòng',
+    t3: '🎓 Tiến độ học viên', t3d: 'Tiến độ % theo lớp, rủi ro bỏ học',
+    p_title: '⚙️ Tham số báo cáo', fmt_xlsx: 'Excel (.xlsx)', fmt_pdf: 'PDF', fmt_csv: 'CSV',
+    btn_create: 'Tạo báo cáo',
+    p_note: 'Báo cáo chạy bất đồng bộ qua worker — bạn có thể rời trang, sẽ nhận thông báo khi hoàn tất (US8). Dữ liệu giới hạn trong scope chi nhánh của bạn (SEC-010).',
+    jobs_title: '📂 Báo cáo đã tạo gần đây',
+    jobs_empty: 'Chưa có báo cáo nào trong tháng này — bấm "Tạo báo cáo" để bắt đầu.',
+    st_processing: 'Đang xử lý', st_done: 'Hoàn tất',
+    btn_download: '⬇ Tải xuống', sample: '(dữ liệu mẫu)',
+    export_xlsx: 'Xuất Excel', export_pdf: 'Xuất PDF',
+    h0: ['Chương trình', 'Ghi danh mới', 'Đang học', 'Hoàn thành', 'Bỏ học'],
+    h1: ['Chi nhánh', 'Thu học phí', 'Tiền mặt', 'VNPay', 'Chuyển khoản', 'Công nợ'],
+    h2: ['Lớp', 'Chi nhánh', 'Sức chứa', 'Đã ghi danh', 'Tỷ lệ', 'Trạng thái'],
+    h3: ['Học viên', 'Lớp', 'Tiến độ', 'Điểm TB', 'Rủi ro'],
+    s_good: 'Tốt', s_full: 'Đầy', s_open: 'Còn trống', s_normal: 'Bình thường',
+    s_low: 'Thấp', s_med: 'Trung bình', s_high: 'Cao',
+    r0: 'EN — Tiếng Anh tổng quát', r1: 'IELTS luyện thi', r2: 'IT — Lập trình', r3: 'Kỹ năng mềm',
+    r4: 'Hà Nội', r5: 'TP.HCM',
+    r6: 'EN-B1-26 (K41)', r7: 'IT-Python-09', r8: 'IELTS-6.5-03', r9: 'EN-A2-12 (K40)',
+    r10: 'Nguyễn Minh Anh', r11: 'Trần Quốc Bảo', r12: 'Lê Thu Hà', r13: 'Phạm Đức Huy',
+    period: 'T8/2026',
+    toast_queued: 'Đã đưa báo cáo vào hàng đợi (job #', toast_queued2: ') — chạy qua lms-worker',
+    toast_ready: '✅ Báo cáo "', toast_ready2: '" đã sẵn sàng',
+    toast_export: 'Demo: xuất file (thực tế: kiểm tra quyền report:export + URL có hạn 5 phút)',
+    toast_download: 'Demo: tải file',
+    period2: 'T7/2026',
   },
   en: {
     org_name: 'ABC Language Center',
@@ -270,5 +313,35 @@ export const I18N: Record<'vi' | 'en', AdminDict> = {
     toast_reset: 'Demo: reset changes', toast_saved: '✅ Permissions saved — audit event created',
     toast_created: '✅ User created (demo) — invitation email sent',
     toast_scope_granted: '✅ Scope granted — valid from 2026-09-01, audited',
+    // Reports (mockup 04)
+    page_sub_reports: 'Create & download branch-scoped reports (async)',
+    t0: '📝 Enrollment summary', t0d: 'Enrollments by program / month / branch',
+    t1: '💰 Revenue by branch', t1d: 'Revenue, payment methods, receivables',
+    t2: '📊 Class utilization', t2d: 'Fill rate, teachers, rooms',
+    t3: '🎓 Student progress', t3d: 'Progress % by class, dropout risk',
+    p_title: '⚙️ Report parameters', fmt_xlsx: 'Excel (.xlsx)', fmt_pdf: 'PDF', fmt_csv: 'CSV',
+    btn_create: 'Generate report',
+    p_note: 'Reports run asynchronously via worker — you can leave the page and get notified when done (US8). Data is limited to your branch scope (SEC-010).',
+    jobs_title: '📂 Recent reports',
+    jobs_empty: 'No reports this month — click "Generate report" to start.',
+    st_processing: 'Processing', st_done: 'Done',
+    btn_download: '⬇ Download', sample: '(sample data)',
+    export_xlsx: 'Export Excel', export_pdf: 'Export PDF',
+    h0: ['Program', 'New enrollments', 'Active', 'Completed', 'Dropouts'],
+    h1: ['Branch', 'Tuition collected', 'Cash', 'VNPay', 'Bank transfer', 'Receivables'],
+    h2: ['Class', 'Branch', 'Capacity', 'Enrolled', 'Rate', 'Status'],
+    h3: ['Student', 'Class', 'Progress', 'Avg score', 'Risk'],
+    s_good: 'Good', s_full: 'Full', s_open: 'Open', s_normal: 'Normal',
+    s_low: 'Low', s_med: 'Medium', s_high: 'High',
+    r0: 'EN — General English', r1: 'IELTS prep', r2: 'IT — Programming', r3: 'Soft skills',
+    r4: 'Hanoi', r5: 'HCMC',
+    r6: 'EN-B1-26 (K41)', r7: 'IT-Python-09', r8: 'IELTS-6.5-03', r9: 'EN-A2-12 (K40)',
+    r10: 'Nguyen Minh Anh', r11: 'Tran Quoc Bao', r12: 'Le Thu Ha', r13: 'Pham Duc Huy',
+    period: 'Aug 2026',
+    toast_queued: 'Report queued (job #', toast_queued2: ') — running on lms-worker',
+    toast_ready: '✅ Report "', toast_ready2: '" is ready',
+    toast_export: 'Demo: export (real: check report:export permission + 5-min signed URL)',
+    toast_download: 'Demo: download file',
+    period2: 'Jul 2026',
   },
 };

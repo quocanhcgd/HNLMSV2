@@ -6,6 +6,7 @@ import { DashboardPage } from './pages/Dashboard';
 import { LoginPage } from './pages/Login';
 import { LicensePage } from './pages/License';
 import { UsersRolesPage } from './pages/UsersRoles';
+import { ReportsPage } from './pages/Reports';
 import { PlaceholderPage } from './pages/Placeholder';
 
 /** T019: chặn route chưa đăng nhập (access token / refresh cookie). */
@@ -40,6 +41,7 @@ export default function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/license" element={<LicensePage />} />
           <Route path="/users" element={<UsersRolesPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
           <Route path="/students" element={<PlaceholderPage title="Quản lý học viên" />} />
           <Route path="/courses" element={<PlaceholderPage title="Quản lý khóa học" />} />
           <Route path="/classes" element={<PlaceholderPage title="Quản lý lớp học" />} />
