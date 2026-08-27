@@ -230,7 +230,7 @@ Add the following:
 
 ```bash
 NODE_ENV=production
-PORT=4000
+PORT=4001
 
 # Database
 DATABASE_HOST=localhost
@@ -310,7 +310,7 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/lms.your-school.edu.vn/privkey.pem;
     
     location /api/ {
-        proxy_pass http://localhost:4000;
+        proxy_pass http://localhost:4001;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
@@ -481,7 +481,7 @@ sudo journalctl -u lms-api -n 100
    - Test connection: `psql -h localhost -U lms_user -d lms_database`
 
 2. **Port already in use**
-   - Check what's using port: `sudo lsof -i :4000`
+   - Check what's using port: `sudo lsof -i :4001`
    - Change port in config file
 
 3. **Permission denied**

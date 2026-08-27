@@ -8,7 +8,7 @@ export interface HealthResponse {
   timestamp: string;
 }
 
-/** Axios instance — baseURL /api (Vite proxy → http://localhost:4000). */
+/** Axios instance — baseURL /api (Vite proxy → http://localhost:4001). */
 export const api = axios.create({
   baseURL: '/api',
   timeout: 8000,

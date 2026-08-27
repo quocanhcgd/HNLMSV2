@@ -11,7 +11,7 @@
 | Thành phần | Service | Port | Mô tả |
 |---|---|---|---|
 | Web (SPA) | `lms-web` | 3000 (internal) | Static React build, Nginx phục vụ |
-| API | `lms-api` | 4000 (internal) | NestJS REST API |
+| API | `lms-api` | 4001 (internal) | NestJS REST API |
 | Worker | `lms-worker` | — | BullMQ consumer + cron jobs |
 | Nginx | `nginx` | 80/443 | Reverse proxy + TLS + static |
 | PostgreSQL | `postgresql` | 5432 | `lms_database` |
@@ -33,7 +33,7 @@
 
 ```bash
 NODE_ENV=production
-PORT=4000
+PORT=4001
 DATABASE_HOST=localhost
 DATABASE_PORT=5432
 DATABASE_NAME=lms_database
@@ -288,7 +288,7 @@ sudo journalctl -u lms-api -n 100 --no-pager
 # Nguyên nhân thường gặp:
 #  - DB down → start postgresql
 #  - Redis down → start redis-server
-#  - Port conflict → lsof -i :4000
+#  - Port conflict → lsof -i :4001
 #  - api.env sai → kiểm tra DATABASE_* / JWT_SECRET
 sudo systemctl restart lms-api
 ```

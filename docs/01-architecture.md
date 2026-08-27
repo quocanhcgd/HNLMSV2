@@ -24,7 +24,7 @@ graph TB
     end
 
     subgraph "Application Layer"
-        API["🔷 lms-api<br/>(NestJS 10, port 4000)"]
+        API["🔷 lms-api<br/>(NestJS 10, port 4001)"]
         WebSrv["🖥️ lms-web<br/>(static SPA, port 3000)"]
     end
 
@@ -245,7 +245,7 @@ Route → Controller (validation) → Service (business logic) → Repository/Ty
 ## 7. Deployment (tóm tắt — chi tiết `06-deployment/*`)
 
 ```
-Browser ──TLS──▶ Nginx (443) ──▶ /api/* → lms-api (4000)
+Browser ──TLS──▶ Nginx (443) ──▶ /api/* → lms-api (4001)
                         └──────▶ /*     → lms-web  (3000, static SPA)
 
 systemd: lms-web.service · lms-api.service · lms-worker.service

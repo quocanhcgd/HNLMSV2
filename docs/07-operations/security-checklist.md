@@ -24,7 +24,7 @@
 
 - [ ] **SSH**: đổi port mặc định (tùy chọn) · tắt root login (`PermitRootLogin no`) · dùng SSH key, tắt password auth nếu khách đồng ý
 - [ ] **fail2ban** cho SSH (và Nginx nếu cần): ban sau 5 lần fail/10 phút
-- [ ] **Firewall** (ufw): chỉ mở 22, 80, 443; chặn 3000/4000/5432/6379 từ ngoài
+- [ ] **Firewall** (ufw): chỉ mở 22, 80, 443; chặn 3000/4001/5432/6379 từ ngoài
   ```bash
   sudo ufw default deny incoming
   sudo ufw allow 22/tcp && sudo ufw allow 80/tcp && sudo ufw allow 443/tcp

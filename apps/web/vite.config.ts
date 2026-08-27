@@ -7,9 +7,9 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      // Mọi request /api/* chuyển về NestJS (apps/api, port 4000)
+      // Mọi request /api/* chuyển về NestJS (apps/api, port 4001)
       '/api': {
-        target: 'http://localhost:4000',
+        target: 'http://localhost:4001',
         changeOrigin: true,
       },
     },

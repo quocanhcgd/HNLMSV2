@@ -66,12 +66,12 @@ pnpm dev
 | Thành phần | URL | Thư mục |
 |---|---|---|
 | Web (Vite + React 19 + AntD Pro) | http://localhost:5173 | `apps/web/` |
-| API (NestJS 10 + TypeORM + BullMQ) | http://localhost:4000/api | `apps/api/` |
+| API (NestJS 10 + TypeORM + BullMQ) | http://localhost:4001/api | `apps/api/` |
 | Worker (BullMQ consumer) | — | `worker/` |
 
 ### 3. Chạy từng phần
 ```bash
-pnpm --filter @lms/api dev       # API — health check: http://localhost:4000/api/health
+pnpm --filter @lms/api dev       # API — health check: http://localhost:4001/api/health
 pnpm --filter @lms/web dev       # Web
 pnpm --filter @lms/worker dev    # Worker
 ```

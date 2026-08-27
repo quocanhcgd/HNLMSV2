@@ -13,7 +13,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-  const port = Number(process.env.API_PORT ?? 4000);
+  const port = Number(process.env.API_PORT ?? 4001);
   await app.listen(port);
   // eslint-disable-next-line no-console
   console.log(`[lms-api] listening on http://localhost:${port}/api — health: /api/health`);
