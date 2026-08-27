@@ -26,6 +26,8 @@ export interface Branch {
   name: string;
   address: string | null;
   status: 'active' | 'inactive';
+  managerUserId: string | null;
+  manager: { id: string; fullName: string; email: string } | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -56,14 +58,19 @@ export async function listBranches(page = 1, pageSize = 50): Promise<Paged<Branc
   return data;
 }
 
-export async function createBranch(payload: { code: string; name: string; address?: string }): Promise<Branch> {
+export async function createBranch(payload: {
+  code: string;
+  name: string;
+  address?: string;
+  managerUserId?: string | null;
+}): Promise<Branch> {
   const { data } = await api.post<Branch>('/organization/branches', payload);
   return data;
 }
 
 export async function updateBranch(
   branchId: string,
-  payload: { name?: string; address?: string; status?: 'active' | 'inactive' },
+  payload: { name?: string; address?: string; managerUserId?: string | null; status?: 'active' | 'inactive' },
 ): Promise<Branch> {
   const { data } = await api.put<Branch>(`/organization/branches/${branchId}`, payload);
   return data;

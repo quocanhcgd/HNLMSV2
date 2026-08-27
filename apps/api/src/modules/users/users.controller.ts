@@ -20,17 +20,18 @@ export class UsersController {
 
   @Get()
   @RequirePermissions('user:read')
-  @ApiOperation({ summary: 'Danh sách người dùng (phân trang + lọc q/role/branch_id)' })
+  @ApiOperation({ summary: 'Danh sách người dùng (phân trang + lọc q/role/branch_id/status)' })
   list(
     @Query('page') page = '1',
     @Query('page_size') pageSize = '20',
     @Query('q') q?: string,
     @Query('role') roleCode?: string,
     @Query('branch_id') branchId?: string,
+    @Query('status') status?: string,
   ) {
     const p = Math.max(1, Number(page) || 1);
     const ps = Math.min(100, Math.max(1, Number(pageSize) || 20));
-    return this.users.list({ page: p, pageSize: ps, q, roleCode, branchId });
+    return this.users.list({ page: p, pageSize: ps, q, roleCode, branchId, status });
   }
 
   @Post()

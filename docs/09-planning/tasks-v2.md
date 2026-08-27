@@ -315,18 +315,27 @@ team: "2 Full-stack Developers"
       - Owner: Dev2
       - Dependencies: T035
       - Deliverable: Trang /users theo docs/13-mockups/03-users-roles.html (tab Users): filter search/role/branch/status,
-        bảng users (demo data), modal Tạo người dùng (chips roles), modal Cấp scope (type/object/from/to/reason)
-      - Deviation: route /users theo mockup (task cũ /settings/users ProTable); demo data — wire /api/users (T035) sau
-      - Verify: design verification audit — Users 87/87 computed style khớp (DIFF=0)
+        bảng users, modal Tạo người dùng (chips roles), modal Cấp scope (type/object/from/to/reason)
+      - Deviation: route /users theo mockup (task cũ /settings/users ProTable)
+      - Done: WIRE API HOÀN CHỈNH — bảng GET /users thật (q/role/branch_id/status + phân trang 10/trang),
+        search debounce, tạo user POST /users + scope branch qua POST scope-grants, cấp scope thật
+        (from/to → effectiveFrom/effectiveTo, reason chỉ visual — DTO forbidNonWhitelisted),
+        modal Chi tiết mới: đổi vai trò (PUT /users/{id}/roles) + danh sách scope + thu hồi
+        (DELETE scope-grants); backend: thêm filter status vào GET /users
+      - Verify: design verification audit — Users 87/87 khớp (DIFF=0, 4 SKIP data-dependent)
+      - E2E browser 18/18 PASS (tạo user → scope → roles → revoke)
 
 - [x] **T037** [Frontend] Role management page
       - Estimate: 2 days
       - Owner: Dev2
       - Dependencies: T035
       - Deliverable: Tab Roles trong /users theo mockup 03: role list (8 roles, addon tag), 5 perm groups
-        (org/users/acad/fin/lic) toggle demo, Hoàn tác / Lưu thay đổi
+        (org/users/acad/fin/lic) toggle, Hoàn tác / Lưu thay đổi
       - Deviation: tab trong /users theo mockup (task cũ /settings/roles + permission tree)
-      - Verify: design verification audit — Roles pane khớp (DIFF=0)
+      - Done: WIRE API HOÀN CHỈNH — role list GET /roles thật (8 roles + descriptions), perms real từ
+        GET /roles/permissions nhóm theo mockup (grp_org/users/acad/fin/lic + grp_sys cho auth/queue),
+        toggle → PUT /roles/{id}/permissions (save thật + audit); Lưu → toast thật
+      - Verify: design verification audit — Roles pane khớp (DIFF=0); E2E 18/18 PASS (toggle + save + revert)
 
 ---
 

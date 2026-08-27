@@ -56,7 +56,8 @@ export class User {
   @Column({ name: 'two_fa_enabled', type: 'boolean', default: false })
   twoFaEnabled!: boolean;
 
-  @Column({ name: 'two_fa_secret', type: 'varchar', length: 255, nullable: true })
+  /** select:false — secret 2FA không bao giờ tự select (chỉ cấp scope theo nhu cầu sau). */
+  @Column({ name: 'two_fa_secret', type: 'varchar', length: 255, nullable: true, select: false })
   twoFaSecret!: string | null;
 
   @Column({ name: 'last_login_at', type: 'timestamp', nullable: true })

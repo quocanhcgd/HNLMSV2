@@ -95,6 +95,14 @@ export interface AdminDict {
   toast_branch_created: string; toast_branch_updated: string; toast_branch_archived: string;
   no_branches: string; col_code: string;
   confirm_archive: string; toast_failed: string; loading: string;
+  // --- T030/T031 extension: manager cột + select ---
+  br_manager: string; f_manager: string; opt_no_manager: string; select_branch: string;
+  // --- T035 wiring: Users & Roles thật ---
+  total_users: string;
+  det_title: string; det_phone: string; det_created: string; det_roles: string; det_scopes: string;
+  no_scopes: string; btn_revoke: string; btn_save_roles: string;
+  toast_role_saved: string; toast_roles_updated: string; toast_scope_removed: string; toast_scope_future: string;
+  grp_sys: string;
 }
 
 export const I18N: Record<'vi' | 'en', AdminDict> = {
@@ -194,9 +202,9 @@ export const I18N: Record<'vi' | 'en', AdminDict> = {
     modal_scope: '📌 Cấp phạm vi truy cập — Lê Văn Giang',
     scope_type: 'Loại scope', scope_branch: 'Chi nhánh', scope_class: 'Lớp học', scope_student: 'Học viên cụ thể',
     scope_object: 'Đối tượng', from: 'Hiệu lực từ', to: 'Hiệu lực đến', f_reason: 'Lý do (audit)', ph_reason: 'Chuyển công tác, quản lý thêm chi nhánh...', grant: 'Cấp scope',
-    toast_reset: 'Demo: reset thay đổi', toast_saved: '✅ Đã lưu quyền cho vai trò — audit event được tạo',
-    toast_created: '✅ Đã tạo người dùng (demo) — email mời được gửi',
-    toast_scope_granted: '✅ Đã cấp scope — hiệu lực từ 2026-09-01, được ghi audit',
+    toast_reset: 'Đã khôi phục thay đổi', toast_saved: '✅ Đã lưu quyền cho vai trò — audit event được tạo',
+    toast_created: '✅ Đã tạo người dùng',
+    toast_scope_granted: '✅ Đã cấp scope truy cập — hiệu lực và được ghi audit',
     // Reports (mockup 04)
     page_sub_reports: 'Tạo và tải báo cáo theo chi nhánh (chạy bất đồng bộ)',
     t0: '📝 Tổng hợp ghi danh', t0d: 'Số học viên ghi danh theo chương trình / tháng / chi nhánh',
@@ -244,6 +252,16 @@ export const I18N: Record<'vi' | 'en', AdminDict> = {
     confirm_archive: 'Đóng cửa chi nhánh này? Người dùng và scope gắn chi nhánh sẽ không bị xóa.',
     toast_failed: '❌ Thao tác thất bại',
     loading: 'Đang tải...',
+    br_manager: 'Quản lý', f_manager: 'Người quản lý (tùy chọn)', opt_no_manager: '— Không có —',
+    select_branch: 'Chọn chi nhánh',
+    total_users: 'Tổng {n} người dùng',
+    det_title: 'Chi tiết người dùng', det_phone: 'Điện thoại', det_created: 'Tạo lúc',
+    det_roles: 'Vai trò', det_scopes: 'Scope truy cập', no_scopes: 'Chưa có scope',
+    btn_revoke: 'Thu hồi', btn_save_roles: 'Lưu vai trò',
+    toast_role_saved: '✅ Đã lưu quyền cho vai trò', toast_roles_updated: '✅ Đã cập nhật vai trò',
+    toast_scope_removed: '✅ Đã thu hồi scope',
+    toast_scope_future: 'Cấp scope lớp/học viên cần dữ liệu Academic (P5) — cấp scope chi nhánh trước',
+    grp_sys: 'Hệ thống',
   },
   en: {
     org_name: 'ABC Language Center',
@@ -341,9 +359,9 @@ export const I18N: Record<'vi' | 'en', AdminDict> = {
     modal_scope: '📌 Grant access scope — Le Van Giang',
     scope_type: 'Scope type', scope_branch: 'Branch', scope_class: 'Class', scope_student: 'Specific student',
     scope_object: 'Object', from: 'Valid from', to: 'Valid until', f_reason: 'Reason (audit)', ph_reason: 'Transfer, managing additional branch...', grant: 'Grant scope',
-    toast_reset: 'Demo: reset changes', toast_saved: '✅ Permissions saved — audit event created',
-    toast_created: '✅ User created (demo) — invitation email sent',
-    toast_scope_granted: '✅ Scope granted — valid from 2026-09-01, audited',
+    toast_reset: 'Changes reset', toast_saved: '✅ Permissions saved — audit event created',
+    toast_created: '✅ User created',
+    toast_scope_granted: '✅ Access scope granted — effective and audited',
     // Reports (mockup 04)
     page_sub_reports: 'Create & download branch-scoped reports (async)',
     t0: '📝 Enrollment summary', t0d: 'Enrollments by program / month / branch',
@@ -391,5 +409,15 @@ export const I18N: Record<'vi' | 'en', AdminDict> = {
     confirm_archive: 'Archive this branch? Users and scopes linked to it will not be deleted.',
     toast_failed: '❌ Action failed',
     loading: 'Loading...',
+    br_manager: 'Manager', f_manager: 'Manager (optional)', opt_no_manager: '— None —',
+    select_branch: 'Select branch',
+    total_users: 'Total {n} users',
+    det_title: 'User details', det_phone: 'Phone', det_created: 'Created',
+    det_roles: 'Roles', det_scopes: 'Access scopes', no_scopes: 'No scopes yet',
+    btn_revoke: 'Revoke', btn_save_roles: 'Save roles',
+    toast_role_saved: '✅ Role permissions saved', toast_roles_updated: '✅ Roles updated',
+    toast_scope_removed: '✅ Scope revoked',
+    toast_scope_future: 'Class/student scope needs Academic data (P5) — grant branch scope first',
+    grp_sys: 'System',
   },
 };

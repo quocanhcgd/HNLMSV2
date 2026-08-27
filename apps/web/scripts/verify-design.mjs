@@ -370,9 +370,16 @@ async function audit(browser, { mockupFile, appPath, needLogin, mockupLogin, app
   await ctxB.close();
 
   const diff = [];
+  const skipped = [];
   for (const key of Object.keys(mockup)) {
     const a = mockup[key];
     const b = app[key];
+    // Element vắng ở app (bảng data-driven — vd badge-warning không xuất hiện khi page 1
+    // không có user finance_officer): KHÔNG phải lệch style → bỏ qua, chỉ note SKIP.
+    if (b === 'ELEMENT-MISSING' && a !== 'ELEMENT-MISSING') {
+      skipped.push(key);
+      continue;
+    }
     if (a === b) continue;
     const numA = parseFloat(a);
     const numB = parseFloat(b);
@@ -380,13 +387,16 @@ async function audit(browser, { mockupFile, appPath, needLogin, mockupLogin, app
     if (numeric && Math.abs(numA - numB) <= TOL) continue;
     diff.push({ check: key, mockup: a, app: b });
   }
-  return { name, mockup, app, diff, summary: { total: Object.keys(mockup).length, ok: Object.keys(mockup).length - diff.length, diff: diff.length } };
+  return { name, mockup, app, diff, skipped, summary: { total: Object.keys(mockup).length, ok: Object.keys(mockup).length - diff.length, diff: diff.length, skipped: skipped.length } };
 }
 
 function printResult(r) {
   console.log(`=== ${r.name}: ${r.summary.ok}/${r.summary.total} khớp · DIFF=${r.summary.diff} ===`);
   for (const d of r.diff) {
     console.log(`[DIFF] ${d.check}\n       mockup: ${d.mockup}\n       app   : ${d.app}`);
+  }
+  for (const s of r.skipped) {
+    console.log(`[SKIP] ${s} — app không có element (data-dependent, không phải lệch style)`);
   }
   if (r.diff.length === 0) console.log('Không có khác biệt computed style nào.');
   console.log('');

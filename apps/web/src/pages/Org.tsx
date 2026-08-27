@@ -9,6 +9,7 @@ import {
   type Branch,
   type Organization,
 } from '../services/org';
+import { listUsers, type UserRow } from '../services/users';
 
 /**
  * T030 + T031 — Organization & Branches screen (route /org = nav mockup 02 nav_org).
@@ -31,23 +32,26 @@ export function OrgPage() {
 
   // ---- Branches ----
   const [branches, setBranches] = useState<Branch[]>([]);
+  const [managers, setManagers] = useState<UserRow[]>([]);
   const [q, setQ] = useState('');
   const [branchModal, setBranchModal] = useState(false);
   const [editing, setEditing] = useState<Branch | null>(null);
   const [bCode, setBCode] = useState('');
   const [bName, setBName] = useState('');
   const [bAddr, setBAddr] = useState('');
+  const [bManager, setBManager] = useState('');
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     void (async () => {
       try {
-        const [o, b] = await Promise.all([getOrganization(), listBranches()]);
+        const [o, b, m] = await Promise.all([getOrganization(), listBranches(), listUsers({ page: 1, pageSize: 100 })]);
         setOrg(o);
         setFName(o.name);
         setFTz(o.timezone);
         setFPeriod(o.academicPeriod ?? '');
         setBranches(b.data);
+        setManagers(m.data);
       } catch {
         toast(t('toast_failed'));
       }
@@ -75,6 +79,7 @@ export function OrgPage() {
     setBCode('');
     setBName('');
     setBAddr('');
+    setBManager('');
     setBranchModal(true);
   };
 
@@ -83,6 +88,7 @@ export function OrgPage() {
     setBCode(b.code);
     setBName(b.name);
     setBAddr(b.address ?? '');
+    setBManager(b.managerUserId ?? '');
     setBranchModal(true);
   };
 
@@ -90,14 +96,15 @@ export function OrgPage() {
     setBusy(true);
     try {
       if (editing) {
-        const up = await updateBranch(editing.id, { name: bName, address: bAddr });
-        setBranches((prev) => prev.map((x) => (x.id === up.id ? up : x)));
+        await updateBranch(editing.id, { name: bName, address: bAddr, managerUserId: bManager || null });
         toast(t('toast_branch_updated'));
       } else {
-        const nb = await createBranch({ code: bCode, name: bName, address: bAddr });
-        setBranches((prev) => [nb, ...prev]);
+        await createBranch({ code: bCode, name: bName, address: bAddr, managerUserId: bManager || null });
         toast(t('toast_branch_created'));
       }
+      // reload để lấy relation manager (create/update trả entity không kèm relation)
+      const res = await listBranches(1, 100);
+      setBranches(res.data);
       setBranchModal(false);
     } catch {
       toast(t('toast_failed'));
@@ -110,8 +117,9 @@ export function OrgPage() {
     if (!window.confirm(t('confirm_archive'))) return;
     setBusy(true);
     try {
-      const up = await updateBranch(b.id, { status: 'inactive' });
-      setBranches((prev) => prev.map((x) => (x.id === up.id ? up : x)));
+      await updateBranch(b.id, { status: 'inactive' });
+      const res = await listBranches(1, 100);
+      setBranches(res.data);
       toast(t('toast_branch_archived'));
     } catch {
       toast(t('toast_failed'));
@@ -183,6 +191,7 @@ export function OrgPage() {
                   <tr className="text-left text-soft" style={{ borderBottom: '1px solid var(--border)' }}>
                     <th className="py-2.5 px-3 font-semibold">{t('col_code')}</th>
                     <th className="py-2.5 px-3 font-semibold">{t('br_name')}</th>
+                    <th className="py-2.5 px-3 font-semibold">{t('br_manager')}</th>
                     <th className="py-2.5 px-3 font-semibold">{t('br_address')}</th>
                     <th className="py-2.5 px-3 font-semibold">{t('br_status')}</th>
                     <th className="py-2.5 px-3 font-semibold text-right">{t('col_actions')}</th>
@@ -193,6 +202,16 @@ export function OrgPage() {
                     <tr key={b.id} className="border-b" style={{ borderColor: 'var(--border)' }}>
                       <td className="py-3 px-3"><span className="badge badge-primary">{b.code}</span></td>
                       <td className="py-3 px-3"><b>{b.name}</b></td>
+                      <td className="py-3 px-3">
+                        {b.manager ? (
+                          <>
+                            <b>{b.manager.fullName}</b>
+                            <span className="text-xs text-faint block">{b.manager.email}</span>
+                          </>
+                        ) : (
+                          '—'
+                        )}
+                      </td>
                       <td className="py-3 px-3 text-soft">{b.address || '—'}</td>
                       <td className="py-3 px-3">
                         {b.status === 'active' ? (
@@ -245,6 +264,13 @@ export function OrgPage() {
           </div>
           <label className="block text-sm font-semibold mb-1.5 mt-4">{t('br_address')}</label>
           <input className="input-field" value={bAddr} onChange={(e) => setBAddr(e.target.value)} placeholder={t('ph_branch_addr')} />
+          <label className="block text-sm font-semibold mb-1.5 mt-4">{t('f_manager')}</label>
+          <select className="input-field" value={bManager} onChange={(e) => setBManager(e.target.value)}>
+            <option value="">{t('opt_no_manager')}</option>
+            {managers.map((m) => (
+              <option key={m.id} value={m.id}>{m.fullName} ({m.email})</option>
+            ))}
+          </select>
           <div className="flex justify-end space-x-3 mt-6">
             <button className="btn-outline" onClick={() => setBranchModal(false)}>{t('cancel')}</button>
             <button className="btn-primary" onClick={() => void submitBranch()} disabled={busy || !bName.trim() || (!editing && !bCode.trim())}>

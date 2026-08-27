@@ -43,6 +43,7 @@ export class BranchesService {
     const allowed = this.scopeCtx.branchIds();
     const [data, total] = await this.branches.findAndCount({
       where: allowed === null ? {} : { id: In(allowed) },
+      relations: { manager: true }, // T030+T031: cột quản lý (passwordHash/2FA secret tự loại khỏi select)
       order: { createdAt: 'DESC' },
       skip: (page - 1) * pageSize,
       take: pageSize,
@@ -52,7 +53,7 @@ export class BranchesService {
 
   async getByIdOrThrow(id: string): Promise<Branch> {
     await this.scopes.assertBranchInScope(id); // T034 (latent — xem note)
-    const branch = await this.branches.findOne({ where: { id } });
+    const branch = await this.branches.findOne({ where: { id }, relations: { manager: true } });
     if (!branch) throw new NotFoundException('Không tìm thấy chi nhánh');
     return branch;
   }

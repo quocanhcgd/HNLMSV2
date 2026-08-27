@@ -33,6 +33,7 @@ export interface ListUsersParams {
   q?: string;
   roleCode?: string;
   branchId?: string;
+  status?: string;
 }
 
 @Injectable()
@@ -90,6 +91,11 @@ export class UsersService {
     }
     if (params.branchId) {
       qb.innerJoin(ScopeGrant, 'sg', 'sg.user_id = u.id').andWhere('sg.branch_id = :branchId', { branchId: params.branchId });
+    }
+    if (params.status) {
+      const statusMap: Record<string, string> = { active: 'Active', inactive: 'Inactive', suspended: 'Suspended' };
+      const mapped = statusMap[params.status.toLowerCase()];
+      if (mapped) qb.andWhere('u.status = :status', { status: mapped });
     }
     this.scopes.applyUserScopeFilter(qb, 'u'); // T034: FR-004
     const total = await qb.getCount();
