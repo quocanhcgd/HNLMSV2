@@ -27,7 +27,7 @@ Script sẽ:
 1. Set execution policy `RemoteSigned` (CurrentUser) — để `pnpm.ps1` chạy được.
 2. Cài **pnpm@9** qua npm (nếu chưa có).
 3. Cài **Memurai Developer** qua Chocolatey (`choco install memurai-developer -y`); nếu thất bại fallback `redis-64`; rồi start service.
-4. Hỏi mật khẩu superuser PostgreSQL → tạo **role `lms`** + **database `educ_lms`** (UTF8), nạp `database/lms-schema.sql` + `lms-seed.sql`.
+4. Hỏi mật khẩu superuser PostgreSQL → tạo **role `lms`** + **database `educ_lms`** (UTF8), nạp `database/lms-schema.sql` + `lms-seed.sql`. Nếu còn DB cũ tên `educenter_lms` từ bản script trước, script **tự đổi tên** sang `educ_lms` (nhớ đóng kết nối pgAdmin/psql tới DB cũ trước khi chạy).
 5. Verify: `node` · `pnpm` · `redis-cli ping` · `psql -U lms -c "SELECT 1"`.
 
 > Mật khẩu role dev mặc định `lms_dev` — **đổi trước khi lên production** (xem `06-deployment/installation-guide.md`).

@@ -4,6 +4,7 @@
 #   - pnpm (quản lý package monorepo)
 #   - Redis 7-compatible (Memurai Developer) cho BullMQ
 #   - PostgreSQL: role + database 'educ_lms' + schema + seed
+#     (tự đổi tên DB cũ 'educenter_lms' -> 'educ_lms' nếu còn tồn tại)
 #   - Execution policy cho phép chạy script npm (pnpm.ps1)
 # Script tự nâng quyền Administrator nếu cần.
 # ============================================================
@@ -99,8 +100,17 @@ END \$\$;
 & psql -U $pgUser -h 127.0.0.1 -p 5432 -d postgres -v ON_ERROR_STOP=1 -c $sql
 if ($LASTEXITCODE -ne 0) { throw "Tạo role lms thất bại (sai mật khẩu superuser?)" }
 
-$dbExists = & psql -U $pgUser -h 127.0.0.1 -p 5432 -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='educ_lms'"
-if ($dbExists.Trim() -ne '1') {
+$dbExists = "$(& psql -U $pgUser -h 127.0.0.1 -p 5432 -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='educ_lms'")".Trim()
+$legacyExists = "$(& psql -U $pgUser -h 127.0.0.1 -p 5432 -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='educenter_lms'")".Trim()
+if ($dbExists -ne '1' -and $legacyExists -eq '1') {
+    Write-Warn "Phát hiện DB cũ 'educenter_lms' (từ bản script trước) - đang đổi tên thành 'educ_lms'..."
+    & psql -U $pgUser -h 127.0.0.1 -p 5432 -d postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='educenter_lms' AND pid <> pg_backend_pid();" | Out-Null
+    & psql -U $pgUser -h 127.0.0.1 -p 5432 -d postgres -v ON_ERROR_STOP=1 -c "ALTER DATABASE educenter_lms RENAME TO educ_lms;"
+    if ($LASTEXITCODE -ne 0) { throw "Đổi tên DB cũ thất bại - đóng các kết nối pgAdmin/psql tới educenter_lms rồi chạy lại" }
+    Write-Ok "Đã đổi tên educenter_lms -> educ_lms"
+    $dbExists = '1'
+}
+if ($dbExists -ne '1') {
     & psql -U $pgUser -h 127.0.0.1 -p 5432 -d postgres -c "CREATE DATABASE educ_lms OWNER lms ENCODING 'UTF8' TEMPLATE template0"
     if ($LASTEXITCODE -ne 0) { throw "CREATE DATABASE thất bại" }
     Write-Ok "Đã tạo database educ_lms (owner lms)"
