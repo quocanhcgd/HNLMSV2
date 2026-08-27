@@ -129,6 +129,20 @@ if ($dbExists -ne '1') {
     Write-Ok "Database educ_lms đã tồn tại"
 }
 
+# Đảm bảo role lms là owner của DB/schema/bảng (tránh 'permission denied to create extension'
+# khi DB được tạo trước đó bởi user khác - ví dụ tạo tay qua pgAdmin/createdb)
+& psql -U $pgUser -h 127.0.0.1 -p 5432 -d postgres -c "ALTER DATABASE educ_lms OWNER TO lms;" | Out-Null
+& psql -U $pgUser -h 127.0.0.1 -p 5432 -d educ_lms -c "ALTER SCHEMA public OWNER TO lms;" | Out-Null
+$ownSql = @'
+DO $$ DECLARE r record; BEGIN
+  FOR r IN SELECT tablename FROM pg_tables WHERE schemaname = 'public' LOOP
+    EXECUTE format('ALTER TABLE public.%I OWNER TO lms', r.tablename);
+  END LOOP;
+END $$;
+'@
+& psql -U $pgUser -h 127.0.0.1 -p 5432 -d educ_lms -c $ownSql | Out-Null
+Write-Ok "Đã chuyển quyền sở hữu educ_lms (DB + schema public + bảng) sang role lms"
+
 # Extension + schema + seed (chạy với role lms)
 $env:PGPASSWORD = $lmsPassPlain
 $hasSchema = "$(& psql -U lms -h 127.0.0.1 -p 5432 -d educ_lms -tAc "SELECT to_regclass('public.users')")".Trim()
