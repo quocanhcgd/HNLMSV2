@@ -273,19 +273,21 @@ team: "2 Full-stack Developers"
 
 ### User & Role Module
 
-- [ ] **T032** [Backend] Create Role and Permission entities
+- [x] **T032** [Backend] Create Role and Permission entities
       - Estimate: 2 days
       - Owner: Dev1
       - Dependencies: T016
       - Deliverable: roles, permissions, user_roles tables
       - Relationships: Many-to-many
+      - Done: migration 1787800000000 (roles, permissions, role_permissions, user_roles) + seed (org default, 26 permissions, 8 roles, role_permissions, user legacy → user_roles)
 
-- [ ] **T033** [Backend] Create ScopeGrant entity
+- [x] **T033** [Backend] Create ScopeGrant entity
       - Estimate: 1 day
       - Owner: Dev1
       - Dependencies: T032
       - Deliverable: scope_grants table
       - Fields: user_id, branch_id, effective_from, effective_to
+      - Done: bảng scope_grants (branch/class/student UUID chưa FK — bảng sau); grant/revoke qua API T035
 
 - [ ] **T034** [Backend] Implement branch scope filtering
       - Estimate: 2 days
@@ -294,12 +296,13 @@ team: "2 Full-stack Developers"
       - Deliverable: Repository base class with auto branch filter
       - Logic: All queries auto-filtered by user's accessible branches
 
-- [ ] **T035** [Backend] User & Role API endpoints
+- [x] **T035** [Backend] User & Role API endpoints
       - Estimate: 2 days
       - Owner: Dev1
       - Dependencies: T032, T033
       - Deliverable: /api/users, /api/roles CRUD endpoints
       - Features: Assign roles, grant branch scope
+      - Done: GET/POST /users (phân trang, lọc q/role/branch_id), GET/PUT /users/{id}, PUT /users/{id}/roles, POST/GET/DELETE /users/{id}/scope-grants; GET /roles, GET /roles/permissions, POST/PATCH/DELETE /roles, PUT /roles/{id}/permissions; /me/context trả roles/permissions/scopes thật; guard @RequirePermissions (Admin '*', Teacher/Student user:read)
 
 - [x] **T036** [Frontend] User management page
       - Estimate: 3 days

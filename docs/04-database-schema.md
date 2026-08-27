@@ -270,7 +270,11 @@ CREATE TABLE scope_grants (
     CHECK (branch_id IS NOT NULL OR class_id IS NOT NULL OR student_id IS NOT NULL)
 );
 CREATE INDEX idx_scope_grants_user ON scope_grants (user_id);
-CREATE INDEX idx_scope_grants_active ON scope_grants (user_id) WHERE effective_to IS NULL OR effective_to > NOW();
+-- ⚠️ NOTE (T033/T035, 2026-08): index partial dưới đây KHÔNG chạy được trên PostgreSQL —
+-- NOW() không IMMUTABLE nên bị từ chối trong index predicate. Migration 1787800000000 đã bỏ
+-- index này (chỉ giữ idx_scope_grants_user); nếu cần tối ưu query "scope đang hiệu lực" sau này
+-- hãy thêm cột boolean hoặc index thường theo query thật (T034).
+-- CREATE INDEX idx_scope_grants_active ON scope_grants (user_id) WHERE effective_to IS NULL OR effective_to > NOW();
 
 CREATE TABLE settings (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

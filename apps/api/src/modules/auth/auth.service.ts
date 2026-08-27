@@ -77,23 +77,28 @@ export class AuthService {
     return { user, ...pair };
   }
 
-  /** GET /me/context — user + roles + scopes + modules (cho UI, api-spec). */
+  /** GET /me/context — user + roles + permissions + scopes + modules (cho UI, api-spec).
+   *  T035: roles/permissions/scopes giờ đọc THẬT từ bảng RBAC (user_roles, role_permissions,
+   *  scope_grants); fallback legacy [user.role] nếu user chưa có role trong user_roles. */
   async meContext(sub: string): Promise<{
     user: SafeUser;
     roles: string[];
     permissions: string[];
-    scopes: Record<string, never>;
+    scopes: { branches: string[]; classes: string[]; students: string[] };
     modules: Awaited<ReturnType<LicenseService['getModules']>>;
   }> {
     const user = await this.users.getByIdOrThrow(sub);
     const modules = await this.license.getModules();
-    return {
-      user,
-      roles: [user.role],
-      permissions: [...(ROLE_PERMISSIONS[user.role] ?? [])], // T018: permission theo role
-      scopes: {}, // module users/roles + scope_grants: giai đoạn sau
-      modules,
-    };
+    const { roles: dbRoles, permissions: dbPerms } = await this.users.rbacFor(sub);
+    const roles = dbRoles.length ? dbRoles : [user.role];
+    const permissions =
+      dbPerms.length && !dbPerms.includes('*')
+        ? [...new Set([...(ROLE_PERMISSIONS[user.role] ?? []), ...dbPerms])]
+        : dbPerms.length
+          ? dbPerms // đã có '*' từ org_admin/system_admin
+          : [...(ROLE_PERMISSIONS[user.role] ?? [])];
+    const scopes = await this.users.activeScopes(sub);
+    return { user, roles, permissions, scopes, modules };
   }
 
   private async issueTokens(user: SafeUser): Promise<TokenPair> {
