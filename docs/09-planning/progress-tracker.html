@@ -537,13 +537,13 @@ function card(t){const s=state.status[t.id]||'todo';return `<div class="border r
 <div class="mt-2 flex gap-2"><button onclick="showPrompt('${t.id}')" class="text-xs bg-teal-600 hover:bg-teal-700 text-white px-2 py-1 rounded">🔑 Prompt</button><button onclick="showDetail('${t.id}')" class="text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded">📋 Quy trình</button></div>
 </div>`;}
 function render(){
-  const st=st();const list=filtered();
+  const stats=st();const list=filtered();
   const filters=[['all','Tất cả'],['active','Chưa xong'],['in_progress','Đang'],['done','Xong'],['blocked','Chặn']];
   document.getElementById('app').innerHTML=`
   <div class="max-w-6xl mx-auto p-4">
     <div class="flex flex-wrap items-center justify-between gap-2">
       <div><h1 class="text-2xl font-bold">EduCenter LMS — Progress Tracker <span class="text-sm text-gray-500">(MVP 16 tuần / 2 dev)</span></h1>
-      <p class="text-sm text-gray-600">Tổng ${st.total} · ✅ ${st.done} · ⏳ ${st.ip} · ⛔ ${st.bl} · 🔘 ${st.td} — <b>${st.pct}% hoàn thành</b></p></div>
+      <p class="text-sm text-gray-600">Tổng ${stats.total} · ✅ ${stats.done} · ⏳ ${stats.ip} · ⛔ ${stats.bl} · 🔘 ${stats.td} — <b>${stats.pct}% hoàn thành</b></p></div>
       <div class="flex gap-2"><button onclick="exportJson()" class="bg-gray-700 text-white px-3 py-1 rounded text-sm">⬇ Export JSON</button>
       <button onclick="document.getElementById('importFile').click()" class="bg-gray-500 text-white px-3 py-1 rounded text-sm">⬆ Import</button>
       <input type="file" id="importFile" class="hidden" accept="application/json" onchange="importJson(event)">
