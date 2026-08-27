@@ -120,11 +120,16 @@ if ($dbExists -ne '1') {
 
 # Extension + schema + seed (chạy với role lms)
 $env:PGPASSWORD = $lmsPassPlain
-& psql -U lms -h 127.0.0.1 -p 5432 -d educ_lms -v ON_ERROR_STOP=1 -f $schema
-if ($LASTEXITCODE -ne 0) { throw "Lỗi khi chạy lms-schema.sql" }
-& psql -U lms -h 127.0.0.1 -p 5432 -d educ_lms -v ON_ERROR_STOP=1 -f $seed
-if ($LASTEXITCODE -ne 0) { throw "Lỗi khi chạy lms-seed.sql" }
-Write-Ok "Schema + seed đã nạp vào educ_lms"
+$hasSchema = "$(& psql -U lms -h 127.0.0.1 -p 5432 -d educ_lms -tAc "SELECT to_regclass('public.users')")".Trim()
+if ($hasSchema -eq '') {
+    & psql -U lms -h 127.0.0.1 -p 5432 -d educ_lms -v ON_ERROR_STOP=1 -f $schema
+    if ($LASTEXITCODE -ne 0) { throw "Lỗi khi chạy lms-schema.sql" }
+    & psql -U lms -h 127.0.0.1 -p 5432 -d educ_lms -v ON_ERROR_STOP=1 -f $seed
+    if ($LASTEXITCODE -ne 0) { throw "Lỗi khi chạy lms-seed.sql" }
+    Write-Ok "Schema + seed đã nạp vào educ_lms"
+} else {
+    Write-Ok "Schema đã tồn tại trong educ_lms - bỏ qua nạp lại (muốn nạp lại từ đầu: DROP DATABASE rồi chạy lại script)"
+}
 Remove-Item Env:PGPASSWORD
 
 # ---------- 5. Verify ----------
