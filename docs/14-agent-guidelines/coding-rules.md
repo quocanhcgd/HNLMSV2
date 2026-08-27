@@ -46,6 +46,7 @@
 - **5.2 Không chế endpoint `/license/*`**: giữ contract FUTURE trong OpenAPI, không hiện UI sản xuất.
 - **5.3 i18n**: chuỗi UI đưa vào file `vi-VN.json`/`en-US.json`, không hardcode tiếng Việt trong component.
 - **5.4 Follow tài liệu chuẩn**: nếu docs mâu thuẫn, `docs/README.md` (Decision Log) là nguồn ưu tiên; báo cáo mâu thuẫn lên thay vì tự quyết.
+- **5.5 Mockup-first (FE — bắt buộc)**: trước khi code BẤT KỲ màn hình/component UI nào, PHẢI mở mockup tương ứng trong `docs/13-mockups/` (`01-login-license` → login/license · `02-admin-dashboard` → dashboard · `03-users-roles` → users · `04-reports` → reports) + `design-governance.md`. Layout/màu/radius/font CHỈ lấy từ **Design Tokens** (`apps/web/src/styles/tokens.css`) — cấm hardcode màu/radius mới ngoài token. **Mockup là hợp đồng**: code lệch mockup = sửa code cho khớp (muốn đổi UI → đổi mockup trước + duyệt, theo quy trình §7 design-governance). Khi xong màn hình: tự so sánh từng hạng mục (layout, màu token, dark mode, i18n, responsive 640/1024/1280) với mockup trước khi báo Done.
 
 ## 6. Kiểm thử & DoD
 
