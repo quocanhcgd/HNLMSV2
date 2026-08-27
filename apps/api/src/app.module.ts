@@ -1,7 +1,7 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import configuration from './config/configuration';
 import { AuthModule } from './modules/auth/auth.module';
@@ -11,6 +11,8 @@ import { HealthModule } from './modules/health/health.module';
 import { LicenseModule } from './modules/license/license.module';
 import { OrgModule } from './modules/org/org.module';
 import { QueueModule } from './modules/queue/queue.module';
+import { ScopeContextInterceptor } from './modules/scopes/scope-context.interceptor';
+import { ScopesModule } from './modules/scopes/scopes.module';
 import { UsersModule } from './modules/users/users.module';
 
 @Module({
@@ -42,12 +44,15 @@ import { UsersModule } from './modules/users/users.module';
     LicenseModule,
     OrgModule,
     QueueModule,
+    ScopesModule,
     UsersModule,
   ],
   providers: [
     // T018: mọi endpoint mặc định cần JWT (SEC-006) + phân quyền; @Public() để mở.
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: AuthzGuard },
+    // T034: branch scope (FR-004) — resolve branch được phép 1 lần/request (AsyncLocalStorage).
+    { provide: APP_INTERCEPTOR, useClass: ScopeContextInterceptor },
   ],
 })
 export class AppModule {}

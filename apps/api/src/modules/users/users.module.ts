@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ScopesModule } from '../scopes/scopes.module';
 import { PasswordService } from './password.service';
 import { Permission } from './permission.entity';
 import { RolePermission } from './role-permission.entity';
@@ -13,7 +14,7 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Role, Permission, RolePermission, UserRole, ScopeGrant])],
+  imports: [TypeOrmModule.forFeature([User, Role, Permission, RolePermission, UserRole, ScopeGrant]), ScopesModule],
   controllers: [UsersController, RolesController],
   providers: [UsersService, RolesService, PasswordService],
   exports: [UsersService, RolesService, PasswordService],

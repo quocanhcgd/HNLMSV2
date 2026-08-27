@@ -292,12 +292,13 @@ team: "2 Full-stack Developers"
       - Fields: user_id, branch_id, effective_from, effective_to
       - Done: bảng scope_grants (branch/class/student UUID chưa FK — bảng sau); grant/revoke qua API T035
 
-- [ ] **T034** [Backend] Implement branch scope filtering
+- [x] **T034** [Backend] Implement branch scope filtering
       - Estimate: 2 days
       - Owner: Dev1
       - Dependencies: T033
       - Deliverable: Repository base class with auto branch filter
       - Logic: All queries auto-filtered by user's accessible branches
+      - Done: ScopesService.resolveBranchIds (org_admin/system_admin/legacy Admin → toàn quyền; còn lại = branch active từ scope_grants) + ScopeContextService (AsyncLocalStorage) + global ScopeContextInterceptor (next.handle() gọi trong cùng run()); lọc users list (EXISTS scope_grants) + assertUserInScope ở getDetail/update; branches list/detail/update filter/assert (latent — guard branch:read Admin-only, note khi AuthzGuard đọc permission từ DB); verified E2E 9 case
 
 - [x] **T035** [Backend] User & Role API endpoints
       - Estimate: 2 days

@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { PasswordService } from './password.service';
 import { Role } from './role.entity';
+import { ScopesService } from '../scopes/scopes.service';
 import { ScopeGrant } from './scope-grant.entity';
 import { UserRole } from './user-role.entity';
 import { User } from './user.entity';
@@ -42,6 +43,7 @@ export class UsersService {
     @InjectRepository(ScopeGrant) private readonly scopeGrants: Repository<ScopeGrant>,
     private readonly password: PasswordService,
     private readonly roles: RolesService,
+    private readonly scopes: ScopesService,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -75,8 +77,8 @@ export class UsersService {
   }
 
   /**
-   * T035 — GET /users: danh sách có phân trang + lọc q/roleCode/branchId,
-   * kèm roles (user_roles) + scopes (scope_grants). Branch scope filtering thật = T034.
+   * T035 — GET /users: danh sách có phân trang + lọc q/roleCode/branchId.
+   * T034 — branch scope: caller không phải admin chỉ thấy user có grant trong branch được cấp.
    */
   async list(params: ListUsersParams): Promise<{ data: UserDto[]; meta: { page: number; pageSize: number; total: number } }> {
     const qb = this.users.createQueryBuilder('u');
@@ -89,6 +91,7 @@ export class UsersService {
     if (params.branchId) {
       qb.innerJoin(ScopeGrant, 'sg', 'sg.user_id = u.id').andWhere('sg.branch_id = :branchId', { branchId: params.branchId });
     }
+    this.scopes.applyUserScopeFilter(qb, 'u'); // T034: FR-004
     const total = await qb.getCount();
     const users = await qb
       .orderBy('u.createdAt', 'DESC')
@@ -98,16 +101,18 @@ export class UsersService {
     return { data: await this.decorate(users), meta: { page: params.page, pageSize: params.pageSize, total } };
   }
 
-  /** GET /users/{id} — chi tiết + roles + scopes. */
+  /** GET /users/{id} — chi tiết + roles + scopes (T034: assert trong scope). */
   async getDetail(id: string): Promise<UserDto> {
+    await this.scopes.assertUserInScope(id); // T034: FR-004
     const user = await this.findById(id);
     if (!user) throw new NotFoundException('Không tìm thấy người dùng');
     const [dto] = await this.decorate([user]);
     return dto;
   }
 
-  /** PUT /users/{id} — cập nhật full_name/phone/status. */
+  /** PUT /users/{id} — cập nhật full_name/phone/status (T034: assert trong scope). */
   async update(id: string, input: { fullName?: string; phone?: string; status?: 'active' | 'inactive' | 'suspended' }): Promise<UserDto> {
+    await this.scopes.assertUserInScope(id); // T034: FR-004 (defense in depth — user:update đã Admin-only)
     const user = await this.findById(id);
     if (!user) throw new NotFoundException('Không tìm thấy người dùng');
     const statusMap: Record<string, string> = { active: 'Active', inactive: 'Inactive', suspended: 'Suspended' };

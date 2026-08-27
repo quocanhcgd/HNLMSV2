@@ -1,6 +1,8 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
+import { ScopeContextService } from '../scopes/scope-context.service';
+import { ScopesService } from '../scopes/scopes.service';
 import { Branch } from './branch.entity';
 import { OrganizationService } from './organization.service';
 
@@ -28,11 +30,19 @@ export class BranchesService {
   constructor(
     @InjectRepository(Branch) private readonly branches: Repository<Branch>,
     private readonly orgs: OrganizationService,
+    private readonly scopes: ScopesService,
+    private readonly scopeCtx: ScopeContextService,
   ) {}
 
-  /** GET /organization/branches — phân trang, không gồm deleted. */
+  /**
+   * GET /organization/branches — phân trang, không gồm deleted.
+   * T034: caller không phải admin chỉ thấy branch được cấp (latent — guard branch:read
+   * hiện vẫn Admin-only, filter kích hoạt khi AuthzGuard đọc permission từ DB, xem note ScopesService).
+   */
   async list(page = 1, pageSize = 20): Promise<{ data: Branch[]; meta: { page: number; pageSize: number; total: number } }> {
+    const allowed = this.scopeCtx.branchIds();
     const [data, total] = await this.branches.findAndCount({
+      where: allowed === null ? {} : { id: In(allowed) },
       order: { createdAt: 'DESC' },
       skip: (page - 1) * pageSize,
       take: pageSize,
@@ -41,6 +51,7 @@ export class BranchesService {
   }
 
   async getByIdOrThrow(id: string): Promise<Branch> {
+    await this.scopes.assertBranchInScope(id); // T034 (latent — xem note)
     const branch = await this.branches.findOne({ where: { id } });
     if (!branch) throw new NotFoundException('Không tìm thấy chi nhánh');
     return branch;
