@@ -1,6 +1,6 @@
 # Design Verification — Login (mockup 01 vs app /login)
 
-- Ngày chạy: 2026-08-27T08:34:26.293Z
+- Ngày chạy: 2026-08-27T09:22:57.844Z
 - Môi trường: Edge (channel msedge) headless · viewport 1280x900 + 390x844
 - Mockup: `docs/13-mockups/01-login-license.html` (file://) · App: `http://localhost:5517`
 - Cách chạy lại: `node apps/web/scripts/verify-design.mjs` (cần API + web dev server đang chạy)

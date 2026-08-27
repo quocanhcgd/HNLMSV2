@@ -347,48 +347,54 @@ team: "2 Full-stack Developers"
 
 ### Academic Structure
 
-- [ ] **T038** [Backend] Create academic entities
+- [x] **T038** [Backend] Create academic entities
       - Estimate: 3 days
       - Owner: Dev1
       - Dependencies: T005
       - Deliverable: departments, programs, courses, classes tables
       - Relationships: dept -> programs -> courses -> classes
+      - DONE: migration 1787800000004 (7 bảng: +rooms, class_teachers, schedules) + 1787800000005 (thay bảng `courses` LEGACY còn sót từ schema cũ — drop CASCADE lessons/assignments/certificates/... chưa dùng, tái tạo FK classes.course_id); seed permission program:read/class:read (migration 0004)
 
-- [ ] **T039** [Backend] Create schedule conflict detection
+- [x] **T039** [Backend] Create schedule conflict detection
       - Estimate: 2 days
       - Owner: Dev1
       - Dependencies: T038
       - Deliverable: Service to check teacher/room conflicts
       - Logic: Query overlapping time slots
+      - DONE: so trùng CHÍNH XÁC teacher/room + weekday + date-range + time-range overlap → 409 kèm message (lớp/giờ trùng). KHÔNG dùng exclusion constraint DB thô (DDL §6) vì false-positive khi 2 buổi khác giờ cùng ngày (ghi D9). Verify: 409 khi chạm giờ (GV & phòng), 201 khi khác ngày/giờ.
 
-- [ ] **T040** [Backend] Academic CRUD API endpoints
+- [x] **T040** [Backend] Academic CRUD API endpoints
       - Estimate: 3 days
       - Owner: Dev1
       - Dependencies: T038, T039
       - Deliverable: /api/departments, /programs, /courses, /classes
       - Authorization: Branch-scoped access
+      - DONE: + /rooms + GET/PUT /classes/:id + schedules (GET/POST/DELETE /classes/:id/schedules). Scope: classes/rooms lọc theo branch được cấp (T034+B — active); dept/program/course org-wide. Phân quyền: program:read/create/update · class:read/create/update · schedule:manage. DEVIATION: /courses, PUT, /rooms, DELETE schedule thêm ngoài api-spec (theo DDL §6 + thực tế). Verify API 22/22 (CRUD + 409 trùng mã + scope BM: chỉ thấy lớp HN1, 403 HCM1 + student 403).
 
-- [ ] **T041** [Frontend] Department & Program management
+- [x] **T041** [Frontend] Department & Program management
       - Estimate: 2 days
       - Owner: Dev2
       - Dependencies: T040
       - Deliverable: CRUD pages for departments and programs
       - Routes: /academic/departments, /academic/programs
+      - DONE: 1 trang /academic 4 tab (Ngành/Chương trình/Khóa học/Lớp học) — mockup 02 không có screen academic → thiết kế theo design system mockup 02/03 (DEVIATION). i18n vi/en.
 
-- [ ] **T042** [Frontend] Course management
+- [x] **T042** [Frontend] Course management
       - Estimate: 2 days
       - Owner: Dev2
       - Dependencies: T040
       - Deliverable: Course list and form, link to program
       - Route: /academic/courses
+      - DONE: tab Khóa học (link program, order_index, mô tả, status).
 
-- [ ] **T043** [Frontend] Class management
+- [x] **T043** [Frontend] Class management
       - Estimate: 3 days
       - Owner: Dev2
       - Dependencies: T040
       - Deliverable: Class list, create class form, assign teacher
       - Route: /academic/classes
       - Features: Schedule picker, capacity input, teacher selector
+      - DONE: tab Lớp học: list lọc branch, create/edit (branch→program→course cascade select, modality, capacity, teacher multi-select), detail modal: thông tin + giảng viên + lịch học (thêm/xóa buổi, conflict 409 hiện toast message). E2E UI 7/7 (chuỗi tạo dept→program→course→class→schedule→conflict 409).
 
 ### Student & Enrollment
 

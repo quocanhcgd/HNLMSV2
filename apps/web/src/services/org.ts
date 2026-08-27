@@ -22,6 +22,7 @@ export interface Organization {
 
 /** Key cấu trúc của contact_settings JSONB (docs/04-database-schema.md §4.1). */
 export interface OrgContactSettings {
+  shortName?: string;
   address?: string;
   phone?: string;
   hotline?: string;
@@ -95,15 +96,15 @@ export async function listBranches(page = 1, pageSize = 50): Promise<Paged<Branc
 export async function createBranch(payload: {
   code: string;
   name: string;
-  address?: string;
+  address?: string | null;
   managerUserId?: string | null;
-  phone?: string;
-  email?: string;
-  hotline?: string;
-  taxCode?: string;
-  representativeName?: string;
-  openedAt?: string;
-  note?: string;
+  phone?: string | null;
+  email?: string | null;
+  hotline?: string | null;
+  taxCode?: string | null;
+  representativeName?: string | null;
+  openedAt?: string | null;
+  note?: string | null;
 }): Promise<Branch> {
   const { data } = await api.post<Branch>('/organization/branches', payload);
   return data;
@@ -113,17 +114,17 @@ export async function updateBranch(
   branchId: string,
   payload: {
     name?: string;
-    address?: string;
+    address?: string | null;
     managerUserId?: string | null;
     status?: 'active' | 'inactive';
-    phone?: string;
-    email?: string;
-    hotline?: string;
-    taxCode?: string;
-    representativeName?: string;
-    openedAt?: string;
-    closedAt?: string;
-    note?: string;
+    phone?: string | null;
+    email?: string | null;
+    hotline?: string | null;
+    taxCode?: string | null;
+    representativeName?: string | null;
+    openedAt?: string | null;
+    closedAt?: string | null;
+    note?: string | null;
   },
 ): Promise<Branch> {
   const { data } = await api.put<Branch>(`/organization/branches/${branchId}`, payload);

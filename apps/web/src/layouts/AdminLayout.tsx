@@ -80,6 +80,7 @@ const HEADER_META: Record<string, { title: string[]; sub: string }> = {
   '/org': { title: ['nav_org'], sub: 'page_sub_org' },
   '/license': { title: ['crumb_settings', 'page_license'], sub: 'page_sub_lic' },
   '/users': { title: ['page_users'], sub: 'page_sub_users' },
+  '/academic': { title: ['nav_academic'], sub: 'page_sub_academic' },
   '/reports': { title: ['page_reports'], sub: 'page_sub_reports' },
   '/students': { title: ['nav_enroll'], sub: '' },
   '/finance': { title: ['nav_finance'], sub: '' },
@@ -110,9 +111,11 @@ function Shell() {
         ? 'users'
         : location.pathname === '/org'
           ? 'org'
-          : location.pathname === '/reports'
-            ? 'reports'
-            : location.pathname === '/dashboard'
+          : location.pathname === '/academic'
+            ? 'academic'
+            : location.pathname === '/reports'
+              ? 'reports'
+              : location.pathname === '/dashboard'
               ? 'dashboard'
               : null;
 
@@ -131,6 +134,10 @@ function Shell() {
     }
     if (key === 'users') {
       navigate('/users');
+      return;
+    }
+    if (key === 'academic') {
+      navigate('/academic');
       return;
     }
     if (key === 'reports') {

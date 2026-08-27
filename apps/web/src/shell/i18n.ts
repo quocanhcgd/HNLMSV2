@@ -111,6 +111,29 @@ export interface AdminDict {
   f_logo_url: string; f_slogan: string; f_brand_color: string;
   f_opened_at: string; f_closed_at: string; f_note: string;
   col_contact: string; col_opened: string;
+  // --- Academic screen (T041–T043 — mockup 02 nav_academic) ---
+  page_sub_academic: string;
+  tab_dept: string; tab_program: string; tab_course: string; tab_class: string;
+  f_department: string; f_program: string; f_course: string;
+  f_duration_months: string; f_modality: string; f_capacity: string; f_enrollment_status: string;
+  f_description: string;
+  f_start_date: string; f_end_date: string; f_teachers: string; f_order_index: string;
+  f_room: string; f_day_of_week: string; f_start_time: string; f_end_time: string;
+  f_recurrence: string; f_valid_from: string; f_valid_to: string;
+  f_status: string;
+  col_dept: string; col_teacher: string; col_schedule: string;
+  btn_add_dept: string; btn_add_program: string; btn_add_course: string; btn_add_class: string; btn_add_room: string; btn_add_schedule: string;
+  modal_add_dept: string; modal_add_program: string; modal_add_course: string; modal_add_class: string; modal_add_room: string; modal_add_schedule: string;
+  modal_edit_dept: string; modal_edit_program: string; modal_edit_course: string; modal_edit_class: string; modal_edit_room: string;
+  dept_status: string; st_draft: string; st_open: string; st_closed: string; st_full: string; st_archived: string;
+  no_depts: string; no_programs: string; no_courses: string; no_classes: string; no_schedules: string;
+  toast_dept_created: string; toast_program_created: string; toast_course_created: string; toast_class_created: string; toast_room_created: string;
+  toast_dept_updated: string; toast_program_updated: string; toast_course_updated: string; toast_class_updated: string; toast_room_updated: string;
+  toast_schedule_created: string; toast_schedule_deleted: string;
+  day_1: string; day_2: string; day_3: string; day_4: string; day_5: string; day_6: string; day_7: string;
+  class_detail: string; sched_title: string; opt_none: string;
+  mod_offline: string; mod_online: string; mod_hybrid: string; mod_flexible: string;
+  rec_weekly: string; rec_biweekly: string; rec_once: string;
 }
 
 export const I18N: Record<'vi' | 'en', AdminDict> = {
@@ -278,6 +301,29 @@ export const I18N: Record<'vi' | 'en', AdminDict> = {
     f_logo_url: 'Logo (URL)', f_slogan: 'Slogan', f_brand_color: 'Màu chủ đạo',
     f_opened_at: 'Ngày khai trương', f_closed_at: 'Ngày đóng cửa', f_note: 'Ghi chú',
     col_contact: 'Liên hệ', col_opened: 'Khai trương',
+    // Academic (T041–T043)
+    page_sub_academic: 'Ngành, chương trình, khóa học và lớp học',
+    tab_dept: 'Ngành', tab_program: 'Chương trình', tab_course: 'Khóa học', tab_class: 'Lớp học',
+    f_department: 'Ngành', f_program: 'Chương trình', f_course: 'Khóa học',
+    f_duration_months: 'Số tháng đào tạo', f_modality: 'Hình thức', f_capacity: 'Sức chứa', f_enrollment_status: 'Trạng thái ghi danh',
+    f_description: 'Mô tả',
+    f_start_date: 'Ngày bắt đầu', f_end_date: 'Ngày kết thúc', f_teachers: 'Giảng viên', f_order_index: 'Thứ tự',
+    f_room: 'Phòng học', f_day_of_week: 'Thứ', f_start_time: 'Giờ bắt đầu', f_end_time: 'Giờ kết thúc',
+    f_recurrence: 'Lặp lại', f_valid_from: 'Có hiệu lực từ', f_valid_to: 'Đến',
+    f_status: 'Trạng thái',
+    col_dept: 'Ngành', col_teacher: 'Giảng viên', col_schedule: 'Lịch học',
+    btn_add_dept: 'Thêm ngành', btn_add_program: 'Thêm chương trình', btn_add_course: 'Thêm khóa học', btn_add_class: 'Thêm lớp', btn_add_room: 'Thêm phòng', btn_add_schedule: 'Thêm buổi học',
+    modal_add_dept: 'Thêm ngành', modal_add_program: 'Thêm chương trình', modal_add_course: 'Thêm khóa học', modal_add_class: 'Thêm lớp học', modal_add_room: 'Thêm phòng học', modal_add_schedule: 'Thêm buổi học',
+    modal_edit_dept: 'Sửa ngành', modal_edit_program: 'Sửa chương trình', modal_edit_course: 'Sửa khóa học', modal_edit_class: 'Sửa lớp học', modal_edit_room: 'Sửa phòng học',
+    dept_status: 'Trạng thái', st_draft: 'Nháp', st_open: 'Đang mở', st_closed: 'Đã đóng', st_full: 'Hết chỗ', st_archived: 'Đã lưu trữ',
+    no_depts: 'Chưa có ngành nào', no_programs: 'Chưa có chương trình nào', no_courses: 'Chưa có khóa học nào', no_classes: 'Chưa có lớp nào', no_schedules: 'Chưa có lịch học',
+    toast_dept_created: '✅ Đã tạo ngành', toast_program_created: '✅ Đã tạo chương trình', toast_course_created: '✅ Đã tạo khóa học', toast_class_created: '✅ Đã tạo lớp', toast_room_created: '✅ Đã tạo phòng',
+    toast_dept_updated: '✅ Đã cập nhật ngành', toast_program_updated: '✅ Đã cập nhật chương trình', toast_course_updated: '✅ Đã cập nhật khóa học', toast_class_updated: '✅ Đã cập nhật lớp', toast_room_updated: '✅ Đã cập nhật phòng',
+    toast_schedule_created: '✅ Đã thêm buổi học', toast_schedule_deleted: '✅ Đã xóa buổi học',
+    day_1: 'Chủ nhật', day_2: 'Thứ 2', day_3: 'Thứ 3', day_4: 'Thứ 4', day_5: 'Thứ 5', day_6: 'Thứ 6', day_7: 'Thứ 7',
+    class_detail: 'Chi tiết lớp', sched_title: 'Lịch học', opt_none: '— Không chọn —',
+    mod_offline: 'Offline', mod_online: 'Online', mod_hybrid: 'Hybrid', mod_flexible: 'Linh hoạt',
+    rec_weekly: 'Hàng tuần', rec_biweekly: '2 tuần/lần', rec_once: '1 lần',
   },
   en: {
     org_name: 'ABC Language Center',
@@ -443,5 +489,28 @@ export const I18N: Record<'vi' | 'en', AdminDict> = {
     f_logo_url: 'Logo (URL)', f_slogan: 'Slogan', f_brand_color: 'Brand color',
     f_opened_at: 'Opening date', f_closed_at: 'Closing date', f_note: 'Note',
     col_contact: 'Contact', col_opened: 'Opened',
+    // Academic (T041–T043)
+    page_sub_academic: 'Departments, programs, courses & classes',
+    tab_dept: 'Departments', tab_program: 'Programs', tab_course: 'Courses', tab_class: 'Classes',
+    f_department: 'Department', f_program: 'Program', f_course: 'Course',
+    f_duration_months: 'Duration (months)', f_modality: 'Modality', f_capacity: 'Capacity', f_enrollment_status: 'Enrollment status',
+    f_description: 'Description',
+    f_start_date: 'Start date', f_end_date: 'End date', f_teachers: 'Teachers', f_order_index: 'Order',
+    f_room: 'Room', f_day_of_week: 'Day', f_start_time: 'Start time', f_end_time: 'End time',
+    f_recurrence: 'Recurrence', f_valid_from: 'Valid from', f_valid_to: 'Until',
+    f_status: 'Status',
+    col_dept: 'Department', col_teacher: 'Teacher', col_schedule: 'Schedule',
+    btn_add_dept: 'Add department', btn_add_program: 'Add program', btn_add_course: 'Add course', btn_add_class: 'Add class', btn_add_room: 'Add room', btn_add_schedule: 'Add session',
+    modal_add_dept: 'Add department', modal_add_program: 'Add program', modal_add_course: 'Add course', modal_add_class: 'Add class', modal_add_room: 'Add room', modal_add_schedule: 'Add session',
+    modal_edit_dept: 'Edit department', modal_edit_program: 'Edit program', modal_edit_course: 'Edit course', modal_edit_class: 'Edit class', modal_edit_room: 'Edit room',
+    dept_status: 'Status', st_draft: 'Draft', st_open: 'Open', st_closed: 'Closed', st_full: 'Full', st_archived: 'Archived',
+    no_depts: 'No departments yet', no_programs: 'No programs yet', no_courses: 'No courses yet', no_classes: 'No classes yet', no_schedules: 'No schedules yet',
+    toast_dept_created: '✅ Department created', toast_program_created: '✅ Program created', toast_course_created: '✅ Course created', toast_class_created: '✅ Class created', toast_room_created: '✅ Room created',
+    toast_dept_updated: '✅ Department updated', toast_program_updated: '✅ Program updated', toast_course_updated: '✅ Course updated', toast_class_updated: '✅ Class updated', toast_room_updated: '✅ Room updated',
+    toast_schedule_created: '✅ Session added', toast_schedule_deleted: '✅ Session deleted',
+    day_1: 'Sunday', day_2: 'Monday', day_3: 'Tuesday', day_4: 'Wednesday', day_5: 'Thursday', day_6: 'Friday', day_7: 'Saturday',
+    class_detail: 'Class detail', sched_title: 'Schedule', opt_none: '— None —',
+    mod_offline: 'Offline', mod_online: 'Online', mod_hybrid: 'Hybrid', mod_flexible: 'Flexible',
+    rec_weekly: 'Weekly', rec_biweekly: 'Biweekly', rec_once: 'Once',
   },
 };

@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import configuration from './config/configuration';
+import { AcademicModule } from './modules/academic/academic.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AuthzGuard } from './modules/auth/authz.guard';
 import { JwtAuthGuard } from './modules/auth/jwt-auth.guard';
@@ -40,6 +41,7 @@ import { UsersModule } from './modules/users/users.module';
       }),
     }),
     AuthModule,
+    AcademicModule,
     HealthModule,
     LicenseModule,
     OrgModule,

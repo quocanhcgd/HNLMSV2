@@ -249,40 +249,40 @@ const TASKS=[
 
 /* ---------- Phase 5 Academic W10-12 ---------- */
 {id:"T038",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Backend",title:"Academic entities",owner:"Dev1",est:3,deps:["T005"],
- input:["T005","03-data-model.md Academic"],
- steps:["departments, programs, courses, classes","Quan hệ dept→program→course→class"],
- output:["4 bảng + quan hệ"],
- dod:["CRUD cơ bản"]},
+ input:["T005","03-data-model.md Academic","04-database-schema.md §6"],
+ steps:["departments, programs, courses, classes","Quan hệ dept→program→course→class","rooms + class_teachers + schedules","migration 1787800000004 + 0005 (thay bảng courses LEGACY cũ, drop CASCADE lessons/assignments/... chưa dùng)","seed permission program:read/class:read"],
+ output:["7 bảng + quan hệ"],
+ dod:["CRUD cơ bản","Migrate DB sạch (bảng academic mới)"]},
 
 {id:"T039",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Backend",title:"Schedule conflict detection",owner:"Dev1",est:2,deps:["T038"],
  input:["T038","02-spec.md FR-008"],
- steps:["Service kiểm teacher/room trùng","Query overlapping time"],
+ steps:["Service kiểm teacher/room trùng","Query overlapping time","So trùng CHÍNH XÁC: teacher/room + weekday + date-range + time-range overlap (bỏ exclusion DB thô gây false-positive — D9)","409 kèm message lớp/giờ trùng"],
  output:["Service chống trùng lịch"],
- dod:["Chặn trùng teacher/room/time"]},
+ dod:["Chặn trùng teacher/room/time","Verify 409 khi chạm giờ, 201 khi khác giờ/ngày"]},
 
 {id:"T040",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Backend",title:"Academic CRUD API",owner:"Dev1",est:3,deps:["T038","T039"],
  input:["T038","T039","05-api/api-spec.yaml"],
- steps:["/api/departments, /programs, /courses, /classes","Branch-scoped"],
+ steps:["/api/departments, /programs, /courses, /classes","+ /rooms + /classes/:id/schedules (GET/POST/DELETE)","Branch-scoped: classes/rooms lọc theo scope (T034+B), departments/programs/courses org-wide","Phân quyền: program:read/create/update, class:read/create/update, schedule:manage","DEVIATION: /courses + PUT + /rooms thêm ngoài api-spec (theo DDL §6)"],
  output:["API academic"],
- dod:["Branch-scope enforce"]},
+ dod:["Branch-scope enforce","Verify 22/22 (CRUD + 409 + scope BM + student 403)"]},
 
 {id:"T041",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Frontend",title:"Dept & Program mgmt",owner:"Dev2",est:2,deps:["T040"],
- input:["T040"],
- steps:["CRUD /academic/departments, /academic/programs"],
- output:["Trang dept + program"],
- dod:["CRUD từ UI"]},
+ input:["T040","mockup 02 nav_academic (không có screen — thiết kế theo design system)"],
+ steps:["Trang /academic 4 tab (Ngành/Chương trình/Khóa học/Lớp học)","CRUD ngành + chương trình (select ngành, duration)","i18n vi/en"],
+ output:["Tab dept + program"],
+ dod:["CRUD từ UI","E2E 7/7 (tạo chuỗi dept→program→course→class→schedule + 409)"]},
 
 {id:"T042",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Frontend",title:"Course management",owner:"Dev2",est:2,deps:["T040"],
  input:["T040"],
- steps:["List + form course, link program"],
- output:["Trang /academic/courses"],
+ steps:["List + form course, link program","order_index, description"],
+ output:["Tab /academic/courses"],
  dod:["CRUD course"]},
 
 {id:"T043",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Frontend",title:"Class management",owner:"Dev2",est:3,deps:["T040"],
  input:["T040"],
- steps:["List class, create form, assign teacher","Schedule picker, capacity, teacher selector"],
- output:["Trang /academic/classes"],
- dod:["CRUD class + assign teacher"]},
+ steps:["List class (lọc branch), create form, assign teacher (multi)","Detail modal: thông tin + giảng viên + lịch học","Thêm/xóa buổi học — conflict 409 hiện toast message"],
+ output:["Tab /academic/classes"],
+ dod:["CRUD class + assign teacher + schedule"]},
 
 {id:"T044",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Backend",title:"Student entity",owner:"Dev1",est:1,deps:["T005"],
  input:["T005","03-data-model.md Student"],
@@ -493,7 +493,7 @@ const STATUS_LABEL={todo:'🔘 Chưa',in_progress:'⏳ Đang',done:'✅ Xong',bl
 let state={status:{},filter:'all',owner:'all',phase:'all'};
 /* Trạng thái mặc định — tự đồng bộ theo milestone (khớp docs/09-planning/tracker-state-export.json).
    localStorage ghi đè khi user tự chấm; các key chưa có trong localStorage sẽ lấy giá trị mặc định này. */
-const DEFAULT_STATUS={T001:'done',T002:'done',T003:'done',T004:'done',T005:'done',T006:'done',T007:'done',T011:'done',T012:'done',T013:'done',T015:'done',T016:'done',T017:'done',T018:'done',T019:'done',T020:'done',T027:'done',T028:'done',T029:'done',T030:'done',T031:'done',T032:'done',T033:'done',T034:'done',T035:'done',T036:'done',T037:'done',T067:'done'};
+const DEFAULT_STATUS={T001:'done',T002:'done',T003:'done',T004:'done',T005:'done',T006:'done',T007:'done',T011:'done',T012:'done',T013:'done',T015:'done',T016:'done',T017:'done',T018:'done',T019:'done',T020:'done',T027:'done',T028:'done',T029:'done',T030:'done',T031:'done',T032:'done',T033:'done',T034:'done',T035:'done',T036:'done',T037:'done',T038:'done',T039:'done',T040:'done',T041:'done',T042:'done',T043:'done',T067:'done'};
 function load(){try{const s=JSON.parse(localStorage.getItem(STORE_KEY));if(s)state=Object.assign(state,s);}catch(e){}state.status=Object.assign({},DEFAULT_STATUS,state.status||{});}
 function save(){localStorage.setItem(STORE_KEY,JSON.stringify(state));}
 function esc(x){return (x||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
