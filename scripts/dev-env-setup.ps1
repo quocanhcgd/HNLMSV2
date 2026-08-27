@@ -146,14 +146,29 @@ Write-Ok "Đã chuyển quyền sở hữu educ_lms (DB + schema public + bảng
 # Extension + schema + seed (chạy với role lms)
 $env:PGPASSWORD = $lmsPassPlain
 $hasSchema = "$(& psql -U lms -h 127.0.0.1 -p 5432 -d educ_lms -tAc "SELECT to_regclass('public.users')")".Trim()
+$seedRows = '0'
+if ($hasSchema -ne '') { $seedRows = "$(& psql -U lms -h 127.0.0.1 -p 5432 -d educ_lms -tAc "SELECT count(*) FROM lessons")".Trim() }
 if ($hasSchema -eq '') {
     & psql -U lms -h 127.0.0.1 -p 5432 -d educ_lms -v ON_ERROR_STOP=1 -f $schema
     if ($LASTEXITCODE -ne 0) { throw "Lỗi khi chạy lms-schema.sql" }
     & psql -U lms -h 127.0.0.1 -p 5432 -d educ_lms -v ON_ERROR_STOP=1 -f $seed
     if ($LASTEXITCODE -ne 0) { throw "Lỗi khi chạy lms-seed.sql" }
     Write-Ok "Schema + seed đã nạp vào educ_lms"
+} elseif ($seedRows -eq '0') {
+    Write-Warn "Phát hiện seed dở dang (schema có nhưng bảng lessons trống) - tạo lại database sạch để nạp đầy đủ..."
+    $env:PGPASSWORD = $pgPassPlain
+    & psql -U $pgUser -h 127.0.0.1 -p 5432 -d postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='educ_lms' AND pid <> pg_backend_pid();" | Out-Null
+    & psql -U $pgUser -h 127.0.0.1 -p 5432 -d postgres -v ON_ERROR_STOP=1 -c "DROP DATABASE educ_lms;"
+    & psql -U $pgUser -h 127.0.0.1 -p 5432 -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE educ_lms OWNER lms ENCODING 'UTF8' TEMPLATE template0"
+    if ($LASTEXITCODE -ne 0) { throw "Tạo lại database thất bại" }
+    $env:PGPASSWORD = $lmsPassPlain
+    & psql -U lms -h 127.0.0.1 -p 5432 -d educ_lms -v ON_ERROR_STOP=1 -f $schema
+    if ($LASTEXITCODE -ne 0) { throw "Lỗi khi chạy lms-schema.sql (sau khi tạo lại)" }
+    & psql -U lms -h 127.0.0.1 -p 5432 -d educ_lms -v ON_ERROR_STOP=1 -f $seed
+    if ($LASTEXITCODE -ne 0) { throw "Lỗi khi chạy lms-seed.sql (sau khi tạo lại)" }
+    Write-Ok "Đã tạo lại educ_lms sạch + nạp schema + seed đầy đủ"
 } else {
-    Write-Ok "Schema đã tồn tại trong educ_lms - bỏ qua nạp lại (muốn nạp lại từ đầu: DROP DATABASE rồi chạy lại script)"
+    Write-Ok "Schema + seed đã tồn tại - bỏ qua (muốn nạp lại từ đầu: DROP DATABASE educ_lms rồi chạy lại script)"
 }
 Remove-Item Env:PGPASSWORD
 
