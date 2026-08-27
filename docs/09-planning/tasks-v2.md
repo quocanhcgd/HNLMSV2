@@ -37,47 +37,47 @@ team: "2 Full-stack Developers"
 
 ### Setup & Infrastructure
 
-- [ ] **T001** [DevOps] Initialize monorepo structure
+- [x] **T001** [DevOps] Initialize monorepo structure
       - Estimate: 1 day
       - Owner: Dev1
       - Deliverable: `apps/`, `packages/`, `infra/` folders with package.json
       - Notes: pnpm workspace, TypeScript 5.x, ESLint, Prettier
 
-- [ ] **T002** [Frontend] Setup Vite + React 19 project in `apps/web`
+- [x] **T002** [Frontend] Setup Vite + React 19 project in `apps/web`
       - Estimate: 1 day
       - Owner: Dev2
       - Dependencies: T001
       - Deliverable: Working dev server with HMR
       - Stack: Vite 5.x, React 19, React Router 6.x
 
-- [ ] **T003** [Frontend] Install Ant Design 5.x + Ant Design Pro
+- [x] **T003** [Frontend] Install Ant Design 5.x + Ant Design Pro
       - Estimate: 1 day
       - Owner: Dev2
       - Dependencies: T002
       - Deliverable: ProLayout working with sample menu
       - Components: antd, @ant-design/pro-components
 
-- [ ] **T004** [Backend] Setup NestJS project in `apps/api`
+- [x] **T004** [Backend] Setup NestJS project in `apps/api`
       - Estimate: 1 day
       - Owner: Dev1
       - Dependencies: T001
       - Deliverable: API server responding to /health
       - Stack: NestJS 10.x, TypeORM, class-validator
 
-- [ ] **T005** [Backend] Setup PostgreSQL schema and TypeORM config
+- [x] **T005** [Backend] Setup PostgreSQL schema and TypeORM config
       - Estimate: 2 days
       - Owner: Dev1
       - Dependencies: T004
       - Deliverable: Database connection working, migrations runnable
       - Notes: Create `educ_lms` schema, migration scripts
 
-- [ ] **T006** [Backend] Setup Redis for caching and queues
+- [x] **T006** [Backend] Setup Redis for caching and queues
       - Estimate: 1 day
       - Owner: Dev1
       - Dependencies: T004
       - Deliverable: BullMQ queue working with test job
 
-- [ ] **T007** [Backend] Create worker process in `worker/`
+- [x] **T007** [Backend] Create worker process in `worker/`
       - Estimate: 1 day
       - Owner: Dev1
       - Dependencies: T006
