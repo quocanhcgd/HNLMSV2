@@ -6,6 +6,7 @@ import viVN from 'antd/locale/vi_VN';
 import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
 import App from './App';
+import './styles/tokens.css';
 
 dayjs.locale('vi');
 
@@ -14,7 +15,11 @@ if (!rootEl) throw new Error('#root not found');
 
 createRoot(rootEl).render(
   <StrictMode>
-    <ConfigProvider locale={viVN} theme={{ token: { colorPrimary: '#1677ff' } }}>
+    {/* Brand tokens theo mockups/ (đã thống nhất): primary #0d9488, secondary #10b981, accent #f59e0b */}
+    <ConfigProvider
+      locale={viVN}
+      theme={{ token: { colorPrimary: '#0d9488', borderRadius: 12, fontFamily: "'Inter', system-ui, sans-serif" } }}
+    >
       <BrowserRouter>
         <App />
       </BrowserRouter>

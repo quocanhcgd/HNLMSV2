@@ -1,0 +1,156 @@
+/* ============================================================
+   Design Tokens — nguồn duy nhất (docs/13-mockups/design-governance.md §2)
+   Light + Dark. KHÔNG hardcode màu trong code — dùng biến/class này.
+   ============================================================ */
+:root {
+  --primary: #0d9488;
+  --primary-light: #5eead4;
+  --secondary: #10b981;
+  --accent: #f59e0b;
+  --purple: #8b5cf6;
+  --pink: #ec4899;
+  --danger-text: #dc2626;
+  --bg-1: #ffffff;
+  --bg-2: #f9fafb;
+  --bg-3: #f3f4f6;
+  --text-1: #111827;
+  --text-2: #6b7280;
+  --text-3: #9ca3af;
+  --border: #e5e7eb;
+}
+
+html.dark {
+  --bg-1: #1e293b;
+  --bg-2: #0f172a;
+  --bg-3: #334155;
+  --text-1: #f1f5f9;
+  --text-2: #94a3b8;
+  --text-3: #64748b;
+  --border: #334155;
+}
+
+/* ---------- surface / text ---------- */
+.surface { background: var(--bg-1); }
+.soft { background: var(--bg-2); }
+.track { background: var(--bg-3); }
+.text-soft { color: var(--text-2); }
+.text-faint { color: var(--text-3); }
+
+/* ---------- brand gradient ---------- */
+.gradient-teal { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); }
+.login-bg { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); }
+.illustration-bg { background: linear-gradient(135deg, rgba(13, 148, 136, 0.08) 0%, rgba(16, 185, 129, 0.08) 100%); }
+
+/* ---------- card ---------- */
+.card {
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+/* ---------- button ---------- */
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: #fff;
+  padding: 0.65rem 1.25rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: all 0.3s;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(13, 148, 136, 0.3); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-outline {
+  border: 2px solid var(--border);
+  padding: 0.6rem 1.25rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  color: var(--text-2);
+  background: var(--bg-1);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.875rem;
+}
+.btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+/* ---------- input ---------- */
+.input-field {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--border);
+  border-radius: 0.75rem;
+  transition: all 0.3s;
+  font-size: 0.875rem;
+  background: var(--bg-1);
+  color: var(--text-1);
+}
+.input-field:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+}
+
+/* ---------- badge ---------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.badge-success { background: rgba(16, 185, 129, 0.15); color: var(--secondary); }
+.badge-warning { background: rgba(245, 158, 11, 0.15); color: var(--accent); }
+.badge-gray { background: var(--bg-3); color: var(--text-2); }
+.badge-blue { background: rgba(59, 130, 246, 0.12); color: #2563eb; }
+.badge-primary { background: rgba(13, 148, 136, 0.15); color: var(--primary); }
+.badge-danger { background: rgba(239, 68, 68, 0.12); color: var(--danger-text); }
+
+/* ---------- header controls (mockup 01) ---------- */
+.theme-btn {
+  width: 36px;
+  height: 34px;
+  border-radius: 0.5rem;
+  border: 2px solid var(--border);
+  background: var(--bg-1);
+  cursor: pointer;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- sidebar / nav (mockup AppShell — dùng cho layout sau) ---------- */
+.sidebar { background: var(--bg-1); border-right: 1px solid var(--border); }
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  margin: 0.25rem 0.5rem;
+  border-radius: 0.75rem;
+  transition: all 0.2s;
+  cursor: pointer;
+  color: var(--text-2);
+  font-size: 0.875rem;
+}
+.nav-item:hover { background: var(--bg-2); }
+.nav-item.active {
+  background: linear-gradient(135deg, rgba(13, 148, 136, 0.12) 0%, rgba(16, 185, 129, 0.12) 100%);
+  color: var(--primary);
+  font-weight: 600;
+}
+.nav-locked { opacity: 0.55; cursor: not-allowed; }
+
+/* ---------- login layout (mockup 01 — không dùng Tailwind, D4 = AntD) ---------- */
+.login-grid { display: grid; grid-template-columns: 1fr; }
+.login-illustration { display: none; }
+.md-hidden-brand { display: flex; }
+@media (min-width: 768px) {
+  .login-grid { grid-template-columns: 1fr 1fr; }
+  .login-illustration { display: flex; flex-direction: column; justify-content: center; padding: 3rem; }
+  .md-hidden-brand { display: none; }
+}
+.text-white { color: #fff; }
