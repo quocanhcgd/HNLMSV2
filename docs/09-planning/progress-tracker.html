@@ -491,7 +491,10 @@ const STORE_KEY='edulms_tracker_v1';
 const STATUS_ORDER=['todo','in_progress','done','blocked'];
 const STATUS_LABEL={todo:'🔘 Chưa',in_progress:'⏳ Đang',done:'✅ Xong',blocked:'⛔ Chặn'};
 let state={status:{},filter:'all',owner:'all',phase:'all'};
-function load(){try{const s=JSON.parse(localStorage.getItem(STORE_KEY));if(s)state=Object.assign(state,s);}catch(e){}}
+/* Trạng thái mặc định — tự đồng bộ theo milestone (khớp docs/09-planning/tracker-state-export.json).
+   localStorage ghi đè khi user tự chấm; các key chưa có trong localStorage sẽ lấy giá trị mặc định này. */
+const DEFAULT_STATUS={T001:'done',T002:'done',T003:'done',T004:'done',T005:'done',T006:'done',T007:'done',T011:'done',T012:'done',T013:'done',T016:'done'};
+function load(){try{const s=JSON.parse(localStorage.getItem(STORE_KEY));if(s)state=Object.assign(state,s);}catch(e){}state.status=Object.assign({},DEFAULT_STATUS,state.status||{});}
 function save(){localStorage.setItem(STORE_KEY,JSON.stringify(state));}
 function esc(x){return (x||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function taskPrompt(t){
@@ -555,7 +558,7 @@ function render(){
       <select onchange="setOwner(this.value)" class="text-sm border rounded px-2 py-1"><option value="all">All dev</option><option ${state.owner==='Dev1'?'selected':''}>Dev1</option><option ${state.owner==='Dev2'?'selected':''}>Dev2</option><option ${state.owner==='Both'?'selected':''}>Both</option></select>
     </div>
     <div class="mt-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">${list.map(card).join('')}</div>
-    <p class="text-xs text-gray-400 mt-6">State lưu localStorage; Export JSON để lưu/đồng bộ từ xa, Import khôi phục. Mỗi task có <b>Prompt</b> (context chuyển hội thoại mới) và <b>Quy trình</b> (mục tiêu/đầu vào/bước/đầu ra/DoD).</p>
+    <p class="text-xs text-gray-400 mt-6">State lưu localStorage; các task đã hoàn thành tự đồng bộ (DEFAULT_STATUS theo milestone). Export JSON để lưu/đồng bộ từ xa, Import khôi phục. Mỗi task có <b>Prompt</b> (context chuyển hội thoại mới) và <b>Quy trình</b> (mục tiêu/đầu vào/bước/đầu ra/DoD).</p>
   </div>`;
 }
 function showModal(html){document.getElementById('modalBox').innerHTML=html;document.getElementById('modal').classList.remove('hidden');}
