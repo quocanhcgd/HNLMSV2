@@ -9,6 +9,7 @@ import { AuthzGuard } from './modules/auth/authz.guard';
 import { JwtAuthGuard } from './modules/auth/jwt-auth.guard';
 import { HealthModule } from './modules/health/health.module';
 import { LicenseModule } from './modules/license/license.module';
+import { OrgModule } from './modules/org/org.module';
 import { QueueModule } from './modules/queue/queue.module';
 import { UsersModule } from './modules/users/users.module';
 
@@ -39,6 +40,7 @@ import { UsersModule } from './modules/users/users.module';
     AuthModule,
     HealthModule,
     LicenseModule,
+    OrgModule,
     QueueModule,
     UsersModule,
   ],

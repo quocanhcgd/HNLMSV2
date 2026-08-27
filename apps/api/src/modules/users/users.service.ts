@@ -163,7 +163,15 @@ export class UsersService {
     if (grant.effectiveTo && grant.effectiveTo <= grant.effectiveFrom) {
       throw new BadRequestException('effective_to phải sau effective_from');
     }
-    return this.scopeGrants.save(grant);
+    try {
+      return await this.scopeGrants.save(grant);
+    } catch (err) {
+      // FK: branch_id/class_id/student_id không tồn tại (T028 đã thêm FK branch)
+      if ((err as { code?: string }).code === '23503') {
+        throw new BadRequestException('branch_id/class_id/student_id không tồn tại');
+      }
+      throw err;
+    }
   }
 
   /** GET /users/{id}/scope-grants — danh sách scope (kể cả hết hạn để audit). */

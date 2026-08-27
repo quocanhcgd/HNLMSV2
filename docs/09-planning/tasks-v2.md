@@ -235,26 +235,29 @@ team: "2 Full-stack Developers"
 
 ### Organization Module
 
-- [ ] **T027** [Backend] Create Organization entity
+- [x] **T027** [Backend] Create Organization entity
       - Estimate: 1 day
       - Owner: Dev1
       - Dependencies: T005
       - Deliverable: organizations table, CRUD service
       - Fields: name, timezone, academic_year, settings (jsonb)
+      - Done: Organization entity + OrganizationService (org mặc định slug 'default', GET/PUT cấu hình); bảng đã có từ migration 1787798321679
 
-- [ ] **T028** [Backend] Create Branch entity
+- [x] **T028** [Backend] Create Branch entity
       - Estimate: 1 day
       - Owner: Dev1
       - Dependencies: T027
       - Deliverable: branches table, CRUD service
       - Fields: org_id, code, name, address, manager_id, status
+      - Done: migration 1787800000001 (branches + FK scope_grants.branch_id → branches); Branch entity + BranchesService (code unique trong org, manager tồn tại, archive = status inactive, soft delete)
 
-- [ ] **T029** [Backend] Organization API endpoints
+- [x] **T029** [Backend] Organization API endpoints
       - Estimate: 2 days
       - Owner: Dev1
       - Dependencies: T027, T028
       - Deliverable: GET/PUT /api/organization, GET/POST/PUT /api/branches
       - Authorization: Admin only
+      - Done: OrganizationController (/api/organization GET/PUT, /api/organization/branches GET/POST, /{id} GET/PUT); guard @RequirePermissions (org:read/update, branch:read/create/update — Admin '*' pass, Teacher/Student 403); scope-grant branch ảo → 400 (FK catch)
 
 - [ ] **T030** [Frontend] Organization settings page
       - Estimate: 2 days
