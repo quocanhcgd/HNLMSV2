@@ -29,6 +29,23 @@ export interface AdminDict {
   al_class: string; al_class_sub: string;
   qa_title: string; qa_enroll: string; qa_class: string; qa_fee: string; qa_report: string;
   toast_notif: string; toast_view_all: string; toast_demo: string; toast_switch: string;
+  // --- License screen (mockup 01 appScreen) ---
+  crumb_settings: string; page_license: string; page_sub_lic: string;
+  lic_title: string; lic_status: string; lic_active: string; lic_id: string; lic_type: string;
+  lic_perpetual: string; lic_support: string; lic_signature: string; lic_valid: string; lic_activated: string;
+  btn_relicense: string; btn_addon: string;
+  con_title: string; con_students: string; con_branches: string; con_storage: string; ok: string;
+  addon_title: string; col_addon: string; col_expiry: string; col_action: string;
+  addon_crm: string; addon_crm_desc: string; addon_assess: string; addon_assess_desc: string;
+  addon_online: string; addon_online_desc: string; addon_hrm: string; addon_hrm_desc: string; addon_note: string;
+  modal_addon_title: string; serial_key: string; serial_ph: string;
+  opt_crm_price: string; opt_assess_price: string; opt_online_price: string; opt_hrm_price: string;
+  cancel: string; activate: string;
+  modal_relic_title: string; dropzone_title: string; dropzone_sub: string; upload_none: string; apply_btn: string;
+  status_updated: string; lic_v2: string; max_students: string; max_branches: string;
+  activated_badge: string; dash: string;
+  toast_serial: string; toast_serial_ok: string; toast_upload_ok: string; toast_applied: string;
+  upload_progress: string; upload_done: string; verifying: string;
 }
 
 export const I18N: Record<'vi' | 'en', AdminDict> = {
@@ -61,6 +78,38 @@ export const I18N: Record<'vi' | 'en', AdminDict> = {
     qa_title: '⚡ Thao tác nhanh', qa_enroll: 'Ghi danh học viên', qa_class: 'Tạo lớp mới', qa_fee: 'Thu học phí', qa_report: 'Báo cáo doanh thu',
     toast_notif: 'Demo: 3 thông báo chưa đọc', toast_view_all: 'Demo: đi tới màn hình Ghi danh (US4)',
     toast_demo: 'Demo: ', toast_switch: 'Đã chuyển phạm vi dữ liệu sang: ',
+    // License screen (mockup 01)
+    crumb_settings: 'Cài đặt', page_license: 'License & Kích hoạt',
+    page_sub_lic: 'Trạng thái license, ràng buộc và addon',
+    lic_title: '🔑 Trạng thái License',
+    lic_status: 'Trạng thái', lic_active: '● Hoạt động', lic_id: 'License ID', lic_type: 'Loại license',
+    lic_perpetual: 'Perpetual (vĩnh viễn)', lic_support: 'Hỗ trợ đến', lic_signature: 'Chữ ký',
+    lic_valid: 'Hợp lệ (RSA-2048)', lic_activated: 'Ngày kích hoạt',
+    btn_relicense: 'Cập nhật license mới', btn_addon: 'Kích hoạt addon',
+    con_title: '📏 Ràng buộc (Constraints)', con_students: 'Học viên tối đa', con_branches: 'Chi nhánh tối đa', con_storage: 'Lưu trữ (GB)', ok: 'OK',
+    addon_title: '🧩 Addons', col_addon: 'Addon', col_expiry: 'Hết hạn', col_action: 'Thao tác',
+    addon_crm: 'Tuyển sinh & CRM', addon_crm_desc: 'Landing, lead, tư vấn',
+    addon_assess: 'Đánh giá & Kiểm tra', addon_assess_desc: 'Thi đầu vào, mock test',
+    addon_online: 'Lớp học Online', addon_online_desc: 'Zoom / Meet / Teams',
+    addon_hrm: 'Nhân sự & Lương', addon_hrm_desc: 'Chấm công, payroll',
+    addon_note: 'ℹ️ Addon hết hạn sẽ vào grace period 30 ngày (read-only), sau đó tự động tắt — dữ liệu không bị xóa.',
+    modal_addon_title: 'Kích hoạt Addon', serial_key: 'Serial key', serial_ph: 'CRM-XXXX-XXXX-XXXX-XXXX',
+    opt_crm_price: 'Tuyển sinh & CRM — 500$/năm', opt_assess_price: 'Đánh giá & Kiểm tra — 600$/năm',
+    opt_online_price: 'Lớp học Online — 400$/năm', opt_hrm_price: 'Nhân sự & Lương — 800$/năm',
+    cancel: 'Hủy', activate: 'Kích hoạt',
+    modal_relic_title: 'Cập nhật License', dropzone_title: 'Kéo thả license file (.json) hoặc bấm để chọn',
+    dropzone_sub: 'Hệ thống xác minh chữ ký offline — không gửi dữ liệu ra ngoài',
+    upload_none: 'Chưa có file được chọn', apply_btn: 'Xác minh & áp dụng',
+    status_updated: '● Hoạt động (đã cập nhật)', lic_v2: 'LIC-2026-001-ABC-EDU (v2)',
+    max_students: 'Học viên tối đa', max_branches: 'Chi nhánh tối đa',
+    activated_badge: 'Đã kích hoạt', dash: '—',
+    toast_serial: 'Vui lòng nhập serial key (demo: CRM-A1B2-C3D4-E5F6-G7H8)',
+    toast_serial_ok: '✅ Addon "Tuyển sinh & CRM" kích hoạt thành công',
+    toast_upload_ok: 'Tải license thành công — chữ ký hợp lệ',
+    toast_applied: '✅ License mới đã áp dụng — constraints được nâng cấp',
+    upload_progress: 'Đang tải file license-abc-edu-2026.json (1.2 KB)...',
+    upload_done: '✅ File hợp lệ — license-abc-edu-2026.json (chữ ký RSA-2048 OK)',
+    verifying: 'Đang xác minh chữ ký & áp dụng constraints...',
   },
   en: {
     org_name: 'ABC Language Center',
@@ -91,5 +140,37 @@ export const I18N: Record<'vi' | 'en', AdminDict> = {
     qa_title: '⚡ Quick actions', qa_enroll: 'Enroll student', qa_class: 'New class', qa_fee: 'Collect tuition', qa_report: 'Revenue report',
     toast_notif: 'Demo: 3 unread notifications', toast_view_all: 'Demo: go to Enrollment screen (US4)',
     toast_demo: 'Demo: ', toast_switch: 'Data scope switched to: ',
+    // License screen (mockup 01)
+    crumb_settings: 'Settings', page_license: 'License & Activation',
+    page_sub_lic: 'License status, constraints and addons',
+    lic_title: '🔑 License Status',
+    lic_status: 'Status', lic_active: '● Active', lic_id: 'License ID', lic_type: 'License type',
+    lic_perpetual: 'Perpetual (lifetime)', lic_support: 'Support until', lic_signature: 'Signature',
+    lic_valid: 'Valid (RSA-2048)', lic_activated: 'Activated on',
+    btn_relicense: 'Update license', btn_addon: 'Activate addon',
+    con_title: '📏 Constraints', con_students: 'Max students', con_branches: 'Max branches', con_storage: 'Storage (GB)', ok: 'OK',
+    addon_title: '🧩 Addons', col_addon: 'Addon', col_expiry: 'Expires', col_action: 'Actions',
+    addon_crm: 'Admissions & CRM', addon_crm_desc: 'Landing pages, leads, consulting',
+    addon_assess: 'Assessment & Testing', addon_assess_desc: 'Placement tests, mock exams',
+    addon_online: 'Online Classes', addon_online_desc: 'Zoom / Meet / Teams',
+    addon_hrm: 'HR & Payroll', addon_hrm_desc: 'Attendance, payroll',
+    addon_note: 'ℹ️ Expired addons enter a 30-day grace period (read-only), then disable automatically — data is never deleted.',
+    modal_addon_title: 'Activate Addon', serial_key: 'Serial key', serial_ph: 'CRM-XXXX-XXXX-XXXX-XXXX',
+    opt_crm_price: 'Admissions & CRM — $500/yr', opt_assess_price: 'Assessment & Testing — $600/yr',
+    opt_online_price: 'Online Classes — $400/yr', opt_hrm_price: 'HR & Payroll — $800/yr',
+    cancel: 'Cancel', activate: 'Activate',
+    modal_relic_title: 'Update License', dropzone_title: 'Drag & drop license file (.json) or click to select',
+    dropzone_sub: 'Verified offline — no data leaves your server',
+    upload_none: 'No file selected', apply_btn: 'Verify & apply',
+    status_updated: '● Active (updated)', lic_v2: 'LIC-2026-001-ABC-EDU (v2)',
+    max_students: 'Max students', max_branches: 'Max branches',
+    activated_badge: 'Activated', dash: '—',
+    toast_serial: 'Please enter a serial key (demo: CRM-A1B2-C3D4-E5F6-G7H8)',
+    toast_serial_ok: '✅ Addon "Admissions & CRM" activated',
+    toast_upload_ok: 'License uploaded — signature valid',
+    toast_applied: '✅ New license applied — constraints upgraded',
+    upload_progress: 'Uploading license-abc-edu-2026.json (1.2 KB)...',
+    upload_done: '✅ Valid file — license-abc-edu-2026.json (RSA-2048 signature OK)',
+    verifying: 'Verifying signature & applying constraints...',
   },
 };

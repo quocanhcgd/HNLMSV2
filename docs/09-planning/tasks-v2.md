@@ -134,10 +134,14 @@ team: "2 Full-stack Developers"
       - Deliverable: Guards for max_students, max_branches
       - Throws: LicenseConstraintExceededException
 
-- [ ] **T015** [Frontend] License status UI (license mặc định)
+- [x] **T015** [Frontend] License status UI (license mặc định)
       - Estimate: 1 day
       - Owner: Dev2
-      - Deliverable: Trang /settings/license hiển thị "Default (dev/evaluation)"; nút kết nối hệ thống quản lý license (disabled/FUTURE)
+      - Deliverable: Trang /license theo docs/13-mockups/01-login-license.html (appScreen): status card (steps + kv box),
+        constraints (3 progress bars), addons table, modal Kích hoạt Addon (serial), modal Cập nhật License (upload dropzone)
+      - Deviation: route /license (mockup) thay vì /settings/license (task cũ); D9 giữ nguyên — LicenseService stub,
+        không gọi /license/* (FUTURE, rule 5.2); nút upload là demo như mockup
+      - Verify: design verification audit — License 72/72 computed style khớp (DIFF=0)
 
 ### Authentication
 

@@ -135,6 +135,52 @@ const MOBILE_DASH = [
   ['#st_students', 'font-size'],
 ];
 
+/** ===== LICENSE SCREEN (mockup 01 appScreen) ===== */
+const CHECKS_LIC = [
+  // welcome card
+  ['.p-8 .card', 'padding-top'], ['.p-8 .card', 'border-radius'], ['.p-8 .card', 'background-color'],
+  ['.p-8 .card h3', 'font-size'], ['.p-8 .card h3', 'font-weight'],
+  // steps
+  ['.step-dot', 'width'], ['.step-dot', 'height'], ['.step-dot', 'border-radius'], ['.step-dot', 'font-size'],
+  ['.step-dot.gradient-teal', 'background-image'],
+  ['.step-line', 'height'], ['.step-line', 'background-color'], ['.step-line', 'margin-left'], ['.step-line', 'margin-right'],
+  // kv boxes
+  ['#welcomeBox .kv-box', 'padding-top'], ['#welcomeBox .kv-box', 'border-radius'], ['#welcomeBox .kv-box', 'background-color'],
+  ['#welcomeBox .kv-box', 'font-size'], ['#welcomeBox .kv-box', 'margin-top'],
+  ['#welcomeBox .kv-box span', 'color'], ['#welcomeBox .kv-box b', 'font-weight'],
+  ['#welcomeBox .badge-success', 'color'], ['#welcomeBox .badge-success', 'background-color'],
+  ['#welcomeBox .badge', 'font-size'], ['#welcomeBox .badge', 'padding-left'], ['#welcomeBox .badge', 'border-radius'],
+  // welcome buttons
+  ['.flex.space-x-3.mt-5 .btn-outline', 'font-size'], ['.flex.space-x-3.mt-5 .btn-outline', 'padding-top'],
+  ['.flex.space-x-3.mt-5 .btn-outline', 'border-width'], ['.flex.space-x-3.mt-5 .btn-outline', 'border-radius'],
+  ['.flex.space-x-3.mt-5 .btn-primary', 'font-size'], ['.flex.space-x-3.mt-5 .btn-primary', 'padding-top'],
+  // constraints
+  ['.track', 'height'], ['.track', 'border-radius'], ['.track', 'background-color'],
+  ['.track > div', 'height'], ['.track > div', 'width'], ['.track > div', 'border-radius'],
+  ['.text-xs.mt-1\\.5', 'font-size'], ['.text-xs.mt-1\\.5', 'color'],
+  ['.badge-blue', 'color'], ['.badge-blue', 'background-color'],
+  ['.grid.md\\:grid-cols-3 > div > .flex.justify-between.text-sm', 'font-size'],
+  // addons table
+  ['#addonRows td', 'padding-top'], ['#addonRows td', 'padding-left'], ['#addonRows td', 'font-size'],
+  ['#addonRows .badge-success', 'color'], ['#addonRows .badge-success', 'background-color'],
+  ['#addonRows .badge-warning', 'color'], ['#addonRows .badge-warning', 'background-color'],
+  ['#addonRows .badge-gray', 'color'], ['#addonRows .badge-gray', 'background-color'],
+  ['#addonRows .btn-primary', 'font-size'], ['#addonRows .btn-primary', 'padding-top'], ['#addonRows .btn-primary', 'padding-left'],
+  ['thead th', 'font-size'], ['thead th', 'font-weight'], ['thead th', 'padding-top'],
+  ['.card p.text-xs.mt-4', 'font-size'], ['.card p.text-xs.mt-4', 'color'],
+  // modals (ẩn — hidden class như mockup)
+  ['#addonModal', 'display'], ['#relicModal', 'display'],
+  ['#addonModal .card', 'width'], ['#addonModal .card', 'padding-top'], ['#addonModal .card', 'border-radius'],
+  ['#relicModal .dropzone', 'border-width'], ['#relicModal .dropzone', 'border-radius'], ['#relicModal .dropzone', 'padding-top'],
+  ['#relicModal .dropzone', 'border-style'], ['#relicModal .dropzone', 'border-color'],
+  ['#relicModal .btn-primary:disabled', 'opacity'],
+];
+const MOBILE_LIC = [
+  ['.grid.grid-cols-1.md\\:grid-cols-3', 'grid-template-columns'],
+  ['#welcomeBox .kv-box', 'font-size'],
+  ['.step-dot', 'width'],
+];
+
 /** đo 1 trang */
 async function collect(page, checks) {
   const rows = {};
@@ -152,7 +198,7 @@ async function collect(page, checks) {
 }
 
 /** mở 1 cặp (mockup + app), đo desktop + mobile, diff */
-async function audit(browser, { mockupFile, appPath, needLogin, waitSel, checks, mobileChecks, name }) {
+async function audit(browser, { mockupFile, appPath, needLogin, mockupLogin, appFinalPath, waitSel, checks, mobileChecks, name }) {
   const mockupUrl = pathToFileURL(resolve(ROOT, 'docs/13-mockups', mockupFile)).href;
 
   // --- Mockup ---
@@ -160,6 +206,11 @@ async function audit(browser, { mockupFile, appPath, needLogin, waitSel, checks,
   const pageA = await ctxA.newPage();
   await pageA.goto(mockupUrl, { waitUntil: 'networkidle', timeout: 30000 });
   await pageA.evaluate(() => document.fonts.ready);
+  if (mockupLogin) {
+    // mockup 01: appScreen ẩn đến khi doLogin() — click login (giá trị đã prefill đúng)
+    await pageA.waitForSelector('#loginScreen .btn-primary', { timeout: 10000 });
+    await pageA.click('#loginScreen .btn-primary');
+  }
   await pageA.waitForSelector(waitSel, { timeout: 10000 });
   await pageA.waitForTimeout(500);
   const mockup = { ...(await collect(pageA, checks)), ...(await (async () => {
@@ -178,6 +229,11 @@ async function audit(browser, { mockupFile, appPath, needLogin, waitSel, checks,
     await pageB.fill('#loginEmail', 'admin@educenter.vn');
     await pageB.fill('#loginPass', 'admin123');
     await pageB.click('#loginScreen .btn-primary');
+    if (appFinalPath) {
+      // token access nằm trong memory → điều hướng full page, AuthProvider tự refresh qua cookie
+      await pageB.waitForTimeout(800);
+      await pageB.goto(APP_URL + appFinalPath, { waitUntil: 'networkidle', timeout: 30000 });
+    }
   }
   await pageB.evaluate(() => document.fonts.ready);
   await pageB.waitForSelector(waitSel, { timeout: 10000 });
@@ -219,7 +275,7 @@ function saveReport(r, slug) {
     '',
     `- Ngày chạy: ${new Date().toISOString()}`,
     '- Môi trường: Edge (channel msedge) headless · viewport 1280x900 + 390x844',
-    `- Mockup: \`docs/13-mockups/${slug === 'login' ? '01-login-license.html' : '02-admin-dashboard.html'}\` (file://) · App: \`${APP_URL}\``,
+    `- Mockup: \`docs/13-mockups/${slug === 'login' || slug === 'license' ? '01-login-license.html' : '02-admin-dashboard.html'}\` (file://) · App: \`${APP_URL}\``,
     '- Cách chạy lại: `node apps/web/scripts/verify-design.mjs` (cần API + web dev server đang chạy)',
     '',
     `## Kết quả: **${r.summary.ok}/${r.summary.total} khớp** · ${r.summary.diff} khác biệt`,
@@ -254,13 +310,26 @@ try {
     checks: CHECKS_DASH,
     mobileChecks: MOBILE_DASH,
   });
+  const rLic = await audit(browser, {
+    name: 'License (mockup 01 appScreen vs app /license)',
+    mockupFile: '01-login-license.html',
+    appPath: '/login',
+    needLogin: true,
+    mockupLogin: true,
+    appFinalPath: '/license',
+    waitSel: '#welcomeBox',
+    checks: CHECKS_LIC,
+    mobileChecks: MOBILE_LIC,
+  });
 
   printResult(rLogin);
   printResult(rDash);
+  printResult(rLic);
   saveReport(rLogin, 'login');
   saveReport(rDash, 'dashboard');
-  console.log(`Saved: ${resolve(OUT_DIR, 'report-{login,dashboard}.json')}`);
-  console.log(`Saved: ${resolve(OUT_DIR, 'design-verification-{login,dashboard}.md')}`);
+  saveReport(rLic, 'license');
+  console.log(`Saved: ${resolve(OUT_DIR, 'report-{login,dashboard,license}.json')}`);
+  console.log(`Saved: ${resolve(OUT_DIR, 'design-verification-{login,dashboard,license}.md')}`);
 } finally {
   await browser.close();
 }

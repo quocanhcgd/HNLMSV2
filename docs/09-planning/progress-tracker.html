@@ -108,10 +108,10 @@ const TASKS=[
  dod:["OpenAPI parse OK","Không route hoạt động ở prod"]},
 
 {id:"T015",phase:"P2",phaseName:"Auth",week:"4-5",pri:"Critical",group:"Frontend",title:"License status UI",owner:"Dev2",est:1,deps:["T013"],
- input:["T013","02-spec.md US0"],
- steps:["Trang /settings/license","Hiển thị Default (dev/evaluation)","Nút kết nối (disabled)"],
- output:["Trang license"],
- dod:["Hiển thị đúng status","Nút FUTURE disabled"]},
+ input:["T013","13-mockups/01-login-license.html (appScreen)"],
+ steps:["Trang /license (route theo mockup)","Status card + steps + kv box","Constraints (3 progress bars)","Addons table + modal addon (serial) + modal relicense (upload)","Design verification audit"],
+ output:["Trang license đầy đủ theo mockup 01"],
+ dod:["Khớp mockup 01","Audit computed style DIFF=0","D9: LicenseService stub, không gọi /license/*"]},
 
 {id:"T016",phase:"P2",phaseName:"Auth",week:"4-5",pri:"Critical",group:"Backend",title:"User entity + auth module",owner:"Dev1",est:2,deps:["T005"],
  input:["T005","03-data-model.md (User)"],
@@ -493,7 +493,7 @@ const STATUS_LABEL={todo:'🔘 Chưa',in_progress:'⏳ Đang',done:'✅ Xong',bl
 let state={status:{},filter:'all',owner:'all',phase:'all'};
 /* Trạng thái mặc định — tự đồng bộ theo milestone (khớp docs/09-planning/tracker-state-export.json).
    localStorage ghi đè khi user tự chấm; các key chưa có trong localStorage sẽ lấy giá trị mặc định này. */
-const DEFAULT_STATUS={T001:'done',T002:'done',T003:'done',T004:'done',T005:'done',T006:'done',T007:'done',T011:'done',T012:'done',T013:'done',T016:'done',T017:'done',T018:'done',T019:'done',T020:'done'};
+const DEFAULT_STATUS={T001:'done',T002:'done',T003:'done',T004:'done',T005:'done',T006:'done',T007:'done',T011:'done',T012:'done',T013:'done',T015:'done',T016:'done',T017:'done',T018:'done',T019:'done',T020:'done'};
 function load(){try{const s=JSON.parse(localStorage.getItem(STORE_KEY));if(s)state=Object.assign(state,s);}catch(e){}state.status=Object.assign({},DEFAULT_STATUS,state.status||{});}
 function save(){localStorage.setItem(STORE_KEY,JSON.stringify(state));}
 function esc(x){return (x||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}

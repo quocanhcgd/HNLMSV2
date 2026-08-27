@@ -75,13 +75,14 @@ const NAV_ADDON: NavItem[] = [
   },
 ];
 
-const HEADER_META: Record<string, { title: string; sub: string }> = {
-  '/dashboard': { title: 'page_dash', sub: 'page_sub' },
-  '/students': { title: 'nav_enroll', sub: '' },
-  '/finance': { title: 'nav_finance', sub: '' },
-  '/courses': { title: 'nav_academic', sub: '' },
-  '/classes': { title: 'nav_academic', sub: '' },
-  '/settings': { title: 'nav_users', sub: '' },
+const HEADER_META: Record<string, { title: string[]; sub: string }> = {
+  '/dashboard': { title: ['page_dash'], sub: 'page_sub' },
+  '/license': { title: ['crumb_settings', 'page_license'], sub: 'page_sub_lic' },
+  '/students': { title: ['nav_enroll'], sub: '' },
+  '/finance': { title: ['nav_finance'], sub: '' },
+  '/courses': { title: ['nav_academic'], sub: '' },
+  '/classes': { title: ['nav_academic'], sub: '' },
+  '/settings': { title: ['nav_users'], sub: '' },
 };
 
 function initialsOf(name: string): string {
@@ -99,11 +100,15 @@ function Shell() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const active = location.pathname === '/dashboard';
+  const activeKey = location.pathname === '/license' ? 'license' : location.pathname === '/dashboard' ? 'dashboard' : null;
 
   const go = (key: string) => {
     if (key === 'dashboard') {
       navigate('/dashboard');
+      return;
+    }
+    if (key === 'license') {
+      navigate('/license');
       return;
     }
     // mockup go(p): toast demo — chưa có màn hình thật
@@ -134,7 +139,7 @@ function Shell() {
     items.map((it) => (
       <div
         key={it.key}
-        className={`nav-item ${it.locked ? 'nav-locked' : ''}`}
+        className={`nav-item ${it.locked ? 'nav-locked' : ''} ${it.key === activeKey ? 'active' : ''}`}
         onClick={() => !it.locked && go(it.key)}
       >
         <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,7 +162,7 @@ function Shell() {
           </div>
         </div>
         <nav className="p-2 pt-3">
-          <div className={`nav-item ${active ? 'active' : ''}`} onClick={() => go('dashboard')}>
+          <div className={`nav-item ${activeKey === 'dashboard' ? 'active' : ''}`} onClick={() => go('dashboard')}>
             <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </svg>
@@ -177,7 +182,7 @@ function Shell() {
         <div className="surface border-b sticky top-0 z-10" style={{ borderColor: 'var(--border)' }}>
           <div className="px-8 py-4 flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold">{t(meta.title)}</h2>
+              <h2 className="text-xl font-bold">{meta.title.map((k) => t(k)).join(' / ')}</h2>
               <p className="text-sm text-soft">{t(meta.sub)}</p>
             </div>
             <div className="flex items-center space-x-3">
