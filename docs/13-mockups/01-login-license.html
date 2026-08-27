@@ -96,11 +96,11 @@
                 <p class="text-sm mb-8 text-soft" data-i18n="login_sub"></p>
                 <div id="loginError" class="hidden mb-4 text-sm font-semibold p-3 rounded-xl" style="background: rgba(239,68,68,.12); color: #dc2626;" data-i18n="login_error"></div>
                 <label class="block text-sm font-semibold mb-1.5" data-i18n="login_email"></label>
-                <input id="loginEmail" type="email" value="admin@edu.vn" class="input-field mb-4">
+                <input id="loginEmail" type="email" value="admin@educenter.vn" class="input-field mb-4">
                 <label class="block text-sm font-semibold mb-1.5" data-i18n="login_pass"></label>
                 <input id="loginPass" type="password" value="admin123" class="input-field mb-6">
                 <button class="btn-primary w-full py-3" onclick="doLogin()" data-i18n="login_btn"></button>
-                <p class="text-xs mt-5 text-center text-faint"><b>admin@edu.vn</b> / <b>admin123</b></p>
+                <p class="text-xs mt-5 text-center text-faint"><b>admin@educenter.vn</b> / <b>admin123</b></p>
             </div>
         </div>
     </div>
@@ -262,6 +262,9 @@
     var I18N = {
         vi: {
             hero_text: 'Hệ thống quản lý đào tạo đa chi nhánh — cài đặt on-premise, kích hoạt license offline, dữ liệu nằm hoàn toàn tại server của bạn.',
+            login_title: 'Chào mừng trở lại!', login_sub: 'Đăng nhập để tiếp tục hành trình học tập',
+            login_email: 'Email', login_pass: 'Mật khẩu', login_btn: 'Đăng nhập',
+            login_error: 'Email hoặc mật khẩu không đúng',
             org_name: 'Trung tâm Ngoại ngữ ABC',
             grp_admin: 'Quản trị', grp_biz: 'Nghiệp vụ', grp_addon: 'Addon',
             nav_dashboard: 'Dashboard', nav_org: 'Tổ chức & Chi nhánh', nav_license: 'License',
@@ -308,6 +311,9 @@
         },
         en: {
             hero_text: 'Multi-branch training management — on-premise, offline license activation, data stays entirely on your own server.',
+            login_title: 'Welcome Back!', login_sub: 'Sign in to continue your learning journey',
+            login_email: 'Email Address', login_pass: 'Password', login_btn: 'Sign In',
+            login_error: 'Invalid email or password',
             org_name: 'ABC Language Center',
             grp_admin: 'Administration', grp_biz: 'Operations', grp_addon: 'Addons',
             nav_dashboard: 'Dashboard', nav_org: 'Organization & Branches', nav_license: 'License',
@@ -443,7 +449,7 @@
     }
     function doLogin() {
         var e = document.getElementById('loginEmail').value.trim(), p = document.getElementById('loginPass').value;
-        if (e === 'admin@edu.vn' && p === 'admin123') {
+        if (e === 'admin@educenter.vn' && p === 'admin123') {
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('appScreen').classList.remove('hidden');
             toast(t('toast_login_ok'));

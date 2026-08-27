@@ -6,6 +6,7 @@ import viVN from 'antd/locale/vi_VN';
 import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
 import App from './App';
+import './styles/tailwind.css';
 import './styles/tokens.css';
 
 dayjs.locale('vi');
