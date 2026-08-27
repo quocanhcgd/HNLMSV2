@@ -10,7 +10,7 @@
 
 ## 1. Tổng quan & quy ước
 
-**Một database duy nhất mỗi installation** (`lms_database`), organization thường 1 record (D6).
+**Một database duy nhất mỗi installation** (`educ_lms`), organization thường 1 record (D6).
 
 | Quy ước | Giá trị |
 |---|---|

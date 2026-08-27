@@ -14,7 +14,7 @@
 | API | `lms-api` | 4001 (internal) | NestJS REST API |
 | Worker | `lms-worker` | — | BullMQ consumer + cron jobs |
 | Nginx | `nginx` | 80/443 | Reverse proxy + TLS + static |
-| PostgreSQL | `postgresql` | 5432 | `lms_database` |
+| PostgreSQL | `postgresql` | 5432 | `educ_lms` |
 | Redis | `redis-server` | 6379 | Cache + queue |
 
 ### Đường dẫn chuẩn
@@ -36,8 +36,8 @@ NODE_ENV=production
 PORT=4001
 DATABASE_HOST=localhost
 DATABASE_PORT=5432
-DATABASE_NAME=lms_database
-DATABASE_USER=lms_user
+DATABASE_NAME=educ_lms
+DATABASE_USER=lms
 DATABASE_PASSWORD=<secret>
 REDIS_HOST=localhost
 REDIS_PORT=6379
@@ -127,7 +127,7 @@ DATE=$(date +%Y%m%d_%H%M%S)
 mkdir -p "${BACKUP_DIR}"
 
 # 1. DB (dump logic + nén)
-pg_dump -h localhost -U lms_user -d lms_database -Fc \
+pg_dump -h localhost -U lms -d educ_lms -Fc \
   -f "${BACKUP_DIR}/db_${DATE}.dump"
 # -Fc custom format: hỗ trợ pg_restore chọn lọc, nén sẵn
 
@@ -153,16 +153,16 @@ Cron: `0 2 * * * /opt/lms/scripts/backup.sh >> /var/log/lms-backup.log 2>&1`
 
 ```bash
 # Khôi phục DB (tạo DB trống trước)
-sudo -u postgres createdb -O lms_user lms_database_restore
-pg_restore -h localhost -U lms_user -d lms_database_restore \
+sudo -u postgres createdb -O lms educ_lms_restore
+pg_restore -h localhost -U lms -d educ_lms_restore \
   --clean --if-exists /var/lms/backups/db_20260901_020000.dump
 
 # Kiểm tra trước khi chuyển đổi
-sudo -u postgres psql -d lms_database_restore -c "SELECT count(*) FROM users;"
+sudo -u postgres psql -d educ_lms_restore -c "SELECT count(*) FROM users;"
 
 # Chuyển đổi (đổi tên DB)
-sudo -u postgres psql -c "ALTER DATABASE lms_database RENAME TO lms_database_broken;"
-sudo -u postgres psql -c "ALTER DATABASE lms_database_restore RENAME TO lms_database;"
+sudo -u postgres psql -c "ALTER DATABASE educ_lms RENAME TO educ_lms_broken;"
+sudo -u postgres psql -c "ALTER DATABASE educ_lms_restore RENAME TO educ_lms;"
 
 # Khôi phục uploads
 sudo tar -xzf /var/lms/backups/uploads_20260901_020000.tar.gz -C /
@@ -299,7 +299,7 @@ sudo systemctl restart lms-api
 df -h /var/lms
 sudo du -sh /var/lms/* | sort -h
 # Giải phóng: xóa backup > 30 ngày (đã có trong script), xóa tmp, xóa inbox_events cũ:
-#   sudo -u postgres psql -d lms_database -c "DELETE FROM inbox_events WHERE processed_at < now() - interval '90 days';"
+#   sudo -u postgres psql -d educ_lms -c "DELETE FROM inbox_events WHERE processed_at < now() - interval '90 days';"
 # Cảnh báo khách nâng cấp ổ đĩa nếu upload video nhiều
 ```
 
@@ -307,7 +307,7 @@ sudo du -sh /var/lms/* | sort -h
 
 ```bash
 # 1. Kiểm tra inbox
-sudo -u postgres psql -d lms_database -c "SELECT * FROM inbox_events WHERE state='dead_letter' ORDER BY received_at DESC LIMIT 20;"
+sudo -u postgres psql -d educ_lms -c "SELECT * FROM inbox_events WHERE state='dead_letter' ORDER BY received_at DESC LIMIT 20;"
 # 2. Kiểm tra chữ ký / replay window trong log
 sudo journalctl -u lms-api --since "2 hours ago" | grep -i webhook
 # 3. Reconcile thủ công: query provider qua payment_transactions.provider_reference
@@ -318,7 +318,7 @@ sudo journalctl -u lms-api --since "2 hours ago" | grep -i webhook
 
 ```bash
 htop                                  # CPU/RAM
-sudo -u postgres psql -d lms_database -c "SELECT pid, state, now()-query_start AS dur, query FROM pg_stat_activity WHERE state='active' ORDER BY dur DESC LIMIT 10;"
+sudo -u postgres psql -d educ_lms -c "SELECT pid, state, now()-query_start AS dur, query FROM pg_stat_activity WHERE state='active' ORDER BY dur DESC LIMIT 10;"
 redis-cli info memory
 # Khắc phục: VACUUM ANALYZE; bật cache; nếu do báo cáo lớn → chạy qua worker (async)
 ```

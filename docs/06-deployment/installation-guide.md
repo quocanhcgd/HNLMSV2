@@ -193,9 +193,9 @@ sudo apt install -y certbot python3-certbot-nginx
 sudo -u postgres psql
 
 # In PostgreSQL prompt:
-CREATE DATABASE lms_database;
-CREATE USER lms_user WITH PASSWORD 'secure_password_here';
-GRANT ALL PRIVILEGES ON DATABASE lms_database TO lms_user;
+CREATE DATABASE educ_lms;
+CREATE USER lms WITH PASSWORD 'secure_password_here';
+GRANT ALL PRIVILEGES ON DATABASE educ_lms TO lms;
 \q
 ```
 
@@ -235,8 +235,8 @@ PORT=4001
 # Database
 DATABASE_HOST=localhost
 DATABASE_PORT=5432
-DATABASE_NAME=lms_database
-DATABASE_USER=lms_user
+DATABASE_NAME=educ_lms
+DATABASE_USER=lms
 DATABASE_PASSWORD=secure_password_here
 
 # Redis
@@ -397,7 +397,7 @@ BACKUP_DIR="/var/lms/backups"
 DATE=$(date +%Y%m%d_%H%M%S)
 
 # Backup database
-pg_dump -h localhost -U lms_user -d lms_database > ${BACKUP_DIR}/db_${DATE}.sql
+pg_dump -h localhost -U lms -d educ_lms > ${BACKUP_DIR}/db_${DATE}.sql
 gzip ${BACKUP_DIR}/db_${DATE}.sql
 
 # Backup uploads
@@ -478,7 +478,7 @@ sudo journalctl -u lms-api -n 100
 1. **Database connection failed**
    - Verify PostgreSQL is running: `sudo systemctl status postgresql`
    - Check credentials in `/opt/lms/config/api.env`
-   - Test connection: `psql -h localhost -U lms_user -d lms_database`
+   - Test connection: `psql -h localhost -U lms -d educ_lms`
 
 2. **Port already in use**
    - Check what's using port: `sudo lsof -i :4001`
@@ -537,12 +537,12 @@ sudo journalctl -u lms-api -n 100
 
 2. **Check database performance**
    ```bash
-   sudo -u postgres psql -d lms_database -c "SELECT * FROM pg_stat_activity;"
+   sudo -u postgres psql -d educ_lms -c "SELECT * FROM pg_stat_activity;"
    ```
 
 3. **Optimize database**
    ```bash
-   sudo -u postgres psql -d lms_database -c "VACUUM ANALYZE;"
+   sudo -u postgres psql -d educ_lms -c "VACUUM ANALYZE;"
    ```
 
 4. **Check Redis**
@@ -573,8 +573,8 @@ sudo rm -rf /var/lms
 sudo rm -rf /etc/systemd/system/lms-*
 
 # Drop database
-sudo -u postgres psql -c "DROP DATABASE lms_database;"
-sudo -u postgres psql -c "DROP USER lms_user;"
+sudo -u postgres psql -c "DROP DATABASE educ_lms;"
+sudo -u postgres psql -c "DROP USER lms;"
 
 # Remove Nginx config
 sudo rm /etc/nginx/sites-enabled/lms
@@ -594,7 +594,7 @@ sudo systemctl stop lms-web lms-api lms-worker
 sudo tar -czf /tmp/lms-backup.tar.gz /var/lms /opt/lms/config
 
 # Database dump
-pg_dump -h localhost -U lms_user -d lms_database > /tmp/lms-database.sql
+pg_dump -h localhost -U lms -d educ_lms > /tmp/lms-database.sql
 ```
 
 ---

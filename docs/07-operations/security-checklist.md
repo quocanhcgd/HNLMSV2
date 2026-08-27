@@ -39,9 +39,9 @@
 ## 3. PostgreSQL Hardening
 
 - [ ] Chỉ listen `localhost` (`listen_addresses='127.0.0.1'`) — app và DB cùng máy
-- [ ] `pg_hba.conf`: chỉ `scram-sha-256` cho user `lms_user`, không `trust`
+- [ ] `pg_hba.conf`: chỉ `scram-sha-256` cho user `lms`, không `trust`
 - [ ] Mật khẩu DB mạnh (32+ ký tự random), riêng biệt với mọi mật khẩu khác
-- [ ] User DB **không phải superuser**: `CREATE USER lms_user WITH PASSWORD '...' NOSUPERUSER NOCREATEDB NOCREATEROLE;`
+- [ ] User DB **không phải superuser**: `CREATE USER lms WITH PASSWORD '...' NOSUPERUSER NOCREATEDB NOCREATEROLE;`
 - [ ] Chỉ grant cần thiết: `GRANT CONNECT, CREATE ON DATABASE`, quyền trên schema `public` có kiểm soát
 - [ ] `ssl = on` nếu DB truy cập qua mạng (không nên truy cập từ ngoài)
 - [ ] Backup mã hóa: `pg_dump -Fc` + gpg/openssl encrypt nếu backup ra ngoài máy

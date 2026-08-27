@@ -744,7 +744,7 @@ services:
       - "3000:3000"
     environment:
       NODE_ENV: development
-      DATABASE_URL: postgresql://postgres:password@db:5432/lms
+      DATABASE_URL: postgresql://lms:lms_dev@db:5432/educ_lms
       REDIS_URL: redis://redis:6379
     depends_on:
       - db
@@ -759,9 +759,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: lms
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: educ_lms
+      POSTGRES_USER: lms
+      POSTGRES_PASSWORD: lms_dev
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -792,7 +792,7 @@ services:
     command: npm run worker
     environment:
       NODE_ENV: development
-      DATABASE_URL: postgresql://postgres:password@db:5432/lms
+      DATABASE_URL: postgresql://lms:lms_dev@db:5432/educ_lms
       REDIS_URL: redis://redis:6379
     depends_on:
       - db

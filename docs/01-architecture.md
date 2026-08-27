@@ -34,7 +34,7 @@ graph TB
     end
 
     subgraph "Data Layer"
-        PG["🐘 PostgreSQL 15+<br/>(lms_database)"]
+        PG["🐘 PostgreSQL 15+<br/>(educ_lms)"]
         FS["📁 Local FS<br/>(/var/lms/uploads)"]
     end
 
@@ -234,7 +234,7 @@ Route → Controller (validation) → Service (business logic) → Repository/Ty
 
 ## 6. Kiến trúc dữ liệu (tóm tắt — chi tiết `03-data-model.md`, `04-database-schema.md`)
 
-- **Một database duy nhất** mỗi installation (`lms_database`), organization thường 1 record.
+- **Một database duy nhất** mỗi installation (`educ_lms`), organization thường 1 record.
 - Tất cả entity gắn `organization_id`; entity phạm vi chi nhánh gắn `branch_id`.
 - Không xóa vật lý: tài chính, payroll, điểm, bài làm, audit — soft delete/append-only.
 - File lớn để ngoài DB (`/var/lms/uploads`), DB lưu metadata + access scope.

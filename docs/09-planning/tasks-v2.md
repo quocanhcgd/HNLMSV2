@@ -69,7 +69,7 @@ team: "2 Full-stack Developers"
       - Owner: Dev1
       - Dependencies: T004
       - Deliverable: Database connection working, migrations runnable
-      - Notes: Create `lms_database` schema, migration scripts
+      - Notes: Create `educ_lms` schema, migration scripts
 
 - [ ] **T006** [Backend] Setup Redis for caching and queues
       - Estimate: 1 day
