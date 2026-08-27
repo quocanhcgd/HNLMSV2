@@ -70,19 +70,19 @@ const TASKS=[
  output:["Worker consume job"],
  dod:["Worker nhận job từ api"]},
 
-{id:"T008",phase:"P1",phaseName:"Foundation",week:"1-3",pri:"Critical",group:"DevOps",title:"Debian package skeleton",owner:"Dev1",est:2,deps:["T001"],
+{id:"T008",phase:"P1",phaseName:"Foundation",week:"1-3",pri:"Critical",group:"DevOps",title:"Debian package skeleton ⏸️ (để sau)",owner:"Dev1",est:2,deps:["T001"],
  input:["01-architecture.md §3 infra","06-deployment/installation-guide"],
  steps:["infra/debian: DEBIAN/control, postinst, prerm","Lệnh build dpkg-deb"],
  output:["Build tạo .deb cấu trúc đúng"],
  dod:["dpkg -i cài được gói rỗng"]},
 
-{id:"T009",phase:"P1",phaseName:"Foundation",week:"1-3",pri:"Critical",group:"DevOps",title:"Installation wizard (lms-setup)",owner:"Dev1",est:2,deps:["T008"],
+{id:"T009",phase:"P1",phaseName:"Foundation",week:"1-3",pri:"Critical",group:"DevOps",title:"Installation wizard (lms-setup) ⏸️ (để sau)",owner:"Dev1",est:2,deps:["T008"],
  input:["T008","06-deployment/installation-guide.md"],
  steps:["CLI interactive: DB creds, admin, org","Ghi api.env","Tự tạo DB + migration"],
  output:["sudo lms-setup wizard hoàn tất"],
  dod:["Wizard đủ bước","Cấu hình sinh đúng"]},
 
-{id:"T010",phase:"P1",phaseName:"Foundation",week:"1-3",pri:"Critical",group:"DevOps",title:"Systemd service units",owner:"Dev1",est:1,deps:["T009"],
+{id:"T010",phase:"P1",phaseName:"Foundation",week:"1-3",pri:"Critical",group:"DevOps",title:"Systemd service units ⏸️ (để sau)",owner:"Dev1",est:1,deps:["T009"],
  input:["T009"],
  steps:["lms-web/lms-api/lms-worker.service","Enable + start"],
  output:["3 services systemd"],

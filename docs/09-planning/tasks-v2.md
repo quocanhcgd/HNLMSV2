@@ -37,6 +37,8 @@ team: "2 Full-stack Developers"
 
 ### Setup & Infrastructure
 
+> ⏸️ **T008–T010 (deploy/infra) tạm hoãn** — ưu tiên coding feature chạy local (quyết định 2026-08: "deploy để sau"). Quay lại khi chuẩn bị đóng gói lên máy chủ.
+
 - [x] **T001** [DevOps] Initialize monorepo structure
       - Estimate: 1 day
       - Owner: Dev1
@@ -83,20 +85,20 @@ team: "2 Full-stack Developers"
       - Dependencies: T006
       - Deliverable: Worker consumes jobs from queue
 
-- [ ] **T008** [DevOps] Create Debian package skeleton
+- [ ] **T008** [DevOps] Create Debian package skeleton ⏸️ (để sau)
       - Estimate: 2 days
       - Owner: Dev1
       - Deliverable: `.deb` package structure in `infra/debian/`
       - Contents: DEBIAN/control, postinst, prerm scripts
 
-- [ ] **T009** [DevOps] Create installation wizard script
+- [ ] **T009** [DevOps] Create installation wizard script ⏸️ (để sau)
       - Estimate: 2 days
       - Owner: Dev1
       - Dependencies: T008
       - Deliverable: `lms-setup wizard` interactive CLI
       - Prompts: DB credentials, admin user, org name
 
-- [ ] **T010** [DevOps] Create systemd service units
+- [ ] **T010** [DevOps] Create systemd service units ⏸️ (để sau)
       - Estimate: 1 day
       - Owner: Dev1
       - Dependencies: T009
