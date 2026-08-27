@@ -2,11 +2,11 @@
  * Design Verification — đối chiếu computed styles THỰC TẾ giữa MOCKUP và APP.
  *
  * Chạy:  node apps/web/scripts/verify-design.mjs
- * Cần:   web dev server đang chạy (http://localhost:5517), Edge có sẵn trên máy.
+ * Cần:   API + web dev server đang chạy (web: http://localhost:5517), Edge có sẵn trên máy.
  * Đầu ra: bảng diff ra console + JSON + Markdown tại docs/13-mockups/design-verification/
  *
  * Quy tắc: màn hình mockup-driven sửa xong → chạy script → DIFF phải = 0
- * (hoặc ghi rõ lý do chấp nhận). Kết quả được lưu lại làm chuẩn cho thiết kế sau.
+ * (hoặc ghi rõ lý do chấp nhận). Kết quả lưu lại làm chuẩn cho thiết kế sau.
  */
 import { chromium } from 'playwright';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -14,13 +14,14 @@ import { resolve, dirname } from 'node:path';
 import { writeFileSync, mkdirSync } from 'node:fs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
-const MOCKUP_URL = pathToFileURL(resolve(ROOT, 'docs/13-mockups/01-login-license.html')).href;
-const APP_URL = 'http://localhost:5517/login';
+const APP_URL = 'http://localhost:5517';
 const OUT_DIR = resolve(ROOT, 'docs/13-mockups/design-verification');
 mkdirSync(OUT_DIR, { recursive: true });
 
-/** (selector, property) — login screen mockup 01, desktop 1280x900 */
-const CHECKS = [
+const TOL = 0.001; // chênh lệch float cho phép (px, rem...)
+
+/** ===== LOGIN SCREEN (mockup 01) ===== */
+const CHECKS_LOGIN = [
   ['html', 'font-family'], ['html', 'font-size'], ['html', 'line-height'],
   ['body', 'font-family'], ['body', 'font-size'], ['body', 'background-color'], ['body', 'color'],
   ['.theme-btn', 'width'], ['.theme-btn', 'height'], ['.theme-btn', 'font-size'], ['.theme-btn', 'font-family'],
@@ -57,9 +58,7 @@ const CHECKS = [
   ['#loginScreen .leading-relaxed', 'font-size'], ['#loginScreen .leading-relaxed', 'line-height'],
   ['#loginScreen .leading-relaxed', 'font-family'],
 ];
-
-/** (selector, property) — mobile 390x844: brand hiện, 1 cột, illustration ẩn */
-const MOBILE_CHECKS = [
+const MOBILE_LOGIN = [
   ['#loginScreen .grid', 'grid-template-columns'],
   ['.md\\:hidden', 'display'],
   ['.hidden.md\\:flex', 'display'],
@@ -69,6 +68,74 @@ const MOBILE_CHECKS = [
   ['#loginScreen .btn-primary', 'padding-top'],
 ];
 
+/** ===== DASHBOARD + APPSHELL (mockup 02) ===== */
+const CHECKS_DASH = [
+  // sidebar
+  ['aside.sidebar', 'width'], ['aside.sidebar', 'background-color'], ['aside.sidebar', 'border-right-color'],
+  ['aside.sidebar', 'position'], ['aside.sidebar', 'z-index'],
+  ['aside.sidebar .nav-item', 'font-size'], ['aside.sidebar .nav-item', 'color'], ['aside.sidebar .nav-item', 'border-radius'],
+  ['aside.sidebar .nav-item', 'padding-top'], ['aside.sidebar .nav-item', 'margin-left'],
+  ['aside.sidebar .nav-item.active', 'color'], ['aside.sidebar .nav-item.active', 'font-weight'],
+  ['aside.sidebar .nav-item.active', 'background-image'],
+  ['aside.sidebar .badge', 'font-size'], ['aside.sidebar .badge', 'padding-left'],
+  ['.ml-64', 'margin-left'],
+  // header
+  ['.surface.border-b', 'position'], ['.surface.border-b', 'top'], ['.surface.border-b', 'background-color'],
+  ['.px-8.py-4 h2', 'font-size'], ['.px-8.py-4 h2', 'font-weight'],
+  ['.px-8.py-4 > div:first-child > p', 'font-size'], ['.px-8.py-4 > div:first-child > p', 'color'],
+  ['#branchSel', 'font-size'], ['#branchSel', 'padding-top'], ['#branchSel', 'padding-left'],
+  ['#branchSel', 'border-radius'], ['#branchSel', 'background-color'], ['#branchSel', 'color'],
+  ['#themeBtn', 'width'], ['#themeBtn', 'height'], ['#themeBtn', 'border-radius'], ['#themeBtn', 'font-size'],
+  ['#langBtn', 'font-size'], ['#langBtn', 'padding-left'],
+  ['#userMenu > button', 'border-radius'], ['#userMenu > button', 'padding-top'], ['#userMenu > button', 'padding-left'],
+  ['#userMenu .w-8.h-8', 'width'], ['#userMenu .w-8.h-8', 'height'], ['#userMenu .w-8.h-8', 'border-radius'],
+  ['#userMenu .text-xs.font-bold', 'font-size'],
+  ['#userMenu .text-\\[10px\\]', 'font-size'], ['#userMenu .text-\\[10px\\]', 'color'],
+  // KPI
+  ['.card.p-5', 'padding-top'], ['.card.p-5', 'border-radius'],
+  ['#st_students', 'font-size'], ['#st_students', 'font-weight'],
+  ['.stat-icon', 'width'], ['.stat-icon', 'height'], ['.stat-icon', 'border-radius'],
+  ['.card.p-5 .text-sm.text-soft', 'font-size'], ['.card.p-5 .text-sm.text-soft', 'color'],
+  ['.card.p-5 .text-xs.mt-2', 'font-size'],
+  ['.card.p-5 .text-xs.mt-2:last-of-type', 'color'],
+  // charts
+  ['#enrollChart', 'height'],
+  ['#enrollChart > div:last-child > div', 'height'],
+  ['#enrollChart .text-\\[10px\\]', 'font-size'], ['#enrollChart .text-\\[10px\\]', 'color'],
+  ['.w-40.h-40.rounded-full', 'width'], ['.w-40.h-40.rounded-full', 'height'],
+  ['.w-40.h-40.rounded-full', 'border-radius'], ['.w-40.h-40.rounded-full', 'background-image'],
+  ['.w-24.h-24', 'width'], ['.w-24.h-24', 'height'], ['.w-24.h-24', 'border-radius'],
+  ['ul.text-sm', 'font-size'],
+  ['.w-3.h-3', 'width'], ['.w-3.h-3', 'height'],
+  // table
+  ['#enrollTable', 'width'], ['#enrollTable', 'font-size'],
+  ['#enrollTable th', 'font-size'], ['#enrollTable th', 'font-weight'], ['#enrollTable th', 'padding-top'],
+  ['#enrollTable td', 'font-size'], ['#enrollTable td', 'padding-top'],
+  ['#enrollTable .badge-success', 'color'], ['#enrollTable .badge-success', 'background-color'],
+  ['#enrollTable .badge-warning', 'color'], ['#enrollTable .badge-warning', 'background-color'],
+  // alerts
+  ['.alert-red', 'background-color'], ['.alert-red', 'border-color'], ['.alert-red', 'padding-top'],
+  ['.alert-red', 'border-radius'], ['.alert-red b', 'display'], ['.alert-red span', 'color'],
+  ['.alert-amber', 'background-color'], ['.alert-amber', 'border-color'],
+  ['.alert-blue', 'background-color'], ['.alert-blue', 'border-color'],
+  // quick actions
+  ['.card.p-6 .btn-primary', 'font-size'], ['.card.p-6 .btn-primary', 'padding-top'], ['.card.p-6 .btn-primary', 'padding-left'],
+  ['.card.p-6 .btn-outline', 'border-width'], ['.card.p-6 .btn-outline', 'padding-top'], ['.card.p-6 .btn-outline', 'padding-left'],
+  ['.flex.flex-wrap.gap-3', 'gap'],
+  // container
+  ['.p-8', 'padding-top'],
+  // toast
+  ['#toast', 'position'], ['#toast', 'border-left-width'], ['#toast', 'border-left-color'],
+  ['#toast', 'border-radius'], ['#toast', 'font-size'],
+];
+const MOBILE_DASH = [
+  ['.grid.grid-cols-1', 'grid-template-columns'],
+  ['aside.sidebar', 'width'],
+  ['.ml-64', 'margin-left'],
+  ['#st_students', 'font-size'],
+];
+
+/** đo 1 trang */
 async function collect(page, checks) {
   const rows = {};
   for (const [sel, prop] of checks) {
@@ -84,67 +151,116 @@ async function collect(page, checks) {
   return rows;
 }
 
-async function openAndCollect(browser, url, waitSel) {
-  const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
-  const page = await ctx.newPage();
-  await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
-  await page.evaluate(() => document.fonts.ready);
-  await page.waitForSelector(waitSel, { timeout: 10000 });
-  await page.waitForTimeout(500); // Tailwind CDN xử lý class async
-  const desktop = await collect(page, CHECKS);
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.waitForTimeout(300);
-  const mobile = await collect(page, MOBILE_CHECKS);
-  await ctx.close();
-  return { ...desktop, ...mobile };
+/** mở 1 cặp (mockup + app), đo desktop + mobile, diff */
+async function audit(browser, { mockupFile, appPath, needLogin, waitSel, checks, mobileChecks, name }) {
+  const mockupUrl = pathToFileURL(resolve(ROOT, 'docs/13-mockups', mockupFile)).href;
+
+  // --- Mockup ---
+  const ctxA = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const pageA = await ctxA.newPage();
+  await pageA.goto(mockupUrl, { waitUntil: 'networkidle', timeout: 30000 });
+  await pageA.evaluate(() => document.fonts.ready);
+  await pageA.waitForSelector(waitSel, { timeout: 10000 });
+  await pageA.waitForTimeout(500);
+  const mockup = { ...(await collect(pageA, checks)), ...(await (async () => {
+    await pageA.setViewportSize({ width: 390, height: 844 });
+    await pageA.waitForTimeout(300);
+    return collect(pageA, mobileChecks);
+  })()) };
+  await ctxA.close();
+
+  // --- App (login nếu cần) ---
+  const ctxB = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const pageB = await ctxB.newPage();
+  await pageB.goto(APP_URL + appPath, { waitUntil: 'networkidle', timeout: 30000 });
+  if (needLogin) {
+    await pageB.waitForSelector('#loginEmail', { timeout: 10000 });
+    await pageB.fill('#loginEmail', 'admin@educenter.vn');
+    await pageB.fill('#loginPass', 'admin123');
+    await pageB.click('#loginScreen .btn-primary');
+  }
+  await pageB.evaluate(() => document.fonts.ready);
+  await pageB.waitForSelector(waitSel, { timeout: 10000 });
+  await pageB.waitForTimeout(500);
+  const app = { ...(await collect(pageB, checks)), ...(await (async () => {
+    await pageB.setViewportSize({ width: 390, height: 844 });
+    await pageB.waitForTimeout(300);
+    return collect(pageB, mobileChecks);
+  })()) };
+  await ctxB.close();
+
+  const diff = [];
+  for (const key of Object.keys(mockup)) {
+    const a = mockup[key];
+    const b = app[key];
+    if (a === b) continue;
+    const numA = parseFloat(a);
+    const numB = parseFloat(b);
+    const numeric = Number.isFinite(numA) && Number.isFinite(numB) && a.replace(numA, '') === b.replace(numB, '');
+    if (numeric && Math.abs(numA - numB) <= TOL) continue;
+    diff.push({ check: key, mockup: a, app: b });
+  }
+  return { name, mockup, app, diff, summary: { total: Object.keys(mockup).length, ok: Object.keys(mockup).length - diff.length, diff: diff.length } };
 }
 
-const browser = await chromium.launch({ channel: 'msedge', headless: true });
-const results = { mockup: {}, app: {}, diff: [], summary: {} };
-
-try {
-  results.mockup = await openAndCollect(browser, MOCKUP_URL, '.card');
-  results.app = await openAndCollect(browser, APP_URL, '#loginEmail');
-
-  let diffCount = 0;
-  for (const key of Object.keys(results.mockup)) {
-    const a = results.mockup[key];
-    const b = results.app[key];
-    if (a !== b) {
-      results.diff.push({ check: key, mockup: a, app: b });
-      diffCount++;
-    }
-  }
-  results.summary = { total: Object.keys(results.mockup).length, diff: diffCount, ok: Object.keys(results.mockup).length - diffCount };
-
-  console.log('=== DESIGN VERIFICATION: mockup 01 vs app /login (1280x900 + 390x844) ===\n');
-  console.log(`TOTAL=${results.summary.total}  OK=${results.summary.ok}  DIFF=${results.summary.diff}\n`);
-  for (const d of results.diff) {
+function printResult(r) {
+  console.log(`=== ${r.name}: ${r.summary.ok}/${r.summary.total} khớp · DIFF=${r.summary.diff} ===`);
+  for (const d of r.diff) {
     console.log(`[DIFF] ${d.check}\n       mockup: ${d.mockup}\n       app   : ${d.app}`);
   }
-  if (results.diff.length === 0) console.log('Không có khác biệt computed style nào.');
+  if (r.diff.length === 0) console.log('Không có khác biệt computed style nào.');
+  console.log('');
+}
 
-  writeFileSync(resolve(OUT_DIR, 'report-login.json'), JSON.stringify(results, null, 2), 'utf8');
+function saveReport(r, slug) {
+  writeFileSync(resolve(OUT_DIR, `report-${slug}.json`), JSON.stringify(r, null, 2), 'utf8');
   const md = [
-    '# Design Verification — màn hình Login (mockup 01 vs app /login)',
+    `# Design Verification — ${r.name}`,
     '',
     `- Ngày chạy: ${new Date().toISOString()}`,
     '- Môi trường: Edge (channel msedge) headless · viewport 1280x900 + 390x844',
-    '- Mockup: `docs/13-mockups/01-login-license.html` (file://) · App: `http://localhost:5517/login`',
-    '- Cách chạy lại: `node apps/web/scripts/verify-design.mjs` (cần dev server web đang chạy)',
+    `- Mockup: \`docs/13-mockups/${slug === 'login' ? '01-login-license.html' : '02-admin-dashboard.html'}\` (file://) · App: \`${APP_URL}\``,
+    '- Cách chạy lại: `node apps/web/scripts/verify-design.mjs` (cần API + web dev server đang chạy)',
     '',
-    `## Kết quả: **${results.summary.ok}/${results.summary.total} khớp** · ${results.summary.diff} khác biệt`,
+    `## Kết quả: **${r.summary.ok}/${r.summary.total} khớp** · ${r.summary.diff} khác biệt`,
     '',
     '| # | Thuộc tính | Mockup | App |',
     '|---|------------|--------|-----|',
-    ...results.diff.map((d, i) => `| ${i + 1} | \`${d.check}\` | \`${d.mockup}\` | \`${d.app}\` |`),
+    ...r.diff.map((d, i) => `| ${i + 1} | \`${d.check}\` | \`${d.mockup}\` | \`${d.app}\` |`),
     '',
     '> Bảng rỗng = hai bên render y hệt về computed style (font-family, font-size, line-height, padding, màu, radius, grid).',
     '> Khi sửa mockup/code → chạy lại script, cập nhật file này làm chuẩn đối chiếu cho các màn hình sau.',
   ].join('\n');
-  writeFileSync(resolve(OUT_DIR, 'design-verification-login.md'), md, 'utf8');
-  console.log(`\nSaved: ${resolve(OUT_DIR, 'report-login.json')}`);
-  console.log(`Saved: ${resolve(OUT_DIR, 'design-verification-login.md')}`);
+  writeFileSync(resolve(OUT_DIR, `design-verification-${slug}.md`), md, 'utf8');
+}
+
+const browser = await chromium.launch({ channel: 'msedge', headless: true });
+try {
+  const rLogin = await audit(browser, {
+    name: 'Login (mockup 01 vs app /login)',
+    mockupFile: '01-login-license.html',
+    appPath: '/login',
+    needLogin: false,
+    waitSel: '#loginEmail',
+    checks: CHECKS_LOGIN,
+    mobileChecks: MOBILE_LOGIN,
+  });
+  const rDash = await audit(browser, {
+    name: 'Dashboard + AppShell (mockup 02 vs app /dashboard)',
+    mockupFile: '02-admin-dashboard.html',
+    appPath: '/login',
+    needLogin: true,
+    waitSel: '#st_students',
+    checks: CHECKS_DASH,
+    mobileChecks: MOBILE_DASH,
+  });
+
+  printResult(rLogin);
+  printResult(rDash);
+  saveReport(rLogin, 'login');
+  saveReport(rDash, 'dashboard');
+  console.log(`Saved: ${resolve(OUT_DIR, 'report-{login,dashboard}.json')}`);
+  console.log(`Saved: ${resolve(OUT_DIR, 'design-verification-{login,dashboard}.md')}`);
 } finally {
   await browser.close();
 }

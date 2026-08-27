@@ -169,12 +169,14 @@ team: "2 Full-stack Developers"
       - Deliverable: /login page with email/password form
       - Features: Remember me, forgot password link
 
-- [ ] **T020** [Frontend] Auth state management
+- [x] **T020** [Frontend] Auth state management
       - Estimate: 1 day
       - Owner: Dev2
       - Dependencies: T019
-      - Deliverable: Zustand store for auth, token refresh logic
-      - Exports: useAuth() hook
+      - Deliverable: Auth state (Context thay Zustand — theo stack D4) + token refresh, useAuth() hook
+      - Done kèm: AppShell + Dashboard căn theo docs/13-mockups/02-admin-dashboard.html
+        (sidebar w-64, header sticky, branch selector, 🌙/🌐, user chip, KPI/chart/table/alerts, i18n vi/en, toast)
+      - Verify: design verification audit — login 88/88 + dashboard 104/104 computed style khớp (DIFF=0)
 
 ---
 

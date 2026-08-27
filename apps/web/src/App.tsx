@@ -1,4 +1,3 @@
-import { Spin } from 'antd';
 import type { ReactNode } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth/AuthContext';
@@ -13,7 +12,7 @@ function Protected({ children }: { children: ReactNode }) {
   if (status === 'loading') {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Spin size="large" />
+        <span className="spinner" style={{ width: 28, height: 28 }} />
       </div>
     );
   }

@@ -138,10 +138,10 @@ const TASKS=[
  dod:["Login đúng","Validate form"]},
 
 {id:"T020",phase:"P2",phaseName:"Auth",week:"4-5",pri:"High",group:"Frontend",title:"Auth state management",owner:"Dev2",est:1,deps:["T019"],
- input:["T019"],
- steps:["Zustand store auth + token refresh","useAuth() hook"],
- output:["Store + hook"],
- dod:["Token lưu, refresh tự động"]},
+ input:["T019","13-mockups/02-admin-dashboard.html"],
+ steps:["Auth state (Context thay Zustand theo D4) + token refresh","useAuth() hook","AppShell + Dashboard theo mockup 02","Design verification audit"],
+ output:["Store + hook","Shell/Dashboard khớp mockup 02"],
+ dod:["Token lưu, refresh tự động","Audit computed style DIFF=0"]},
 
 /* --------- Phase 3 Core UI W6-7 --------- */
 {id:"T021",phase:"P3",phaseName:"Core UI",week:"6-7",pri:"High",group:"Frontend",title:"ProLayout configuration",owner:"Dev2",est:2,deps:["T003"],
@@ -493,7 +493,7 @@ const STATUS_LABEL={todo:'🔘 Chưa',in_progress:'⏳ Đang',done:'✅ Xong',bl
 let state={status:{},filter:'all',owner:'all',phase:'all'};
 /* Trạng thái mặc định — tự đồng bộ theo milestone (khớp docs/09-planning/tracker-state-export.json).
    localStorage ghi đè khi user tự chấm; các key chưa có trong localStorage sẽ lấy giá trị mặc định này. */
-const DEFAULT_STATUS={T001:'done',T002:'done',T003:'done',T004:'done',T005:'done',T006:'done',T007:'done',T011:'done',T012:'done',T013:'done',T016:'done',T017:'done',T018:'done',T019:'done'};
+const DEFAULT_STATUS={T001:'done',T002:'done',T003:'done',T004:'done',T005:'done',T006:'done',T007:'done',T011:'done',T012:'done',T013:'done',T016:'done',T017:'done',T018:'done',T019:'done',T020:'done'};
 function load(){try{const s=JSON.parse(localStorage.getItem(STORE_KEY));if(s)state=Object.assign(state,s);}catch(e){}state.status=Object.assign({},DEFAULT_STATUS,state.status||{});}
 function save(){localStorage.setItem(STORE_KEY,JSON.stringify(state));}
 function esc(x){return (x||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}

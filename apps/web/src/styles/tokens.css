@@ -8,13 +8,32 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Inter self-hosted (variable 300–800) — y hệt mockup (Google Fonts CDN), đảm bảo render giống dù offline */
+/* Inter self-hosted (variable 300–800, đủ subset như Google Fonts CDN mockup dùng) —
+   y hệt mockup kể cả chữ tiếng Việt (latin subset KHÔNG chứa glyph ơ/ư/đ... nên phải có vietnamese subset,
+   nếu không chữ Việt sẽ fallback sang font hệ thống — nguyên nhân gốc của lệch font trước đây). */
 @font-face {
   font-family: 'Inter';
   font-style: normal;
   font-weight: 300 800;
   font-display: swap;
-  src: url('../assets/fonts/Inter-var.woff2') format('woff2');
+  src: url('../assets/fonts/Inter-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url('../assets/fonts/Inter-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url('../assets/fonts/Inter-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 /* Rule universal Y HỆT mockup (line 10): mọi element đều Inter.
@@ -48,6 +67,15 @@ body { background: var(--bg-2); color: var(--text-1); transition: background .3s
   .badge-warning { background: rgba(245,158,11,.15); color: var(--accent); }
   .badge-gray { background: var(--bg-3); color: var(--text-2); }
   .badge-blue { background: rgba(59,130,246,.12); color: #2563eb; }
+  .badge-primary { background: rgba(13,148,136,.15); color: var(--primary); }
+  .stat-icon { width: 46px; height: 46px; border-radius: .9rem; display: flex; align-items: center; justify-content: center; font-size: 1.35rem; }
+  .alert-red { background: rgba(239,68,68,.08); border: 1px solid #fecaca; }
+  .alert-amber { background: rgba(245,158,11,.1); border: 1px solid #fde68a; }
+  .alert-blue { background: rgba(59,130,246,.08); border: 1px solid #bfdbfe; }
+  html.dark .alert-red { background: rgba(239,68,68,.15); border-color: rgba(239,68,68,.45); }
+  html.dark .alert-amber { background: rgba(245,158,11,.15); border-color: rgba(245,158,11,.45); }
+  html.dark .alert-blue { background: rgba(59,130,246,.15); border-color: rgba(59,130,246,.45); }
+  .num-change { transition: opacity .25s; }
   .nav-item { display: flex; align-items: center; padding: .75rem 1rem; margin: .25rem .5rem; border-radius: .75rem; transition: all .2s; cursor: pointer; color: var(--text-2); font-size: .875rem; }
   .nav-item:hover { background: var(--bg-2); }
   .nav-item.active { background: linear-gradient(135deg, rgba(13,148,136,.12) 0%, rgba(16,185,129,.12) 100%); color: var(--primary); font-weight: 600; }

@@ -1,11 +1,11 @@
-# Design Verification — Login (mockup 01 vs app /login)
+# Design Verification — Dashboard + AppShell (mockup 02 vs app /dashboard)
 
-- Ngày chạy: 2026-08-27T04:24:56.106Z
+- Ngày chạy: 2026-08-27T04:24:56.107Z
 - Môi trường: Edge (channel msedge) headless · viewport 1280x900 + 390x844
-- Mockup: `docs/13-mockups/01-login-license.html` (file://) · App: `http://localhost:5517`
+- Mockup: `docs/13-mockups/02-admin-dashboard.html` (file://) · App: `http://localhost:5517`
 - Cách chạy lại: `node apps/web/scripts/verify-design.mjs` (cần API + web dev server đang chạy)
 
-## Kết quả: **88/88 khớp** · 0 khác biệt
+## Kết quả: **104/104 khớp** · 0 khác biệt
 
 | # | Thuộc tính | Mockup | App |
 |---|------------|--------|-----|

@@ -1,4 +1,5 @@
 {
+  "name": "Login (mockup 01 vs app /login)",
   "mockup": {
     "html | font-family": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
     "html | font-size": "16px",
@@ -182,7 +183,7 @@
   "diff": [],
   "summary": {
     "total": 88,
-    "diff": 0,
-    "ok": 88
+    "ok": 88,
+    "diff": 0
   }
 }
