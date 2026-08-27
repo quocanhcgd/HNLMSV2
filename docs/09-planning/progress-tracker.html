@@ -237,15 +237,15 @@ const TASKS=[
 
 {id:"T036",phase:"P4",phaseName:"Org & Users",week:"8-9",pri:"High",group:"Frontend",title:"User management page",owner:"Dev2",est:3,deps:["T035"],
  input:["T035","13-mockups/03-users-roles"],
- steps:["List/add/edit user, assign role","/settings/users ProTable + modal"],
- output:["Trang quản lý user"],
- dod:["CRUD user + gán role"]},
+ steps:["Trang /users theo mockup 03 (tab Users)","Filter search/role/branch/status","Bảng users (demo data)","Modal Tạo người dùng + modal Cấp scope","Design verification audit"],
+ output:["Trang quản lý user khớp mockup 03"],
+ dod:["Khớp mockup 03","Audit computed style DIFF=0","Demo data — wire /api/users (T035) sau"]},
 
 {id:"T037",phase:"P4",phaseName:"Org & Users",week:"8-9",pri:"High",group:"Frontend",title:"Role management page",owner:"Dev2",est:2,deps:["T035"],
- input:["T035"],
- steps:["/settings/roles list + edit permissions","Permission tree"],
- output:["Trang quản lý role"],
- dod:["Edit permission tree lưu"]},
+ input:["T035","13-mockups/03-users-roles"],
+ steps:["Tab Roles trong /users theo mockup 03","Role list (8 roles, addon tag)","Perm groups (org/users/acad/fin/lic) toggle demo","Hoàn tác / Lưu thay đổi","Design verification audit"],
+ output:["Tab Roles khớp mockup 03"],
+ dod:["Khớp mockup 03","Audit computed style DIFF=0"]},
 
 /* ---------- Phase 5 Academic W10-12 ---------- */
 {id:"T038",phase:"P5",phaseName:"Academic",week:"10-12",pri:"High",group:"Backend",title:"Academic entities",owner:"Dev1",est:3,deps:["T005"],
@@ -493,7 +493,7 @@ const STATUS_LABEL={todo:'🔘 Chưa',in_progress:'⏳ Đang',done:'✅ Xong',bl
 let state={status:{},filter:'all',owner:'all',phase:'all'};
 /* Trạng thái mặc định — tự đồng bộ theo milestone (khớp docs/09-planning/tracker-state-export.json).
    localStorage ghi đè khi user tự chấm; các key chưa có trong localStorage sẽ lấy giá trị mặc định này. */
-const DEFAULT_STATUS={T001:'done',T002:'done',T003:'done',T004:'done',T005:'done',T006:'done',T007:'done',T011:'done',T012:'done',T013:'done',T015:'done',T016:'done',T017:'done',T018:'done',T019:'done',T020:'done'};
+const DEFAULT_STATUS={T001:'done',T002:'done',T003:'done',T004:'done',T005:'done',T006:'done',T007:'done',T011:'done',T012:'done',T013:'done',T015:'done',T016:'done',T017:'done',T018:'done',T019:'done',T020:'done',T036:'done',T037:'done'};
 function load(){try{const s=JSON.parse(localStorage.getItem(STORE_KEY));if(s)state=Object.assign(state,s);}catch(e){}state.status=Object.assign({},DEFAULT_STATUS,state.status||{});}
 function save(){localStorage.setItem(STORE_KEY,JSON.stringify(state));}
 function esc(x){return (x||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}

@@ -78,6 +78,7 @@ const NAV_ADDON: NavItem[] = [
 const HEADER_META: Record<string, { title: string[]; sub: string }> = {
   '/dashboard': { title: ['page_dash'], sub: 'page_sub' },
   '/license': { title: ['crumb_settings', 'page_license'], sub: 'page_sub_lic' },
+  '/users': { title: ['page_users'], sub: 'page_sub_users' },
   '/students': { title: ['nav_enroll'], sub: '' },
   '/finance': { title: ['nav_finance'], sub: '' },
   '/courses': { title: ['nav_academic'], sub: '' },
@@ -100,7 +101,7 @@ function Shell() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const activeKey = location.pathname === '/license' ? 'license' : location.pathname === '/dashboard' ? 'dashboard' : null;
+  const activeKey = location.pathname === '/license' ? 'license' : location.pathname === '/users' ? 'users' : location.pathname === '/dashboard' ? 'dashboard' : null;
 
   const go = (key: string) => {
     if (key === 'dashboard') {
@@ -109,6 +110,10 @@ function Shell() {
     }
     if (key === 'license') {
       navigate('/license');
+      return;
+    }
+    if (key === 'users') {
+      navigate('/users');
       return;
     }
     // mockup go(p): toast demo — chưa có màn hình thật

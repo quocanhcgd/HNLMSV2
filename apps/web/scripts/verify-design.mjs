@@ -181,6 +181,63 @@ const MOBILE_LIC = [
   ['.step-dot', 'width'],
 ];
 
+/** ===== USERS & ROLES SCREEN (mockup 03) — đo trước khi click tab Roles ===== */
+const CHECKS_USERS_BEFORE = [
+  // tabs
+  ['.tab', 'padding-top'], ['.tab', 'font-size'], ['.tab', 'color'], ['.tab', 'border-bottom-width'],
+  ['.tab.active', 'color'], ['.tab.active', 'border-bottom-color'], ['.tab.active', 'font-weight'],
+  // filter row
+  ['#paneUsers input.input-field', 'width'], ['#paneUsers input.input-field', 'padding-top'], ['#paneUsers input.input-field', 'border-radius'],
+  ['#paneUsers select.input-field', 'width'],
+  ['#paneUsers .btn-primary', 'font-size'], ['#paneUsers .btn-primary', 'padding-top'],
+  // table
+  ['#usersTable th', 'font-size'], ['#usersTable th', 'font-weight'], ['#usersTable th', 'padding-top'],
+  ['#usersTable td', 'padding-top'], ['#usersTable td', 'font-size'],
+  ['#usersTable input[type=checkbox]', 'width'], ['#usersTable input[type=checkbox]', 'height'],
+  ['#usersTable .badge-primary', 'color'], ['#usersTable .badge-primary', 'background-color'],
+  ['#usersTable .badge-success', 'color'], ['#usersTable .badge-success', 'background-color'],
+  ['#usersTable .badge-purple', 'color'], ['#usersTable .badge-purple', 'background-color'],
+  ['#usersTable .badge-warning', 'color'], ['#usersTable .badge-warning', 'background-color'],
+  ['#usersTable .badge-gray', 'color'], ['#usersTable .badge-gray', 'background-color'],
+  ['#usersTable .badge-danger', 'color'], ['#usersTable .badge-danger', 'background-color'],
+  ['#usersTable .btn-outline', 'font-size'], ['#usersTable .btn-outline', 'padding-top'], ['#usersTable .btn-outline', 'padding-left'], ['#usersTable .btn-outline', 'border-width'],
+  ['#usersTable .text-xs', 'font-size'], ['#usersTable .text-xs', 'color'],
+  ['.flex.items-center.justify-between.mt-4', 'font-size'],
+  ['#paneUsers p.text-xs.mt-4', 'font-size'], ['#paneUsers p.text-xs.mt-4', 'color'],
+  // modals (ẩn)
+  ['#userModal', 'display'], ['#scopeModal', 'display'],
+  ['#userModal .card', 'width'], ['#userModal .card', 'padding-top'], ['#userModal .card', 'border-radius'],
+  ['#userModal .chip', 'padding-top'], ['#userModal .chip', 'border-width'], ['#userModal .chip', 'font-size'], ['#userModal .chip', 'border-radius'],
+  ['#scopeModal .card', 'width'], ['#scopeModal input[type=date]', 'padding-top'],
+];
+
+/** ===== đo SAU khi click tab Roles ===== */
+const CHECKS_USERS = [
+  // role list
+  ['.role-item', 'padding-top'], ['.role-item', 'border-width'], ['.role-item', 'border-radius'],
+  ['.role-item', 'margin-bottom'], ['.role-item', 'background-color'],
+  ['.role-item.active', 'border-color'], ['.role-item.active', 'background-color'],
+  ['.role-item b', 'font-size'], ['.role-item .text-xs', 'color'],
+  ['.role-item .badge-purple', 'color'], ['.role-item .badge-purple', 'background-color'], ['.role-item .badge-purple', 'font-size'],
+  // role detail
+  ['#roleTitle', 'font-size'], ['#roleTitle', 'font-weight'],
+  ['#roleDesc', 'font-size'], ['#roleDesc', 'color'],
+  ['p.text-xs.font-bold.uppercase.mb-2', 'font-size'], ['p.text-xs.font-bold.uppercase.mb-2', 'color'],
+  // permissions
+  ['.perm', 'padding-top'], ['.perm', 'font-size'], ['.perm', 'border-width'], ['.perm', 'border-radius'],
+  ['.perm', 'color'], ['.perm', 'background-color'],
+  ['.perm.on', 'border-color'], ['.perm.on', 'background-color'], ['.perm.on', 'color'],
+  // actions + note
+  ['#paneRoles .btn-outline', 'font-size'], ['#paneRoles .btn-outline', 'padding-top'],
+  ['#paneRoles .btn-primary', 'font-size'], ['#paneRoles .btn-primary', 'padding-top'],
+  ['#paneRoles p.text-xs.mt-4', 'font-size'], ['#paneRoles p.text-xs.mt-4', 'color'],
+];
+const MOBILE_USERS = [
+  ['.grid.grid-cols-1.lg\\:grid-cols-4', 'grid-template-columns'],
+  ['.role-item', 'width'],
+  ['.tab', 'font-size'],
+];
+
 /** đo 1 trang */
 async function collect(page, checks) {
   const rows = {};
@@ -197,8 +254,9 @@ async function collect(page, checks) {
   return rows;
 }
 
-/** mở 1 cặp (mockup + app), đo desktop + mobile, diff */
-async function audit(browser, { mockupFile, appPath, needLogin, mockupLogin, appFinalPath, waitSel, checks, mobileChecks, name }) {
+/** mở 1 cặp (mockup + app), đo desktop + mobile, diff.
+ *  beforeChecks: đo trước midClickSel; midClickSel: click giữa chừng (vd tab Roles); checks: đo sau click */
+async function audit(browser, { mockupFile, appPath, needLogin, mockupLogin, appFinalPath, waitSel, checks, beforeChecks = [], midClickSel, midWaitSel, mobileChecks, name }) {
   const mockupUrl = pathToFileURL(resolve(ROOT, 'docs/13-mockups', mockupFile)).href;
 
   // --- Mockup ---
@@ -213,11 +271,22 @@ async function audit(browser, { mockupFile, appPath, needLogin, mockupLogin, app
   }
   await pageA.waitForSelector(waitSel, { timeout: 10000 });
   await pageA.waitForTimeout(500);
-  const mockup = { ...(await collect(pageA, checks)), ...(await (async () => {
-    await pageA.setViewportSize({ width: 390, height: 844 });
-    await pageA.waitForTimeout(300);
-    return collect(pageA, mobileChecks);
-  })()) };
+  const mockup = {
+    ...(await collect(pageA, beforeChecks)),
+    ...(await (async () => {
+      if (midClickSel) {
+        await pageA.click(midClickSel);
+        await pageA.waitForSelector(midWaitSel, { timeout: 10000 });
+        await pageA.waitForTimeout(300);
+      }
+      return collect(pageA, checks);
+    })()),
+    ...(await (async () => {
+      await pageA.setViewportSize({ width: 390, height: 844 });
+      await pageA.waitForTimeout(300);
+      return collect(pageA, mobileChecks);
+    })()),
+  };
   await ctxA.close();
 
   // --- App (login nếu cần) ---
@@ -238,11 +307,22 @@ async function audit(browser, { mockupFile, appPath, needLogin, mockupLogin, app
   await pageB.evaluate(() => document.fonts.ready);
   await pageB.waitForSelector(waitSel, { timeout: 10000 });
   await pageB.waitForTimeout(500);
-  const app = { ...(await collect(pageB, checks)), ...(await (async () => {
-    await pageB.setViewportSize({ width: 390, height: 844 });
-    await pageB.waitForTimeout(300);
-    return collect(pageB, mobileChecks);
-  })()) };
+  const app = {
+    ...(await collect(pageB, beforeChecks)),
+    ...(await (async () => {
+      if (midClickSel) {
+        await pageB.click(midClickSel);
+        await pageB.waitForSelector(midWaitSel, { timeout: 10000 });
+        await pageB.waitForTimeout(300);
+      }
+      return collect(pageB, checks);
+    })()),
+    ...(await (async () => {
+      await pageB.setViewportSize({ width: 390, height: 844 });
+      await pageB.waitForTimeout(300);
+      return collect(pageB, mobileChecks);
+    })()),
+  };
   await ctxB.close();
 
   const diff = [];
@@ -268,6 +348,12 @@ function printResult(r) {
   console.log('');
 }
 
+function mockupFileFor(slug) {
+  if (slug === 'login' || slug === 'license') return '01-login-license.html';
+  if (slug === 'users') return '03-users-roles.html';
+  return '02-admin-dashboard.html';
+}
+
 function saveReport(r, slug) {
   writeFileSync(resolve(OUT_DIR, `report-${slug}.json`), JSON.stringify(r, null, 2), 'utf8');
   const md = [
@@ -275,7 +361,7 @@ function saveReport(r, slug) {
     '',
     `- Ngày chạy: ${new Date().toISOString()}`,
     '- Môi trường: Edge (channel msedge) headless · viewport 1280x900 + 390x844',
-    `- Mockup: \`docs/13-mockups/${slug === 'login' || slug === 'license' ? '01-login-license.html' : '02-admin-dashboard.html'}\` (file://) · App: \`${APP_URL}\``,
+    `- Mockup: \`docs/13-mockups/${mockupFileFor(slug)}\` (file://) · App: \`${APP_URL}\``,
     '- Cách chạy lại: `node apps/web/scripts/verify-design.mjs` (cần API + web dev server đang chạy)',
     '',
     `## Kết quả: **${r.summary.ok}/${r.summary.total} khớp** · ${r.summary.diff} khác biệt`,
@@ -322,14 +408,30 @@ try {
     mobileChecks: MOBILE_LIC,
   });
 
+  const rUsers = await audit(browser, {
+    name: 'Users & Roles (mockup 03 vs app /users)',
+    mockupFile: '03-users-roles.html',
+    appPath: '/login',
+    needLogin: true,
+    appFinalPath: '/users',
+    waitSel: '#usersTable',
+    beforeChecks: CHECKS_USERS_BEFORE,
+    midClickSel: '#tabRoles',
+    midWaitSel: '#roleList',
+    checks: CHECKS_USERS,
+    mobileChecks: MOBILE_USERS,
+  });
+
   printResult(rLogin);
   printResult(rDash);
   printResult(rLic);
+  printResult(rUsers);
   saveReport(rLogin, 'login');
   saveReport(rDash, 'dashboard');
   saveReport(rLic, 'license');
-  console.log(`Saved: ${resolve(OUT_DIR, 'report-{login,dashboard,license}.json')}`);
-  console.log(`Saved: ${resolve(OUT_DIR, 'design-verification-{login,dashboard,license}.md')}`);
+  saveReport(rUsers, 'users');
+  console.log(`Saved: ${resolve(OUT_DIR, 'report-{login,dashboard,license,users}.json')}`);
+  console.log(`Saved: ${resolve(OUT_DIR, 'design-verification-{login,dashboard,license,users}.md')}`);
 } finally {
   await browser.close();
 }

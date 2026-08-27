@@ -1,6 +1,6 @@
 # Design Verification — Dashboard + AppShell (mockup 02 vs app /dashboard)
 
-- Ngày chạy: 2026-08-27T04:34:37.728Z
+- Ngày chạy: 2026-08-27T06:14:12.711Z
 - Môi trường: Edge (channel msedge) headless · viewport 1280x900 + 390x844
 - Mockup: `docs/13-mockups/02-admin-dashboard.html` (file://) · App: `http://localhost:5517`
 - Cách chạy lại: `node apps/web/scripts/verify-design.mjs` (cần API + web dev server đang chạy)

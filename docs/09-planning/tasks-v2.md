@@ -301,21 +301,23 @@ team: "2 Full-stack Developers"
       - Deliverable: /api/users, /api/roles CRUD endpoints
       - Features: Assign roles, grant branch scope
 
-- [ ] **T036** [Frontend] User management page
+- [x] **T036** [Frontend] User management page
       - Estimate: 3 days
       - Owner: Dev2
       - Dependencies: T035
-      - Deliverable: List users, add/edit user, assign roles
-      - Route: /settings/users
-      - Features: ProTable, modal form, role selector
+      - Deliverable: Trang /users theo docs/13-mockups/03-users-roles.html (tab Users): filter search/role/branch/status,
+        bảng users (demo data), modal Tạo người dùng (chips roles), modal Cấp scope (type/object/from/to/reason)
+      - Deviation: route /users theo mockup (task cũ /settings/users ProTable); demo data — wire /api/users (T035) sau
+      - Verify: design verification audit — Users 87/87 computed style khớp (DIFF=0)
 
-- [ ] **T037** [Frontend] Role management page
+- [x] **T037** [Frontend] Role management page
       - Estimate: 2 days
       - Owner: Dev2
       - Dependencies: T035
-      - Deliverable: List roles, edit permissions
-      - Route: /settings/roles
-      - Features: Permission tree selector
+      - Deliverable: Tab Roles trong /users theo mockup 03: role list (8 roles, addon tag), 5 perm groups
+        (org/users/acad/fin/lic) toggle demo, Hoàn tác / Lưu thay đổi
+      - Deviation: tab trong /users theo mockup (task cũ /settings/roles + permission tree)
+      - Verify: design verification audit — Roles pane khớp (DIFF=0)
 
 ---
 
