@@ -188,5 +188,5 @@ Write-Host "`n============================================" -ForegroundColor Cya
 Write-Host " HOÀN TẤT sau $([int]((Get-Date)-$start).TotalSeconds)s" -ForegroundColor Green
 Write-Host " - kết nối DB:  postgresql://lms:<pass>@127.0.0.1:5432/educ_lms" -ForegroundColor White
 Write-Host " - Redis:       127.0.0.1:6379 (service Memurai/Redis)" -ForegroundColor White
-Write-Host " - Bước kế:     pnpm i && pnpm --filter api start:dev" -ForegroundColor White
+Write-Host " - Bước kế:     pnpm install && pnpm dev  (web 5173, api 4000, worker)" -ForegroundColor White
 Write-Host "============================================" -ForegroundColor Cyan

@@ -19,129 +19,91 @@ EduCenter LMS là hệ thống quản lý học tập (LMS) hiện đại với 
 ## 🏗️ Kiến trúc
 
 ```
-Frontend (React + TypeScript + Tailwind CSS)
-              ↕ REST API
-Backend (Node.js + Express + TypeScript)
-              ↕
-Database (PostgreSQL)
+Web (React 19 + Ant Design Pro)  ──►  API (NestJS 10 + TypeORM)  ──►  PostgreSQL 15/16 (educ_lms)
+        ↕                                    ↕
+  Vite (HMR)                        Redis 7 / Memurai (BullMQ queue + cache)
+                                            ↕
+                                     Worker (BullMQ consumer + cron)
 ```
 
-## 📦 Tech Stack
+## 📦 Tech Stack (D4)
 
-### Backend
+### Backend (`apps/api`)
 - **Language**: TypeScript
-- **Framework**: Express.js
-- **Database**: PostgreSQL 14
-- **ORM**: Raw SQL / Prisma (optional)
-- **Authentication**: JWT + bcrypt
-- **Validation**: Zod
-- **AI**: OpenAI API
+- **Framework**: NestJS 10.x
+- **Database**: PostgreSQL 15+ (database `educ_lms`)
+- **ORM**: TypeORM (migration chỉ tiến về trước; `synchronize=false`)
+- **Queue/Cache**: Redis 7+ (BullMQ)
+- **Authentication**: JWT + bcrypt (Phase 2, T016–T018)
+- **Validation**: class-validator
 
-### Frontend
+### Frontend (`apps/web`)
 - **Language**: TypeScript
-- **Framework**: React 18
-- **Styling**: Tailwind CSS
-- **State**: Zustand + React Query
+- **Framework**: React 19
+- **UI**: Ant Design 5.x + Ant Design Pro / ProComponents
 - **Routing**: React Router v6
-- **Forms**: React Hook Form + Zod
+- **i18n**: vi-VN mặc định + en-US (D8, Phase 3 T025)
+
+> Nguồn chuẩn: `docs/01-architecture.md` · `docs/00-project-overview.md` · `docs/02-spec.md`
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+
-- PostgreSQL 14+
-- npm hoặc yarn
+- Node.js 20 LTS + **pnpm 9** (xem `docs/06-deployment/dev-environment.md` để cài môi trường chuẩn: PostgreSQL 15/16 + Redis 7/Memurai)
+- PostgreSQL 15/16 (role `lms`, database `educ_lms` — script `scripts/dev-env-setup.ps1`)
+- Redis 7 / Memurai (BullMQ)
 
-### 1. Clone repository
+### 1. Cài dependencies
 ```bash
-git clone https://github.com/your-username/educenter-lms.git
-cd educenter-lms
+pnpm install
 ```
 
-### 2. Setup Database
+### 2. Chạy toàn bộ (web + api + worker)
 ```bash
-# Tạo database
-createdb educ_lms
-
-# Chạy schema
-psql -d educ_lms -f database/lms-schema.sql
-
-# Chạy seed data (optional)
-psql -d educ_lms -f database/lms-seed.sql
+pnpm dev
 ```
 
-### 3. Setup Backend
+| Thành phần | URL | Thư mục |
+|---|---|---|
+| Web (Vite + React 19 + AntD Pro) | http://localhost:5173 | `apps/web/` |
+| API (NestJS 10 + TypeORM + BullMQ) | http://localhost:4000/api | `apps/api/` |
+| Worker (BullMQ consumer) | — | `worker/` |
+
+### 3. Chạy từng phần
 ```bash
-cd backend
-
-# Install dependencies
-npm install
-
-# Copy environment variables
-cp .env.example .env
-
-# Edit .env với thông tin database của bạn
-# DATABASE_URL=postgresql://postgres:your-password@localhost:5432/educ_lms
-
-# Run development server
-npm run dev
+pnpm --filter @lms/api dev       # API — health check: http://localhost:4000/api/health
+pnpm --filter @lms/web dev       # Web
+pnpm --filter @lms/worker dev    # Worker
 ```
 
-Backend sẽ chạy tại: http://localhost:3000
-
-### 4. Setup Frontend (Coming soon)
+### 4. Cấu hình API
 ```bash
-cd frontend
-
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
+cp apps/api/.env.example apps/api/.env
+# chỉnh DATABASE_URL / REDIS_HOST / REDIS_PORT / JWT_SECRET
 ```
-
-Frontend sẽ chạy tại: http://localhost:5173
 
 ## 📁 Project Structure
 
 ```
 educenter-lms/
-├── backend/           # Node.js + Express API
-│   ├── src/
-│   │   ├── config/    # Configuration files
-│   │   ├── routes/    # API routes
-│   │   ├── controllers/
-│   │   ├── services/  # Business logic
-│   │   ├── middleware/
-│   │   ├── types/
-│   │   └── utils/
-│   └── package.json
-│
-├── frontend/          # React app (Coming soon)
-│
-├── database/          # SQL schemas & seed data
-│   ├── lms-schema.sql
-│   └── lms-seed.sql
-│
-├── docs/              # Documentation
-│   └── license-system-*.md (13 docs)
-│
-└── mockups/           # UI mockups
+├── apps/
+│   ├── web/          # React SPA (Vite + React 19 + Ant Design Pro)
+│   └── api/          # NestJS 10 + TypeORM + BullMQ
+├── worker/           # BullMQ worker process
+├── packages/
+│   └── shared/       # DTO/type/enums dùng chung
+├── database/         # SQL schema & seed (educ_lms)
+├── docs/             # Bộ tài liệu chuẩn (00–14 + archive)
+├── infra/            # (Phase 1 T008+) .deb, systemd, nginx, lms-setup
+├── mockups/          # UI mockups
+└── scripts/          # dev-env-setup.ps1, generate-workflows-canvas.js
 ```
+
+> Cây thư mục đầy đủ theo chuẩn: `docs/01-architecture.md` §3 · stack theo D4: React 19 + AntD Pro · NestJS 10 + TypeORM · PostgreSQL 15/16 + Redis 7 (BullMQ) · KHÔNG Docker.
 
 ## 🧪 Testing
 
-### Backend
-```bash
-cd backend
-npm test
-```
-
-### Frontend
-```bash
-cd frontend
-npm test
-```
+Tính năng test sẽ được bổ sung theo lộ trình (xem `docs/09-planning/progress-tracker.html` — hiện tại test runner Vitest cho web, Jest/Supertest cho api chưa cài).
 
 ## 📖 API Documentation
 
