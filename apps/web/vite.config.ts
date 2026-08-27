@@ -5,7 +5,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 5173,
+    port: 5517,
     proxy: {
       // Mọi request /api/* chuyển về NestJS (apps/api, port 4001)
       '/api': {

@@ -65,7 +65,7 @@ pnpm dev
 
 | Thành phần | URL | Thư mục |
 |---|---|---|
-| Web (Vite + React 19 + AntD Pro) | http://localhost:5173 | `apps/web/` |
+| Web (Vite + React 19 + AntD Pro) | http://localhost:5517 | `apps/web/` |
 | API (NestJS 10 + TypeORM + BullMQ) | http://localhost:4001/api | `apps/api/` |
 | Worker (BullMQ consumer) | — | `worker/` |
 

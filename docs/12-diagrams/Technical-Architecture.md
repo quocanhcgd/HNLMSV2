@@ -804,7 +804,7 @@ services:
   web:
     build: ./frontend
     ports:
-      - "5173:5173"
+      - "5517:5517"
     environment:
       VITE_API_URL: http://localhost:3000
     volumes:

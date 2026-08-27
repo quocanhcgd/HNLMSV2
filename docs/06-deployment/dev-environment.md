@@ -76,7 +76,7 @@ Remove-Item Env:PGPASSWORD
 | Database URL | `postgresql://lms:lms_dev@127.0.0.1:5432/educ_lms` |
 | Redis | `127.0.0.1:6379` |
 | API dev port | `4001` (NestJS — theo `01-architecture.md`) |
-| Web dev port | `5173` (Vite) |
+| Web dev port | `5517` (Vite — 5173 thường bị AI agent preview chiếm) |
 
 Template `.env` cho `apps/api` (đã scaffold ở T004):
 ```dotenv
