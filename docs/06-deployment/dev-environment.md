@@ -86,6 +86,8 @@ DATABASE_URL=postgresql://lms:lms_dev@127.0.0.1:5432/educ_lms
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
 JWT_SECRET=dev-only-secret-change-me
+JWT_ACCESS_TTL_SECONDS=900
+JWT_REFRESH_TTL_SECONDS=604800
 ```
 
 ### 5.2 Migration TypeORM (schema tiến về trước — quy tắc coding-rules 2.6)

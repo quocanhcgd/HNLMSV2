@@ -10,6 +10,8 @@ export default () => ({
   },
   jwt: {
     secret: process.env.JWT_SECRET ?? 'dev-only-secret-change-me',
-    expiresIn: process.env.JWT_EXPIRES_IN ?? '8h',
+    // access 15 phút + refresh 7 ngày (docs/05-api/api-spec.md §1)
+    accessTtlSeconds: Number(process.env.JWT_ACCESS_TTL_SECONDS ?? 900),
+    refreshTtlSeconds: Number(process.env.JWT_REFRESH_TTL_SECONDS ?? 604800),
   },
 });

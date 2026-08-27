@@ -1,11 +1,13 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
+  app.use(cookieParser()); // refresh cookie HTTP-only (T017)
   app.enableCors({ origin: true, credentials: true });
   app.useGlobalPipes(
     new ValidationPipe({
@@ -22,7 +24,7 @@ async function bootstrap() {
       'API tài liệu OpenAPI. License: contract /license/* là FUTURE (D9) — trả license mặc định (dev/evaluation), chưa enforce constraint.',
     )
     .setVersion('0.1.0')
-    .addTag('auth', 'Xác thực: register (T016), login/JWT (T017)')
+    .addTag('auth', 'Xác thực: register (T016), login/refresh/logout + /me/context (T017)')
     .addTag('license', 'FUTURE (D9) — contract chờ hệ thống quản lý license')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);

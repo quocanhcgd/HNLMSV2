@@ -148,7 +148,7 @@ team: "2 Full-stack Developers"
       - Deliverable: Users table, bcrypt password hashing
       - Fields: email, password_hash, full_name, status
 
-- [ ] **T017** [Backend] Implement JWT authentication
+- [x] **T017** [Backend] Implement JWT authentication
       - Estimate: 2 days
       - Owner: Dev1
       - Dependencies: T016
