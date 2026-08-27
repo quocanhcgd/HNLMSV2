@@ -74,9 +74,20 @@ Write-Ok "psql $(psql --version)"
 
 $pgUser = Read-Host "   Superuser PostgreSQL (mặc định: postgres)" 
 if ([string]::IsNullOrWhiteSpace($pgUser)) { $pgUser = 'postgres' }
-$pgPass = Read-Host -AsSecureString "   Mật khẩu superuser '$pgUser'"
-$pgPassPlain = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($pgPass))
-if ([string]::IsNullOrEmpty($pgPassPlain)) { throw "Cần mật khẩu superuser PostgreSQL để tạo database" }
+$pgPassPlain = $null
+for ($attempt = 1; $attempt -le 3 -and -not $pgPassPlain; $attempt++) {
+    $pgPass = Read-Host -AsSecureString "   Mật khẩu superuser '$pgUser' (lần $attempt/3)"
+    $pgPassPlain = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($pgPass))
+    if ([string]::IsNullOrEmpty($pgPassPlain)) { Write-Warn "Mật khẩu trống - thử lại"; $pgPassPlain = $null; continue }
+    $env:PGPASSWORD = $pgPassPlain
+    $test = & psql -U $pgUser -h 127.0.0.1 -p 5432 -d postgres -tAc "SELECT 1" 2>&1
+    if ($LASTEXITCODE -eq 0 -and "$test".Trim() -eq '1') { Write-Ok "Kết nối PostgreSQL OK (user $pgUser, port 5432)"; break }
+    $detail = ($test -join ' ').Trim()
+    if ($detail.Length -gt 220) { $detail = $detail.Substring(0, 220) + '...' }
+    Write-Warn "Kết nối thất bại. Chi tiết: $detail"
+    $pgPassPlain = $null
+}
+if (-not $pgPassPlain) { throw "Không kết nối được PostgreSQL - kiểm tra mật khẩu, port 5432 và service postgresql-x64-16 (xem lỗi psql phía trên)" }
 
 $lmsPass = Read-Host -AsSecureString "   Mật khẩu cho role dev 'lms' (Enter = mặc định 'lms_dev')"
 $lmsPassPlain = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($lmsPass))
@@ -88,17 +99,17 @@ $schema = Join-Path $root 'database\lms-schema.sql'
 $seed   = Join-Path $root 'database\lms-seed.sql'
 
 # Role + database (idempotent)
-$sql = @"
-DO \$\$ BEGIN
+$sql = @'
+DO $$ BEGIN
   IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'lms') THEN
-    CREATE ROLE lms LOGIN PASSWORD '$lmsPassPlain';
+    CREATE ROLE lms LOGIN PASSWORD :'lmsPass';
   ELSE
-    ALTER ROLE lms WITH LOGIN PASSWORD '$lmsPassPlain';
+    ALTER ROLE lms WITH LOGIN PASSWORD :'lmsPass';
   END IF;
-END \$\$;
-"@
-& psql -U $pgUser -h 127.0.0.1 -p 5432 -d postgres -v ON_ERROR_STOP=1 -c $sql
-if ($LASTEXITCODE -ne 0) { throw "Tạo role lms thất bại (sai mật khẩu superuser?)" }
+END $$;
+'@
+& psql -U $pgUser -h 127.0.0.1 -p 5432 -d postgres -v ON_ERROR_STOP=1 -v lmsPass=$lmsPassPlain -c $sql
+if ($LASTEXITCODE -ne 0) { throw "Tạo role lms thất bại - xem lỗi psql phía trên (bước kết nối superuser đã OK nên không phải lỗi mật khẩu)" }
 
 $dbExists = "$(& psql -U $pgUser -h 127.0.0.1 -p 5432 -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='educ_lms'")".Trim()
 $legacyExists = "$(& psql -U $pgUser -h 127.0.0.1 -p 5432 -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='educenter_lms'")".Trim()
