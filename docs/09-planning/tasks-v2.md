@@ -390,12 +390,18 @@ team: "2 Full-stack Developers"
 
 ### Student & Enrollment
 
+> **DECISION (T030/T031 review, 2026-08):** Mô hình 3 lớp theo docs/03-data-model.md §4 — KHÔNG gộp học sinh/phụ huynh vào users:
+> - `users` = ACCOUNT đăng nhập (email/pass/2FA/role/scope) — mọi người dùng hệ thống. Màn /users (P4) chỉ quản lý account, đúng US2.
+> - `students` = HỒ SƠ học vụ (student_code, dob, gender, phone, guardian_phone, identity_ref, status graduated/dropped, notes) — tách bảng riêng, `user_id` FK users NULL nếu học viên chưa có account. DDL đã có (04-database-schema §students) + scope_grants đã có cột student scope → P5 nối vào tự nhiên.
+> - `ParentLink`/`Delegation` = **(P2 addon Parent)** — parent user ↔ student + relationship + hiệu lực từ/đến + người duyệt; quyền phụ huynh là ủy quyền theo từng học viên, có thời hạn, thu hồi được. CHƯA thêm vào DDL; KHÔNG thêm role `Parent` vào seed trước khi có machinery delegation (role rỗng vô dụng).
+> - Luồng US4: tạo student profile (registry) → chọn class → invoice → enrollment Pending Payment → active. Phone user (DDL đã có) chưa đưa vào form tạo user — bổ sung khi cần.
+
 - [ ] **T044** [Backend] Create Student entity
       - Estimate: 1 day
       - Owner: Dev1
       - Dependencies: T005
       - Deliverable: students table, CRUD service
-      - Fields: org_id, full_name, dob, email, phone, status
+      - Fields: theo DDL chuẩn — org_id, user_id (nullable), student_code (unique), full_name, dob, gender, phone, guardian_phone, identity_ref, status (active|inactive|graduated|dropped), notes (KHÔNG có email — email thuộc users account)
 
 - [ ] **T045** [Backend] Create Enrollment entity
       - Estimate: 2 days
