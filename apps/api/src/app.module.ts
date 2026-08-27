@@ -3,9 +3,11 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import configuration from './config/configuration';
+import { AuthModule } from './modules/auth/auth.module';
 import { HealthModule } from './modules/health/health.module';
 import { LicenseModule } from './modules/license/license.module';
 import { QueueModule } from './modules/queue/queue.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -31,9 +33,11 @@ import { QueueModule } from './modules/queue/queue.module';
         },
       }),
     }),
+    AuthModule,
     HealthModule,
     LicenseModule,
     QueueModule,
+    UsersModule,
   ],
 })
 export class AppModule {}

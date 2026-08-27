@@ -22,6 +22,7 @@ async function bootstrap() {
       'API tài liệu OpenAPI. License: contract /license/* là FUTURE (D9) — trả license mặc định (dev/evaluation), chưa enforce constraint.',
     )
     .setVersion('0.1.0')
+    .addTag('auth', 'Xác thực: register (T016), login/JWT (T017)')
     .addTag('license', 'FUTURE (D9) — contract chờ hệ thống quản lý license')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);

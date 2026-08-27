@@ -141,7 +141,7 @@ team: "2 Full-stack Developers"
 
 ### Authentication
 
-- [ ] **T016** [Backend] Create User entity and authentication module
+- [x] **T016** [Backend] Create User entity and authentication module
       - Estimate: 2 days
       - Owner: Dev1
       - Dependencies: T005
