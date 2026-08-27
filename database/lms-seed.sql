@@ -9,30 +9,30 @@
 
 -- Admin user
 INSERT INTO users (id, email, password_hash, full_name, role, status, email_verified, created_at) VALUES
-('550e8400-e29b-41d4-a716-446655440000', 'admin@educenter.vn', '$2b$10$rKJ5H.qQZ5z0MvqY8P8zKOX8j7KqZ5z0MvqY8P8zKOX8j7Kq', 'Admin User', 'Admin', 'Active', TRUE, NOW());
+('550e8400-e29b-41d4-a716-446655440000', 'admin@educenter.vn', '$2a$10$40S.iEM8CPv/S2j7OZVupeV7pKvaFpFYRIWJykGwnTAdRnDlJj1WS', 'Admin User', 'Admin', 'Active', TRUE, NOW());
 -- Password: admin123 (hashed with bcrypt)
 
 -- Teachers
 INSERT INTO users (id, email, password_hash, full_name, avatar_url, role, status, email_verified, created_at) VALUES
-('660e8400-e29b-41d4-a716-446655440001', 'tranvanb@educenter.vn', '$2b$10$rKJ5H.qQZ5z0MvqY8P8zKOX8j7KqZ5z0MvqY8P8zKOX8j7Kq', 'Prof. Tran Van B', 'https://ui-avatars.com/api/?name=Tran+Van+B&background=0d9488&color=fff', 'Teacher', 'Active', TRUE, NOW()),
-('660e8400-e29b-41d4-a716-446655440002', 'nguyenthic@educenter.vn', '$2b$10$rKJ5H.qQZ5z0MvqY8P8zKOX8j7KqZ5z0MvqY8P8zKOX8j7Kq', 'Dr. Nguyen Thi C', 'https://ui-avatars.com/api/?name=Nguyen+Thi+C&background=8b5cf6&color=fff', 'Teacher', 'Active', TRUE, NOW()),
-('660e8400-e29b-41d4-a716-446655440003', 'lethid@educenter.vn', '$2b$10$rKJ5H.qQZ5z0MvqY8P8zKOX8j7KqZ5z0MvqY8P8zKOX8j7Kq', 'Ms. Le Thi D', 'https://ui-avatars.com/api/?name=Le+Thi+D&background=ec4899&color=fff', 'Teacher', 'Active', TRUE, NOW());
+('660e8400-e29b-41d4-a716-446655440001', 'tranvanb@educenter.vn', '$2a$10$wjn3zr18wzMxYgUTsoLoaOEe30r1C8rzftBz5wxtjNKe.RexRHTPC', 'Prof. Tran Van B', 'https://ui-avatars.com/api/?name=Tran+Van+B&background=0d9488&color=fff', 'Teacher', 'Active', TRUE, NOW()),
+('660e8400-e29b-41d4-a716-446655440002', 'nguyenthic@educenter.vn', '$2a$10$wjn3zr18wzMxYgUTsoLoaOEe30r1C8rzftBz5wxtjNKe.RexRHTPC', 'Dr. Nguyen Thi C', 'https://ui-avatars.com/api/?name=Nguyen+Thi+C&background=8b5cf6&color=fff', 'Teacher', 'Active', TRUE, NOW()),
+('660e8400-e29b-41d4-a716-446655440003', 'lethid@educenter.vn', '$2a$10$wjn3zr18wzMxYgUTsoLoaOEe30r1C8rzftBz5wxtjNKe.RexRHTPC', 'Ms. Le Thi D', 'https://ui-avatars.com/api/?name=Le+Thi+D&background=ec4899&color=fff', 'Teacher', 'Active', TRUE, NOW());
 -- Password for all: teacher123
 
 -- Students
 INSERT INTO users (id, email, password_hash, full_name, avatar_url, date_of_birth, gender, role, status, email_verified, created_at) VALUES
-('770e8400-e29b-41d4-a716-446655440010', 'nguyenvana@student.edu', '$2b$10$rKJ5H.qQZ5z0MvqY8P8zKOX8j7KqZ5z0MvqY8P8zKOX8j7Kq', 'Nguyen Van A', 'https://ui-avatars.com/api/?name=Nguyen+Van+A&background=0d9488&color=fff', '2005-03-15', 'Male', 'Student', 'Active', TRUE, NOW()),
-('770e8400-e29b-41d4-a716-446655440011', 'tranthib@student.edu', '$2b$10$rKJ5H.qQZ5z0MvqY8P8zKOX8j7KqZ5z0MvqY8P8zKOX8j7Kq', 'Tran Thi B', 'https://ui-avatars.com/api/?name=Tran+Thi+B&background=10b981&color=fff', '2005-07-20', 'Female', 'Student', 'Active', TRUE, NOW()),
-('770e8400-e29b-41d4-a716-446655440012', 'levanthanh@student.edu', '$2b$10$rKJ5H.qQZ5z0MvqY8P8zKOX8j7KqZ5z0MvqY8P8zKOX8j7Kq', 'Le Van Thanh', 'https://ui-avatars.com/api/?name=Le+Van+Thanh&background=f59e0b&color=fff', '2005-11-08', 'Male', 'Student', 'Active', TRUE, NOW()),
-('770e8400-e29b-41d4-a716-446655440013', 'phamthihoa@student.edu', '$2b$10$rKJ5H.qQZ5z0MvqY8P8zKOX8j7KqZ5z0MvqY8P8zKOX8j7Kq', 'Pham Thi Hoa', 'https://ui-avatars.com/api/?name=Pham+Thi+Hoa&background=8b5cf6&color=fff', '2005-05-25', 'Female', 'Student', 'Active', TRUE, NOW()),
-('770e8400-e29b-41d4-a716-446655440014', 'hoangvanminh@student.edu', '$2b$10$rKJ5H.qQZ5z0MvqY8P8zKOX8j7KqZ5z0MvqY8P8zKOX8j7Kq', 'Hoang Van Minh', 'https://ui-avatars.com/api/?name=Hoang+Van+Minh&background=ec4899&color=fff', '2005-09-12', 'Male', 'Student', 'Active', TRUE, NOW());
+('770e8400-e29b-41d4-a716-446655440010', 'nguyenvana@student.edu', '$2a$10$zj1NOmbkQV5J1cMeAKDoEeQo8SG/fxPT7tfoFyaPyObsNUTjFb39i', 'Nguyen Van A', 'https://ui-avatars.com/api/?name=Nguyen+Van+A&background=0d9488&color=fff', '2005-03-15', 'Male', 'Student', 'Active', TRUE, NOW()),
+('770e8400-e29b-41d4-a716-446655440011', 'tranthib@student.edu', '$2a$10$zj1NOmbkQV5J1cMeAKDoEeQo8SG/fxPT7tfoFyaPyObsNUTjFb39i', 'Tran Thi B', 'https://ui-avatars.com/api/?name=Tran+Thi+B&background=10b981&color=fff', '2005-07-20', 'Female', 'Student', 'Active', TRUE, NOW()),
+('770e8400-e29b-41d4-a716-446655440012', 'levanthanh@student.edu', '$2a$10$zj1NOmbkQV5J1cMeAKDoEeQo8SG/fxPT7tfoFyaPyObsNUTjFb39i', 'Le Van Thanh', 'https://ui-avatars.com/api/?name=Le+Van+Thanh&background=f59e0b&color=fff', '2005-11-08', 'Male', 'Student', 'Active', TRUE, NOW()),
+('770e8400-e29b-41d4-a716-446655440013', 'phamthihoa@student.edu', '$2a$10$zj1NOmbkQV5J1cMeAKDoEeQo8SG/fxPT7tfoFyaPyObsNUTjFb39i', 'Pham Thi Hoa', 'https://ui-avatars.com/api/?name=Pham+Thi+Hoa&background=8b5cf6&color=fff', '2005-05-25', 'Female', 'Student', 'Active', TRUE, NOW()),
+('770e8400-e29b-41d4-a716-446655440014', 'hoangvanminh@student.edu', '$2a$10$zj1NOmbkQV5J1cMeAKDoEeQo8SG/fxPT7tfoFyaPyObsNUTjFb39i', 'Hoang Van Minh', 'https://ui-avatars.com/api/?name=Hoang+Van+Minh&background=ec4899&color=fff', '2005-09-12', 'Male', 'Student', 'Active', TRUE, NOW());
 -- Password for all students: student123
 
 -- More students (for realistic class sizes)
 INSERT INTO users (email, password_hash, full_name, date_of_birth, gender, role, status, email_verified, created_at)
 SELECT
     'student' || generate_series || '@student.edu',
-    '$2b$10$rKJ5H.qQZ5z0MvqY8P8zKOX8j7KqZ5z0MvqY8P8zKOX8j7Kq',
+    '$2a$10$zj1NOmbkQV5J1cMeAKDoEeQo8SG/fxPT7tfoFyaPyObsNUTjFb39i',
     'Student ' || generate_series,
     DATE '2005-01-01' + (random() * 365 * 3)::int,
     CASE WHEN random() < 0.5 THEN 'Male' ELSE 'Female' END,

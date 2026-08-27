@@ -3,12 +3,15 @@ import {
   BankOutlined,
   BookOutlined,
   DashboardOutlined,
+  LogoutOutlined,
   SettingOutlined,
   TeamOutlined,
   UserOutlined,
 } from '@ant-design/icons';
+import { Avatar, Dropdown } from 'antd';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { APP_NAME } from '@lms/shared';
+import { useAuth } from '../auth/AuthContext';
 
 const menuItems = [
   { path: '/dashboard', name: 'Tổng quan', icon: <DashboardOutlined /> },
@@ -22,6 +25,12 @@ const menuItems = [
 export function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login', { replace: true });
+  };
 
   return (
     <ProLayout
@@ -33,6 +42,26 @@ export function AdminLayout() {
       layout="mix"
       fixSiderbar
       contentStyle={{ minHeight: '100vh' }}
+      avatarProps={{
+        size: 'small',
+        icon: <UserOutlined />,
+        title: user?.fullName ?? user?.email ?? '—',
+        render: (_props, dom) => (
+          <Dropdown
+            menu={{
+              items: [{ key: 'logout', icon: <LogoutOutlined />, label: 'Đăng xuất' }],
+              onClick: ({ key }) => key === 'logout' && void handleLogout(),
+            }}
+          >
+            {dom}
+          </Dropdown>
+        ),
+      }}
+      actionsRender={() => [
+        <Avatar key="role" size="small" style={{ background: '#0d9488', cursor: 'default' }}>
+          {(user?.role ?? '?').slice(0, 1).toUpperCase()}
+        </Avatar>,
+      ]}
     >
       <Outlet />
     </ProLayout>

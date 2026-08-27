@@ -162,7 +162,7 @@ team: "2 Full-stack Developers"
       - Deliverable: @RequireRole(), @RequirePermission() decorators
       - Logic: Check JWT claims against route requirements
 
-- [ ] **T019** [Frontend] Login page
+- [x] **T019** [Frontend] Login page
       - Estimate: 1 day
       - Owner: Dev2
       - Dependencies: T017
