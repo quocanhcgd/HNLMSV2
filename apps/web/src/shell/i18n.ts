@@ -146,6 +146,15 @@ export interface AdminDict {
   total_students: string; page_label: string; f_class: string;
   btn_enroll: string; modal_enroll: string; toast_student_created: string; toast_student_updated: string;
   toast_enrolled: string; tab_enrollments: string; ph_search_student: string; student_detail: string;
+  // --- Learning contents (T052 — tab Học liệu trong Academic + /learning/contents) ---
+  tab_content: string; lc_upload: string; lc_edit: string; lc_no_content: string;
+  lc_all_classes: string; lc_all_scopes: string; lc_need_title_file: string; lc_total: string;
+  lc_title_ph: string; lc_multiple_hint: string; lc_limit: string;
+  col_title: string; col_type: string; col_classes: string; col_size: string; col_uploaded_at: string;
+  ct_document: string; ct_video: string; ct_audio: string; ct_presentation: string; ct_interactive: string; ct_ebook: string;
+  sc_public: string; sc_class: string; sc_private: string;
+  f_file: string;
+  toast_content_uploaded: string; toast_content_updated: string;
 }
 
 export const I18N: Record<'vi' | 'en', AdminDict> = {
@@ -348,6 +357,15 @@ export const I18N: Record<'vi' | 'en', AdminDict> = {
     total_students: 'Tổng {n} học viên', page_label: 'Trang {page}/{total}', f_class: 'Lớp',
     btn_enroll: 'Ghi danh', modal_enroll: 'Ghi danh vào lớp', toast_student_created: '✅ Đã tạo hồ sơ học viên', toast_student_updated: '✅ Đã cập nhật hồ sơ',
     toast_enrolled: '✅ Đã ghi danh', tab_enrollments: 'Ghi danh', ph_search_student: '🔍 Tìm theo tên / mã học viên...', student_detail: 'Hồ sơ học viên',
+    // Learning contents (T052)
+    tab_content: 'Học liệu', lc_upload: 'Tải lên học liệu', lc_edit: 'Sửa học liệu', lc_no_content: 'Chưa có học liệu nào',
+    lc_all_classes: 'Tất cả lớp', lc_all_scopes: 'Tất cả phạm vi', lc_need_title_file: 'Cần nhập tiêu đề và chọn file', lc_total: 'Tổng {n} học liệu',
+    lc_title_ph: 'Ví dụ: Bài giảng ngữ pháp tuần 3', lc_multiple_hint: 'Giữ Ctrl (⌘ trên Mac) để chọn nhiều lớp', lc_limit: 'tối đa 500MB — pdf/doc/mp4/mp3/zip...',
+    col_title: 'Tiêu đề', col_type: 'Loại', col_classes: 'Lớp', col_size: 'Dung lượng', col_uploaded_at: 'Ngày đăng',
+    ct_document: 'Tài liệu', ct_video: 'Video', ct_audio: 'Audio', ct_presentation: 'Bài giảng', ct_interactive: 'Tương tác', ct_ebook: 'Sách điện tử',
+    sc_public: 'Công khai', sc_class: 'Theo lớp', sc_private: 'Riêng tư',
+    f_file: 'File *',
+    toast_content_uploaded: '✅ Đã tải lên học liệu', toast_content_updated: '✅ Đã cập nhật học liệu',
   },
   en: {
     org_name: 'ABC Language Center',
@@ -548,5 +566,14 @@ export const I18N: Record<'vi' | 'en', AdminDict> = {
     total_students: 'Total {n} students', page_label: 'Page {page}/{total}', f_class: 'Class',
     btn_enroll: 'Enroll', modal_enroll: 'Enroll to class', toast_student_created: '✅ Student created', toast_student_updated: '✅ Student updated',
     toast_enrolled: '✅ Enrolled', tab_enrollments: 'Enrollments', ph_search_student: '🔍 Search by name / code...', student_detail: 'Student profile',
+    // Learning contents (T052)
+    tab_content: 'Learning materials', lc_upload: 'Upload content', lc_edit: 'Edit content', lc_no_content: 'No content yet',
+    lc_all_classes: 'All classes', lc_all_scopes: 'All scopes', lc_need_title_file: 'Title and file are required', lc_total: 'Total {n} items',
+    lc_title_ph: 'e.g. Grammar lesson week 3', lc_multiple_hint: 'Hold Ctrl (⌘ on Mac) to select multiple classes', lc_limit: 'max 500MB — pdf/doc/mp4/mp3/zip...',
+    col_title: 'Title', col_type: 'Type', col_classes: 'Classes', col_size: 'Size', col_uploaded_at: 'Uploaded',
+    ct_document: 'Document', ct_video: 'Video', ct_audio: 'Audio', ct_presentation: 'Presentation', ct_interactive: 'Interactive', ct_ebook: 'Ebook',
+    sc_public: 'Public', sc_class: 'Class', sc_private: 'Private',
+    f_file: 'File *',
+    toast_content_uploaded: '✅ Content uploaded', toast_content_updated: '✅ Content updated',
   },
 };

@@ -81,6 +81,7 @@ const HEADER_META: Record<string, { title: string[]; sub: string }> = {
   '/license': { title: ['crumb_settings', 'page_license'], sub: 'page_sub_lic' },
   '/users': { title: ['page_users'], sub: 'page_sub_users' },
   '/academic': { title: ['nav_academic'], sub: 'page_sub_academic' },
+  '/learning/contents': { title: ['nav_academic'], sub: 'page_sub_academic' },
   '/reports': { title: ['page_reports'], sub: 'page_sub_reports' },
   '/students': { title: ['nav_enroll'], sub: 'page_sub_students' },
   '/finance': { title: ['nav_finance'], sub: '' },

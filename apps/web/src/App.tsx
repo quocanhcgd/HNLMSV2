@@ -9,6 +9,7 @@ import { OrgPage } from './pages/Org';
 import { UsersRolesPage } from './pages/UsersRoles';
 import { AcademicPage } from './pages/Academic';
 import { StudentsPage } from './pages/Students';
+import { LearningContents } from './pages/LearningContents';
 import { ReportsPage } from './pages/Reports';
 import { PlaceholderPage } from './pages/Placeholder';
 
@@ -46,6 +47,7 @@ export default function App() {
           <Route path="/license" element={<LicensePage />} />
           <Route path="/users" element={<UsersRolesPage />} />
           <Route path="/academic" element={<AcademicPage />} />
+          <Route path="/learning/contents" element={<LearningContents />} />
           <Route path="/students" element={<StudentsPage />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/courses" element={<PlaceholderPage title="Quản lý khóa học" />} />

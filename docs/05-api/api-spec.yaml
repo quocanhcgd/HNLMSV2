@@ -1402,6 +1402,9 @@ paths:
           description: Đã tải lên
         "413":
           description: Vượt giới hạn 500MB
+  # DEVIATION (T050, D9): chưa có anti-virus scanner — server chặn bằng allowlist
+  # MIME/extension + giới hạn 500MB + ghi SHA-256 (file_hash). Storage local
+  # apps/api/uploads (prod /var/lms/uploads — docs/07-operations).
 
   /learning/content/{content_id}/download:
     parameters:
@@ -1413,7 +1416,7 @@ paths:
           format: uuid
     get:
       tags: [Learning]
-      summary: Tải file học liệu (URL chỉ cấp sau authorization)
+      summary: Tải file học liệu (URL chỉ cấp sau authorization — 403 nếu không thuộc phạm vi public/class/private)
       operationId: downloadContent
       security:
         - bearerAuth: []
@@ -1425,6 +1428,43 @@ paths:
               schema:
                 type: string
                 format: binary
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /learning/content/{content_id}:
+    parameters:
+      - name: content_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    put:
+      tags: [Learning]
+      summary: "Sửa học liệu: tiêu đề / access_scope / class_ids (DEVIATION — thêm ngoài api-spec gốc, theo T052; chỉ chủ sở hữu hoặc admin)"
+      operationId: updateContent
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                access_scope:
+                  type: string
+                  enum: [public, class, private]
+                class_ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        "200":
+          description: Đã cập nhật
         "403":
           $ref: "#/components/responses/Forbidden"
 

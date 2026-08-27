@@ -27,3 +27,6 @@ tmp/
 .idea/
 .vscode/
 *.swp
+
+# Runtime uploads (T050)
+apps/api/uploads/

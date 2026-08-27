@@ -27,11 +27,12 @@ import {
 } from '../services/academic';
 import { listUsers, type UserRow } from '../services/users';
 import { listBranches, type Branch } from '../services/org';
+import { LearningContents } from './LearningContents';
 
 /**
  * T041–T043 — Academic screen (route /academic = nav mockup 02 nav_academic "Đào tạo").
  * Mockup 02 KHÔNG có screen academic → thiết kế theo design system mockup 02/03 + contract
- * api-spec Academic + DDL §6. 4 tab: Ngành → Chương trình → Khóa học → Lớp học.
+ * api-spec Academic + DDL §6. 5 tab: Ngành → Chương trình → Khóa học → Lớp học → Học liệu (T052).
  * Tab Lớp học có chi tiết lớp (giảng viên) + lịch học (chống trùng — backend trả 409).
  */
 
@@ -816,7 +817,7 @@ function ClassesTab({ programs, courses, branches }: { programs: Program[]; cour
 /* ================= PAGE ================= */
 export function AcademicPage() {
   const { t } = useShell();
-  const [tab, setTab] = useState<'dept' | 'program' | 'course' | 'class'>('dept');
+  const [tab, setTab] = useState<'dept' | 'program' | 'course' | 'class' | 'content'>('dept');
   const [departments, setDepartments] = useState<Department[]>([]);
   const [programs, setPrograms] = useState<Program[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
@@ -838,6 +839,7 @@ export function AcademicPage() {
     { key: 'program', label: t('tab_program') },
     { key: 'course', label: t('tab_course') },
     { key: 'class', label: t('tab_class') },
+    { key: 'content', label: t('tab_content') },
   ];
 
   return (
@@ -857,6 +859,7 @@ export function AcademicPage() {
       {tab === 'program' && <ProgramsTab departments={departments} />}
       {tab === 'course' && <CoursesTab programs={programs} />}
       {tab === 'class' && <ClassesTab programs={programs} courses={courses} branches={branches} />}
+      {tab === 'content' && <LearningContents />}
     </div>
   );
 }

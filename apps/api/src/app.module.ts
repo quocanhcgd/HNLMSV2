@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import configuration from './config/configuration';
 import { AcademicModule } from './modules/academic/academic.module';
 import { StudentsModule } from './modules/students/students.module';
+import { LearningModule } from './modules/learning/learning.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AuthzGuard } from './modules/auth/authz.guard';
 import { JwtAuthGuard } from './modules/auth/jwt-auth.guard';
@@ -44,6 +45,7 @@ import { UsersModule } from './modules/users/users.module';
     AuthModule,
     AcademicModule,
     StudentsModule,
+    LearningModule,
     HealthModule,
     LicenseModule,
     OrgModule,

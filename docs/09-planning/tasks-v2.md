@@ -451,33 +451,37 @@ team: "2 Full-stack Developers"
 
 ### Learning Portal
 
-- [ ] **T049** [Backend] Create LearningContent entity
+- [x] **T049** [Backend] Create LearningContent entity
       - Estimate: 1 day
       - Owner: Dev1
       - Dependencies: T005
       - Deliverable: learning_contents table
       - Fields: title, type, file_path, access_scope, class_id
+      - DONE: migration 1787800000008 — learning_content + content_versions + content_class_links (content_progress + library_* chờ T053/T055). Data-fix migration 1787800000009: permissions content:read + content:manage (teacher/academic_manager = manage+read; branch_manager/student = read; admin '*' qua).
 
-- [ ] **T050** [Backend] Content upload and storage
+- [x] **T050** [Backend] Content upload and storage
       - Estimate: 2 days
       - Owner: Dev1
       - Dependencies: T049
       - Deliverable: POST /api/learning-contents/upload
       - Storage: Local filesystem under /var/lms/uploads/
+      - DONE: POST /learning/content (multipart: title + file + access_scope + class_ids[]) → 201; 413 quá 500MB (multer filter). Storage local apps/api/uploads/learning/{id}/v1/ (env LMS_UPLOAD_DIR override; prod /var/lms/uploads). SHA-256 file_hash + content_versions v1 + content_class_links. DEVIATION (D9): chưa có anti-virus scanner — allowlist MIME/extension + SHA-256 hash thay thế; branch_id của học liệu = chi nhánh duy nhất trong scope (nếu bị giới hạn).
 
-- [ ] **T051** [Backend] Content authorization
+- [x] **T051** [Backend] Content authorization
       - Estimate: 1 day
       - Owner: Dev1
       - Dependencies: T050
       - Deliverable: GET /api/learning-contents/:id/download with auth check
       - Logic: Check if user has access (enrolled in class or public)
+      - DONE: GET /learning/content/:id/download — public → tất cả (đã đăng nhập); class → chủ sở hữu / teacher lớp (class_teachers) / học viên đang ghi danh (enrollments.status ∈ pending_payment, active) / academic_manager; private → chủ sở hữu + admin. Kèm scope branch (content.branch_id ngoài scope → 403). Verify 17/17 (upload 3 scope + list lọc + download đúng/403 + PUT + student 403 upload + file trên disk).
 
-- [ ] **T052** [Frontend] Content management for teachers
+- [x] **T052** [Frontend] Content management for teachers
       - Estimate: 2 days
       - Owner: Dev2
       - Dependencies: T050
       - Deliverable: Upload content, set access scope, assign to class
       - Route: /learning/contents
+      - DONE: tab 'Học liệu' thứ 5 trong /academic (DEVIATION: mockup 02 không có screen học liệu — theo design system; giữ nav mockup) + route /learning/contents. Upload modal (title + scope + multi-select lớp + file ≤500MB), danh sách lọc theo lớp/phạm vi + phân trang, nút Tải về (Bearer token qua blob), sửa scope/lớp. i18n vi/en. E2E UI 4/4 (tab → upload → toast → dòng + nút tải).
 
 - [ ] **T053** [Frontend] Student dashboard
       - Estimate: 2 days
