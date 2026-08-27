@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Put, Query, Req, Res, StreamableFile, UseFilters, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Patch, Post, Put, Query, Req, Res, StreamableFile, UseFilters, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { randomUUID } from 'crypto';
@@ -7,7 +7,7 @@ import type { Response } from 'express';
 import { ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { AuthedRequest } from '../auth/jwt-auth.guard';
 import { RequirePermissions } from '../auth/authz.decorators';
-import { CreateContentDto, ListContentQueryDto, UpdateContentDto } from './learning.dto';
+import { CreateContentDto, LibraryQueryDto, ListContentQueryDto, UpdateContentDto, UpdateContentProgressDto } from './learning.dto';
 import { LearningService, uploadRootPath } from './learning.service';
 import { MulterExceptionFilter } from './multer.filter';
 
@@ -74,5 +74,24 @@ export class LearningController {
     });
     const { createReadStream } = await import('fs');
     return new StreamableFile(createReadStream(absolutePath));
+  }
+
+  /** T055 — thư viện học viên: public + học liệu lớp đang ghi danh. */
+  @Get('/learning/library')
+  @RequirePermissions('content:read')
+  @ApiOperation({ summary: 'Tìm kiếm thư viện (public + học liệu lớp của tôi) — q/subject/category + phân trang' })
+  searchLibrary(@Query() q: LibraryQueryDto, @Req() req: AuthedRequest) {
+    return this.learning.searchLibrary(
+      { page: q.page ?? 1, pageSize: Math.min(q.page_size ?? 20, 100), q: q.q, subject: q.subject, category: q.category },
+      req.user,
+    );
+  }
+
+  /** T053/T054 — cập nhật tiến độ học liệu của học viên hiện tại. */
+  @Patch('/learning/content/:contentId/progress')
+  @RequirePermissions('content:read')
+  @ApiOperation({ summary: 'Cập nhật tiến độ học liệu của tôi (upsert content_progress)' })
+  updateProgress(@Param('contentId') id: string, @Body() dto: UpdateContentProgressDto, @Req() req: AuthedRequest) {
+    return this.learning.updateContentProgress(id, dto, req.user);
   }
 }

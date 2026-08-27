@@ -3,13 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { createHash } from 'crypto';
 import { createReadStream, existsSync, mkdirSync, renameSync, unlinkSync } from 'fs';
 import { basename, extname, join, resolve } from 'path';
-import { Repository, In } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import type { JwtPayload } from '../auth/jwt-payload.interface';
 import { SchoolClass } from '../academic/class.entity';
+import { Student } from '../students/student.entity';
 import { OrganizationService } from '../org/organization.service';
 import { ScopeContextService } from '../scopes/scope-context.service';
 import { UsersService } from '../users/users.service';
 import { ContentClassLink } from './content-class-link.entity';
+import { ContentProgress } from './content-progress.entity';
 import { ContentVersion } from './content-version.entity';
 import { LearningContent } from './learning-content.entity';
 
@@ -54,7 +56,9 @@ export class LearningService implements OnModuleInit {
     @InjectRepository(LearningContent) private readonly contents: Repository<LearningContent>,
     @InjectRepository(ContentVersion) private readonly versions: Repository<ContentVersion>,
     @InjectRepository(ContentClassLink) private readonly links: Repository<ContentClassLink>,
+    @InjectRepository(ContentProgress) private readonly progress: Repository<ContentProgress>,
     @InjectRepository(SchoolClass) private readonly classes: Repository<SchoolClass>,
+    @InjectRepository(Student) private readonly students: Repository<Student>,
     private readonly orgs: OrganizationService,
     private readonly scopeCtx: ScopeContextService,
     private readonly users: UsersService,
@@ -224,6 +228,66 @@ export class LearningService implements OnModuleInit {
   }
 
   // ================= DOWNLOAD + AUTHORIZATION (T051) =================
+
+  /** T055 — Thư viện: học liệu public + học liệu của lớp mà tôi đang ghi danh. */
+  async searchLibrary(
+    input: { page: number; pageSize: number; q?: string; subject?: string; category?: string },
+    user: JwtPayload,
+  ) {
+    const qb = this.contents.createQueryBuilder('c');
+    qb.where(
+      `(c.access_scope = 'public' OR (c.access_scope = 'class' AND EXISTS (
+         SELECT 1 FROM content_class_links l
+         JOIN enrollments e ON e.class_id = l.class_id
+         JOIN students s ON s.id = e.student_id
+         WHERE l.content_id = c.id AND s.user_id = :uid AND e.status IN ('pending_payment','active')
+       )))`,
+      { uid: user.sub },
+    );
+    qb.andWhere("c.status = 'published'");
+    if (input.q?.trim()) qb.andWhere('c.title ILIKE :q', { q: `%${input.q.trim()}%` });
+    if (input.subject?.trim()) qb.andWhere('c.subject ILIKE :subj', { subj: `%${input.subject.trim()}%` });
+    if (input.category?.trim()) qb.andWhere('c.category ILIKE :cat', { cat: `%${input.category.trim()}%` });
+    const total = await qb.clone().getCount();
+    const rows = await qb
+      .orderBy('c.created_at', 'DESC')
+      .skip((input.page - 1) * input.pageSize)
+      .take(input.pageSize)
+      .getMany();
+    const ids = rows.map((r) => r.id);
+    const data = ids.length
+      ? await this.contents.find({ where: { id: In(ids) }, relations: { classLinks: { class: true } } })
+      : [];
+    const byId = new Map(data.map((d) => [d.id, d]));
+    return { data: ids.map((i) => byId.get(i)!).filter(Boolean), meta: { page: input.page, pageSize: input.pageSize, total } };
+  }
+
+  /** T053/T054 — cập nhật tiến độ học liệu của học viên hiện tại (upsert content_progress). */
+  async updateContentProgress(
+    contentId: string,
+    input: { progress_percent?: number; is_completed?: boolean },
+    user: JwtPayload,
+  ) {
+    const content = await this.getById(contentId);
+    if (!(await this.canAccess(content, user))) {
+      throw new ForbiddenException('Không có quyền truy cập học liệu này');
+    }
+    const student = await this.students.findOneBy({ userId: user.sub });
+    if (!student) throw new NotFoundException('Tài khoản chưa liên kết hồ sơ học viên');
+    let row = await this.progress.findOne({ where: { contentId, studentId: student.id } });
+    if (!row) {
+      row = this.progress.create({ contentId, studentId: student.id, firstViewedAt: new Date() });
+    }
+    if (input.progress_percent !== undefined) {
+      row.progressPercent = Math.max(0, Math.min(100, input.progress_percent));
+    }
+    if (input.is_completed !== undefined) {
+      row.isCompleted = input.is_completed;
+    }
+    if (row.progressPercent >= 100) row.isCompleted = true;
+    row.lastViewedAt = new Date();
+    return this.progress.save(row);
+  }
 
   async resolveDownload(id: string, user: JwtPayload): Promise<{ content: LearningContent; absolutePath: string }> {
     const content = await this.getById(id);

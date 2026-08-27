@@ -79,3 +79,26 @@ export async function downloadContent(id: string): Promise<void> {
   a.remove();
   URL.revokeObjectURL(url);
 }
+
+/** T055 — thư viện học viên: public + học liệu lớp đang ghi danh. */
+export async function searchLibrary(params: { page: number; pageSize: number; q?: string; subject?: string; category?: string }): Promise<PagedContent> {
+  const { data } = await api.get<PagedContent>('/learning/library', {
+    params: {
+      page: params.page,
+      page_size: params.pageSize,
+      q: params.q || undefined,
+      subject: params.subject || undefined,
+      category: params.category || undefined,
+    },
+  });
+  return data;
+}
+
+/** T053/T054 — cập nhật tiến độ học liệu của tôi. */
+export async function updateContentProgress(
+  contentId: string,
+  payload: { progress_percent?: number; is_completed?: boolean },
+): Promise<{ progressPercent: string; isCompleted: boolean }> {
+  const { data } = await api.patch(`/learning/content/${contentId}/progress`, payload);
+  return data;
+}

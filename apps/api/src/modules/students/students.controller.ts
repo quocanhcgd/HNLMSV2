@@ -34,6 +34,22 @@ export class StudentsController {
     });
   }
 
+  /** T053 — portal: hồ sơ + lớp đang ghi danh của tôi (khai báo TRƯỚC /students/:studentId). */
+  @Get('/students/me')
+  @RequirePermissions('user:read')
+  @ApiOperation({ summary: 'Portal học viên: hồ sơ + các lớp đang ghi danh (kèm tiến độ)' })
+  myPortal(@Req() req: AuthedRequest) {
+    return this.students.myPortal(req.user.sub);
+  }
+
+  /** T054 — portal: chi tiết lớp của tôi (thông tin + giảng viên + lịch + học liệu + tiến độ). */
+  @Get('/students/me/classes/:classId')
+  @RequirePermissions('user:read')
+  @ApiOperation({ summary: 'Portal học viên: chi tiết lớp đang ghi danh' })
+  myClassDetail(@Param('classId') classId: string, @Req() req: AuthedRequest) {
+    return this.students.myClassDetail(req.user.sub, classId);
+  }
+
   @Post('/students')
   @RequirePermissions('user:read')
   @ApiOperation({ summary: 'Tạo hồ sơ học viên (branchId dùng kiểm tra scope)' })

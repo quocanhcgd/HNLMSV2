@@ -155,6 +155,13 @@ export interface AdminDict {
   sc_public: string; sc_class: string; sc_private: string;
   f_file: string;
   toast_content_uploaded: string; toast_content_updated: string;
+  // --- Student portal (T053–T055 — portal layout riêng cho tài khoản student) ---
+  nav_portal: string; nav_portal_dash: string; nav_portal_classes: string; nav_portal_library: string;
+  page_sub_portal: string; page_sub_library: string;
+  portal_greeting: string; my_classes: string; my_progress: string; no_classes_portal: string;
+  view_all: string; back: string; col_teachers: string; col_day: string; col_time: string;
+  col_room: string; col_materials: string; no_schedule: string; no_materials: string;
+  completed: string; lib_search_ph: string; f_subject: string; toast_progress_updated: string; col_progress: string;
 }
 
 export const I18N: Record<'vi' | 'en', AdminDict> = {
@@ -366,6 +373,13 @@ export const I18N: Record<'vi' | 'en', AdminDict> = {
     sc_public: 'Công khai', sc_class: 'Theo lớp', sc_private: 'Riêng tư',
     f_file: 'File *',
     toast_content_uploaded: '✅ Đã tải lên học liệu', toast_content_updated: '✅ Đã cập nhật học liệu',
+    // Student portal (T053–T055)
+    nav_portal: 'Cổng học viên', nav_portal_dash: 'Tổng quan', nav_portal_classes: 'Lớp của tôi', nav_portal_library: 'Thư viện',
+    page_sub_portal: 'Lớp học, lịch học và học liệu của bạn', page_sub_library: 'Tìm kiếm học liệu của trung tâm',
+    portal_greeting: 'Chào {name} 👋', my_classes: 'Lớp đang học', my_progress: 'Tiến độ', no_classes_portal: 'Bạn chưa ghi danh lớp nào',
+    view_all: 'Xem tất cả', back: 'Quay lại', col_teachers: 'Giảng viên', col_day: 'Thứ', col_time: 'Giờ',
+    col_room: 'Phòng', col_materials: 'Học liệu', no_schedule: 'Chưa có lịch học', no_materials: 'Chưa có học liệu cho lớp này',
+    completed: 'Hoàn thành', lib_search_ph: '🔍 Tìm học liệu...', f_subject: 'Môn học', toast_progress_updated: '✅ Đã cập nhật tiến độ', col_progress: 'Tiến độ',
   },
   en: {
     org_name: 'ABC Language Center',
@@ -575,5 +589,12 @@ export const I18N: Record<'vi' | 'en', AdminDict> = {
     sc_public: 'Public', sc_class: 'Class', sc_private: 'Private',
     f_file: 'File *',
     toast_content_uploaded: '✅ Content uploaded', toast_content_updated: '✅ Content updated',
+    // Student portal (T053–T055)
+    nav_portal: 'Student Portal', nav_portal_dash: 'Overview', nav_portal_classes: 'My classes', nav_portal_library: 'Library',
+    page_sub_portal: 'Your classes, schedules and materials', page_sub_library: 'Browse center learning materials',
+    portal_greeting: 'Hello {name} 👋', my_classes: 'My classes', my_progress: 'Progress', no_classes_portal: 'You are not enrolled in any class',
+    view_all: 'View all', back: 'Back', col_teachers: 'Teachers', col_day: 'Day', col_time: 'Time',
+    col_room: 'Room', col_materials: 'Materials', no_schedule: 'No schedule yet', no_materials: 'No materials for this class',
+    completed: 'Completed', lib_search_ph: '🔍 Search materials...', f_subject: 'Subject', toast_progress_updated: '✅ Progress updated', col_progress: 'Progress',
   },
 };

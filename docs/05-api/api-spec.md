@@ -89,6 +89,8 @@
 | GET/POST | `/students` | Học viên (search theo tên/mã) |
 | POST | `/enrollments` | Ghi danh → transaction tạo enrollment + invoice |
 | GET | `/enrollments/{id}` | Chi tiết ghi danh + tiến độ |
+| GET | `/students/me` | **Portal học viên (T053)** — hồ sơ + các lớp đang ghi danh (kèm tiến độ) |
+| GET | `/students/me/classes/{classId}` | **Portal học viên (T054)** — chi tiết lớp của tôi: giảng viên + lịch + học liệu + tiến độ. 403 nếu chưa ghi danh. |
 
 ### Learning
 
@@ -96,7 +98,8 @@
 |---|---|---|
 | GET/POST | `/learning/content` | Danh sách / upload học liệu (multipart, ≤ 500MB) |
 | GET | `/learning/content/{id}/download` | Tải file — URL chỉ cấp sau authorization |
-| GET | `/learning/library` | Tìm kiếm thư viện |
+| GET | `/learning/library` | **Thư viện học viên (T055)** — public + học liệu lớp đang ghi danh; lọc q/subject/category + phân trang |
+| PATCH | `/learning/content/{id}/progress` | **Cập nhật tiến độ học liệu của tôi (T053/T054)** — upsert content_progress; `is_completed` tự true khi progress_percent ≥ 100 |
 
 ### Finance
 

@@ -483,27 +483,30 @@ team: "2 Full-stack Developers"
       - Route: /learning/contents
       - DONE: tab 'Học liệu' thứ 5 trong /academic (DEVIATION: mockup 02 không có screen học liệu — theo design system; giữ nav mockup) + route /learning/contents. Upload modal (title + scope + multi-select lớp + file ≤500MB), danh sách lọc theo lớp/phạm vi + phân trang, nút Tải về (Bearer token qua blob), sửa scope/lớp. i18n vi/en. E2E UI 4/4 (tab → upload → toast → dòng + nút tải).
 
-- [ ] **T053** [Frontend] Student dashboard
+- [x] **T053** [Frontend] Student dashboard
       - Estimate: 2 days
       - Owner: Dev2
       - Dependencies: T046, T051
       - Deliverable: Dashboard showing enrolled classes, progress
       - Route: /student/dashboard
+      - DONE: portal học viên — tài khoản chỉ có role student → **StudentPortalLayout** riêng (nav Tổng quan / Lớp của tôi / Thư viện) branch theo `useAuth().roles` trong App.tsx (DEVIATION: mockup 02 không có screen portal — theo design system). Dashboard: lời chào + thẻ các lớp đang ghi danh (program/course + tiến độ) + quick link thư viện. Backend `GET /students/me` (hồ sơ + enrollments In[pending_payment,active] kèm class+program+course+progress). i18n vi/en. Verify API 13/13 + E2E UI 8/8.
 
-- [ ] **T054** [Frontend] Student class detail page
+- [x] **T054** [Frontend] Student class detail page
       - Estimate: 2 days
       - Owner: Dev2
       - Dependencies: T053
       - Deliverable: View class info, schedule, learning materials
       - Route: /student/classes/:id
+      - DONE: `GET /students/me/classes/{classId}` (403 nếu chưa ghi danh) — class+program+course, giảng viên (class_teachers→users), lịch (schedule + roomName/teacherName), học liệu (learning_content JOIN content_class_links WHERE class_id + access_scope='class' + published) kèm myProgress. FE: checkbox đánh dấu hoàn thành → `PATCH /learning/content/{id}/progress` (upsert content_progress, is_completed tự true khi ≥100) + nút Tải về. i18n vi/en.
 
-- [ ] **T055** [Frontend] Library page
+- [x] **T055** [Frontend] Library page
       - Estimate: 1 day
       - Owner: Dev2
       - Dependencies: T051
       - Deliverable: Browse and search learning contents
       - Route: /learning/library
       - Features: Search, filter by category/subject
+      - DONE: `GET /learning/library` — public + học liệu lớp đang ghi danh (EXISTS content_class_links→enrollments→students.user_id + status In[pending_payment,active]); lọc q/subject/category (category theo cột text — DEVIATION thay category_id, chưa có bảng library_categories) + phân trang 2 bước. FE: ô tìm q + subject, thẻ học liệu + nút Tải về. i18n vi/en.
 
 ---
 
