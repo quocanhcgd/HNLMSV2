@@ -29,6 +29,12 @@ export class CreateUserDto {
   @MaxLength(255)
   fullName!: string;
 
+  @ApiPropertyOptional({ example: '0912345678' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(30)
+  phone?: string;
+
   @ApiPropertyOptional({ example: ['teacher', 'student'], description: 'Role codes (từ /roles)' })
   @IsOptional()
   @IsArray()

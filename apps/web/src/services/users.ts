@@ -79,7 +79,7 @@ export async function listUsers(params: ListUsersParams): Promise<PagedUsers> {
   return data;
 }
 
-export async function createUser(payload: { email: string; password: string; fullName: string; roleCodes?: string[] }): Promise<UserRow> {
+export async function createUser(payload: { email: string; password: string; fullName: string; phone?: string; roleCodes?: string[] }): Promise<UserRow> {
   const { data } = await api.post<UserRow>('/users', payload);
   return data;
 }

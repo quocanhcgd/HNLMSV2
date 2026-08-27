@@ -531,6 +531,8 @@ paths:
                   minLength: 8
                 full_name:
                   type: string
+                phone:
+                  type: string
                 role_ids:
                   type: array
                   items:

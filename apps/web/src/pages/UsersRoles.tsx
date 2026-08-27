@@ -102,6 +102,7 @@ export function UsersRolesPage() {
   const [cName, setCName] = useState('');
   const [cEmail, setCEmail] = useState('');
   const [cPass, setCPass] = useState('');
+  const [cPhone, setCPhone] = useState('');
   const [cBranch, setCBranch] = useState('');
   const [cScope, setCScope] = useState('scope_branch');
   const [gType, setGType] = useState('scope_branch');
@@ -213,6 +214,7 @@ export function UsersRolesPage() {
     setCName('');
     setCEmail('');
     setCPass('');
+    setCPhone('');
     setCBranch('');
     setCScope('scope_branch');
     setOnChips(new Set());
@@ -226,7 +228,7 @@ export function UsersRolesPage() {
     }
     setBusy(true);
     try {
-      const created = await createUser({ fullName: cName.trim(), email: cEmail.trim(), password: cPass, roleCodes: [...onChips] });
+      const created = await createUser({ fullName: cName.trim(), email: cEmail.trim(), password: cPass, phone: cPhone.trim() || undefined, roleCodes: [...onChips] });
       if (cScope === 'scope_branch' && cBranch) {
         await grantScope(created.id, { branchId: cBranch });
       } else if (cScope !== 'scope_branch') {
@@ -503,7 +505,8 @@ export function UsersRolesPage() {
             <div><label className="block text-sm font-semibold mb-1.5">{t('f_name')}</label><input className="input-field" placeholder={t('ph_name')} value={cName} onChange={(e) => setCName(e.target.value)} /></div>
             <div><label className="block text-sm font-semibold mb-1.5">{t('f_email')}</label><input className="input-field" placeholder="a.nguyen@edu.vn" value={cEmail} onChange={(e) => setCEmail(e.target.value)} /></div>
             <div><label className="block text-sm font-semibold mb-1.5">{t('f_pass')}</label><input className="input-field" type="password" placeholder="••••••••" value={cPass} onChange={(e) => setCPass(e.target.value)} /></div>
-            <div>
+            <div><label className="block text-sm font-semibold mb-1.5">{t('f_phone')}</label><input className="input-field" placeholder="0912345678" value={cPhone} onChange={(e) => setCPhone(e.target.value)} /></div>
+            <div className="md:col-span-2">
               <label className="block text-sm font-semibold mb-1.5">{t('f_branch')}</label>
               <select className="input-field" value={cBranch} onChange={(e) => setCBranch(e.target.value)}>
                 <option value="">{t('select_branch')}</option>

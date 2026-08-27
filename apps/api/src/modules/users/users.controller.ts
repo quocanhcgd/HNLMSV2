@@ -50,6 +50,7 @@ export class UsersController {
       password: dto.password,
       fullName: dto.fullName,
       role: legacyRole,
+      phone: dto.phone ?? null,
     });
     if (dto.roleCodes?.length) {
       return this.users.assignRoles(user.id, dto.roleCodes, req.user.sub);
