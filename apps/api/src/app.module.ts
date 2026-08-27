@@ -3,8 +3,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import configuration from './config/configuration';
-import { HealthModule } from './health/health.module';
-import { QueueModule } from './queue/queue.module';
+import { HealthModule } from './modules/health/health.module';
+import { LicenseModule } from './modules/license/license.module';
+import { QueueModule } from './modules/queue/queue.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { QueueModule } from './queue/queue.module';
       }),
     }),
     HealthModule,
+    LicenseModule,
     QueueModule,
   ],
 })

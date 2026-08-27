@@ -8,6 +8,27 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- =====================================================
+-- ORGANIZATIONS (branch-scoped nền — D1)
+-- DDL chuẩn: docs/04-database-schema.md §4.1
+-- =====================================================
+
+CREATE TABLE organizations (
+    id               UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name             VARCHAR(255) NOT NULL,
+    slug             VARCHAR(100) UNIQUE NOT NULL,
+    timezone         VARCHAR(64) NOT NULL DEFAULT 'Asia/Ho_Chi_Minh',
+    academic_period  VARCHAR(50),
+    currency         VARCHAR(3) NOT NULL DEFAULT 'VND',
+    brand_settings   JSONB NOT NULL DEFAULT '{}',
+    contact_settings JSONB NOT NULL DEFAULT '{}',
+    status           VARCHAR(20) NOT NULL DEFAULT 'active'
+                    CHECK (status IN ('active','inactive','suspended')),
+    created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at       TIMESTAMPTZ
+);
+
+-- =====================================================
 -- USERS & AUTHENTICATION
 -- =====================================================
 

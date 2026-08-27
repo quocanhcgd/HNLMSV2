@@ -1,0 +1,14 @@
+{
+  "name": "@lms/license-core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "EduCenter LMS — License core STUB (D9): license mặc định dev/evaluation; thay bằng hệ thống quản lý license ở giai đoạn sau",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

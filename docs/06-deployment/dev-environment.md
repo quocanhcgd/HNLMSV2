@@ -88,6 +88,16 @@ REDIS_PORT=6379
 JWT_SECRET=dev-only-secret-change-me
 ```
 
+### 5.2 Migration TypeORM (schema tiến về trước — quy tắc coding-rules 2.6)
+
+```powershell
+pnpm --filter @lms/api migration:run      # chạy migration chưa áp dụng
+pnpm --filter @lms/api migration:revert   # lùi 1 bước (chỉ dùng dev)
+pnpm --filter @lms/api migration:generate src/database/migrations/<TenMigration>
+```
+
+> Migration đầu tiên đã tạo: `CreateOrganizationsTable` (bảng nền, D1) + `CreateLicenseReservedTables` (licenses/addon_licenses/module_states/feature_flags — RESERVED, D9). Schema base vẫn nạp qua `database/lms-schema.sql`.
+
 ## 5. Kiểm tra nhanh (sau khi cài)
 
 ```powershell

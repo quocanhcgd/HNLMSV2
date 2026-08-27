@@ -112,18 +112,18 @@ team: "2 Full-stack Developers"
 
 > ⚠️ **(D9)** Hệ thống quản lý license **không triển khai** ở giai đoạn này. Thay cho các task RSA/activation cũ, làm stub + giữ schema/contract làm điểm chờ. Các task kích hoạt license đầy đủ chuyển sang **FUTURE** (khi có hệ thống quản lý license).
 
-- [ ] **T011'** [Backend] Triển khai LicenseService **STUB** trả license mặc định (dev/evaluation)
+- [x] **T011'** [Backend] Triển khai LicenseService **STUB** trả license mặc định (dev/evaluation)
       - Estimate: 0.5 day
       - Owner: Dev1
       - Deliverable: Mọi module `effective_enabled=true`, không enforce constraint
       - Notes: Giữ interface LicenseService để sau này thay bằng hệ thống quản lý license
 
-- [ ] **T012'** [Backend] Tạo bảng license RESERVED (licenses, addon_licenses, module_states, feature_flags)
+- [x] **T012'** [Backend] Tạo bảng license RESERVED (licenses, addon_licenses, module_states, feature_flags)
       - Estimate: 1 day
       - Owner: Dev1
       - Deliverable: Migration tạo bảng (không seed); bảng giữ schema cho điểm kết nối chờ
 
-- [ ] **T013'** [Backend] Giữ contract API `/license/*` (FUTURE)
+- [x] **T013'** [Backend] Giữ contract API `/license/*` (FUTURE)
       - Estimate: 0.5 day
       - Owner: Dev1
       - Deliverable: Endpoint license đánh dấu FUTURE trong OpenAPI; không hiện ở UI sản xuất
