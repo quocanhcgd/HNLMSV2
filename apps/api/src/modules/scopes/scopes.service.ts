@@ -14,10 +14,9 @@ import { ScopeContextService } from './scope-context.service';
  *  - Người khác → danh sách branch_id từ scope_grants đang hiệu lực (effective_to NULL hoặc > NOW()).
  *  - Người không có grant nào → [] (không thấy gì).
  *
- * Lưu ý thiết kế (note cho sau): AuthzGuard (T018) vẫn dùng map static ROLE_PERMISSIONS theo
- * claim role legacy — permission thật từ role_permissions (T032) chưa được guard đọc. Khi nâng
- * guard lên DB-permission, các hook assertBranchInScope ở BranchesService sẽ tự có hiệu lực với
- * role branch_manager; hiện tại endpoints branch vẫn Admin-only nên filter ở đó là latent.
+ * B (nâng guard đọc DB permissions): AuthzGuard giờ đọc role_permissions thật từ DB
+ * (users.effectiveRbac) → branch_manager/branch:read được phép → các hook assertBranchInScope
+ * + filter applyUserScopeFilter ở BranchesService/UsersService đã CÓ HIỆU LỰC (không còn latent).
  */
 @Injectable()
 export class ScopesService {

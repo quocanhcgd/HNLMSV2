@@ -6,7 +6,6 @@ import { UsersService, type SafeUser } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './register.dto';
 import type { JwtPayload } from './jwt-payload.interface';
-import { ROLE_PERMISSIONS } from './permissions';
 
 export interface TokenPair {
   accessToken: string;
@@ -78,8 +77,9 @@ export class AuthService {
   }
 
   /** GET /me/context — user + roles + permissions + scopes + modules (cho UI, api-spec).
-   *  T035: roles/permissions/scopes giờ đọc THẬT từ bảng RBAC (user_roles, role_permissions,
-   *  scope_grants); fallback legacy [user.role] nếu user chưa có role trong user_roles. */
+   *  T035: roles/permissions/scopes đọc THẬT từ bảng RBAC (user_roles, role_permissions,
+   *  scope_grants); fallback legacy [user.role] nếu user chưa có role trong user_roles.
+   *  B: dùng effectiveRbac (dùng chung với AuthzGuard) → /me/context và guard luôn khớp. */
   async meContext(sub: string): Promise<{
     user: SafeUser;
     roles: string[];
@@ -89,14 +89,7 @@ export class AuthService {
   }> {
     const user = await this.users.getByIdOrThrow(sub);
     const modules = await this.license.getModules();
-    const { roles: dbRoles, permissions: dbPerms } = await this.users.rbacFor(sub);
-    const roles = dbRoles.length ? dbRoles : [user.role];
-    const permissions =
-      dbPerms.length && !dbPerms.includes('*')
-        ? [...new Set([...(ROLE_PERMISSIONS[user.role] ?? []), ...dbPerms])]
-        : dbPerms.length
-          ? dbPerms // đã có '*' từ org_admin/system_admin
-          : [...(ROLE_PERMISSIONS[user.role] ?? [])];
+    const { roles, permissions } = await this.users.effectiveRbac(sub, user.role);
     const scopes = await this.users.activeScopes(sub);
     return { user, roles, permissions, scopes, modules };
   }

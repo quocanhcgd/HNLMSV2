@@ -8,6 +8,7 @@ import { ScopeGrant } from './scope-grant.entity';
 import { UserRole } from './user-role.entity';
 import { User } from './user.entity';
 import { RolesService } from './roles.service';
+import { ROLE_PERMISSIONS } from '../auth/permissions';
 
 export interface CreateUserInput {
   email: string;
@@ -213,6 +214,25 @@ export class UsersService {
     const permissions = wildcard
       ? ['*']
       : [...new Set(rows.filter((r) => r.resource).map((r) => `${r.resource}:${r.action}`))];
+    return { roles, permissions };
+  }
+
+  /**
+   * RBAC hiệu lực (B — nâng guard đọc DB permissions):
+   * roles = DB roles; fallback [legacyRole] nếu user chưa có role trong user_roles.
+   * permissions = DB role_permissions, HỢP với map static legacy (ROLE_PERMISSIONS) để
+   * không phá quyền cũ; '*' (org_admin/system_admin) → toàn quyền.
+   * Dùng chung cho AuthzGuard (mọi request) và /me/context → hai nguồn luôn khớp.
+   */
+  async effectiveRbac(userId: string, legacyRole: string): Promise<{ roles: string[]; permissions: string[] }> {
+    const { roles: dbRoles, permissions: dbPerms } = await this.rbacFor(userId);
+    const roles = dbRoles.length ? dbRoles : [legacyRole];
+    const permissions =
+      dbPerms.length && !dbPerms.includes('*')
+        ? [...new Set([...(ROLE_PERMISSIONS[legacyRole] ?? []), ...dbPerms])]
+        : dbPerms.length
+          ? dbPerms // đã có '*' từ org_admin/system_admin
+          : [...(ROLE_PERMISSIONS[legacyRole] ?? [])];
     return { roles, permissions };
   }
 

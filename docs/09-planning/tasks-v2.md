@@ -287,6 +287,7 @@ team: "2 Full-stack Developers"
       - Deliverable: roles, permissions, user_roles tables
       - Relationships: Many-to-many
       - Done: migration 1787800000000 (roles, permissions, role_permissions, user_roles) + seed (org default, 26 permissions, 8 roles, role_permissions, user legacy → user_roles)
+      - EXTENDED (B — RBAC thật): AuthzGuard đọc role_permissions thật từ DB qua users.effectiveRbac (dùng chung /me/context → guard và UI luôn khớp); fallback map static legacy nếu user chưa có role trong user_roles; @RequireRoles chấp nhận cả role DB. PHÁT HIỆN + FIX data: role 'student' bị ghi đè 25 quyền (thao tác toggle/save tab Roles trong thử nghiệm E2E T036) → migration 1787800000003 reset student về đúng seed chuẩn ['auth:context','user:read'] + khôi phục name/description 8 role. Verify ma trận 22/22 + UI E2E 4/4 (branch_manager chỉ thấy HN1; student bị chặn role:manage/branch:read/scope:grant; admin toàn quyền)
 
 - [x] **T033** [Backend] Create ScopeGrant entity
       - Estimate: 1 day
@@ -303,6 +304,7 @@ team: "2 Full-stack Developers"
       - Deliverable: Repository base class with auto branch filter
       - Logic: All queries auto-filtered by user's accessible branches
       - Done: ScopesService.resolveBranchIds (org_admin/system_admin/legacy Admin → toàn quyền; còn lại = branch active từ scope_grants) + ScopeContextService (AsyncLocalStorage) + global ScopeContextInterceptor (next.handle() gọi trong cùng run()); lọc users list (EXISTS scope_grants) + assertUserInScope ở getDetail/update; branches list/detail/update filter/assert (latent — guard branch:read Admin-only, note khi AuthzGuard đọc permission từ DB); verified E2E 9 case
+      - EXTENDED (B): guard giờ đọc permission từ DB → filter/assert branch KHÔNG CÒN latent — branch_manager thực sự chỉ thấy branch được cấp (verify ma trận 22/22 + UI 4/4)
 
 - [x] **T035** [Backend] User & Role API endpoints
       - Estimate: 2 days

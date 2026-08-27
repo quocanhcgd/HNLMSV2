@@ -213,9 +213,9 @@ const TASKS=[
 
 {id:"T032",phase:"P4",phaseName:"Org & Users",week:"8-9",pri:"High",group:"Backend",title:"Role & Permission entities",owner:"Dev1",est:2,deps:["T016"],
  input:["T016","03-data-model.md Role/Permission"],
- steps:["roles, permissions, role_permissions","Many-to-many"],
+ steps:["roles, permissions, role_permissions","Many-to-many","EXT(B): AuthzGuard doc DB permissions (effectiveRbac, dung chung /me/context) + data-fix 0003 student=2 quyen"],
  output:["Bảng + quan hệ"],
- dod:["Seed role mặc định"]},
+ dod:["Seed role mặc định","Verify ma tran 22/22 + UI 4/4"]},
 
 {id:"T033",phase:"P4",phaseName:"Org & Users",week:"8-9",pri:"High",group:"Backend",title:"ScopeGrant entity",owner:"Dev1",est:1,deps:["T032"],
  input:["T032","03-data-model.md ScopeGrant"],
@@ -225,8 +225,8 @@ const TASKS=[
 
 {id:"T034",phase:"P4",phaseName:"Org & Users",week:"8-9",pri:"High",group:"Backend",title:"Branch scope filtering",owner:"Dev1",est:2,deps:["T033"],
  input:["T033","02-spec.md FR-004"],
- steps:["Repository base auto filter theo branch","Áp mọi query"],
- output:["Auto branch filter"],
+ steps:["ScopesService.resolveBranchIds + interceptor","EXT(B): filter/assert KICH HOAT (guard doc DB) — branch_manager chi thay HN1"],
+ output:["User chi thay branch duoc cap"],
  dod:["User chỉ thấy branch được cấp"]},
 
 {id:"T035",phase:"P4",phaseName:"Org & Users",week:"8-9",pri:"High",group:"Backend",title:"User & Role API",owner:"Dev1",est:2,deps:["T032","T033"],

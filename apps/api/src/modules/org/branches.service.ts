@@ -51,8 +51,8 @@ export class BranchesService {
 
   /**
    * GET /organization/branches — phân trang, không gồm deleted.
-   * T034: caller không phải admin chỉ thấy branch được cấp (latent — guard branch:read
-   * hiện vẫn Admin-only, filter kích hoạt khi AuthzGuard đọc permission từ DB, xem note ScopesService).
+   * T034 + B: caller không phải admin (org_admin/system_admin) chỉ thấy branch được cấp
+   * (branch_manager giờ có branch:read từ DB role_permissions → filter này hoạt động).
    */
   async list(page = 1, pageSize = 20): Promise<{ data: Branch[]; meta: { page: number; pageSize: number; total: number } }> {
     const allowed = this.scopeCtx.branchIds();
