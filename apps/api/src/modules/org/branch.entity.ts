@@ -24,8 +24,27 @@ export class Branch {
   @Column({ name: 'manager_user_id', type: 'uuid', nullable: true })
   managerUserId!: string | null;
 
-  @Column({ type: 'varchar', length: 20, default: 'active' })
+  @Column({ type: 'varchar', length: 50, default: 'active' })
   status!: 'active' | 'inactive';
+
+  /** T030/T031 mở rộng — liên hệ & khai báo (migration 1787800000002). */
+  @Column({ type: 'varchar', length: 30, nullable: true })
+  phone!: string | null;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  email!: string | null;
+
+  @Column({ type: 'varchar', length: 30, nullable: true })
+  hotline!: string | null;
+
+  @Column({ name: 'tax_code', type: 'varchar', length: 50, nullable: true })
+  taxCode!: string | null;
+
+  @Column({ name: 'representative_name', type: 'varchar', length: 255, nullable: true })
+  representativeName!: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  note!: string | null;
 
   @Column({ name: 'opened_at', type: 'date', nullable: true })
   openedAt!: string | null;

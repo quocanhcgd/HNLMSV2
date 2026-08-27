@@ -103,6 +103,14 @@ export interface AdminDict {
   no_scopes: string; btn_revoke: string; btn_save_roles: string;
   toast_role_saved: string; toast_roles_updated: string; toast_scope_removed: string; toast_scope_future: string;
   grp_sys: string;
+  // --- T030/T031 mở rộng: khai báo đầy đủ org/branch ---
+  grp_general: string; grp_contact: string; grp_bank: string; grp_brand: string;
+  f_short_name: string; f_tax_code: string; f_license_no: string; f_representative: string; f_founded_at: string;
+  f_address: string; f_phone: string; f_hotline: string; f_website: string; f_fax: string;
+  f_bank_name: string; f_bank_account: string; f_bank_holder: string;
+  f_logo_url: string; f_slogan: string; f_brand_color: string;
+  f_opened_at: string; f_closed_at: string; f_note: string;
+  col_contact: string; col_opened: string;
 }
 
 export const I18N: Record<'vi' | 'en', AdminDict> = {
@@ -262,6 +270,14 @@ export const I18N: Record<'vi' | 'en', AdminDict> = {
     toast_scope_removed: '✅ Đã thu hồi scope',
     toast_scope_future: 'Cấp scope lớp/học viên cần dữ liệu Academic (P5) — cấp scope chi nhánh trước',
     grp_sys: 'Hệ thống',
+    grp_general: 'Thông tin chung', grp_contact: 'Liên hệ', grp_bank: 'Ngân hàng', grp_brand: 'Thương hiệu',
+    f_short_name: 'Tên viết tắt', f_tax_code: 'Mã số thuế', f_license_no: 'Số ĐKKD / Giấy phép',
+    f_representative: 'Người đại diện', f_founded_at: 'Ngày thành lập',
+    f_address: 'Địa chỉ trụ sở', f_phone: 'Điện thoại', f_hotline: 'Hotline', f_website: 'Website', f_fax: 'Fax',
+    f_bank_name: 'Tên ngân hàng', f_bank_account: 'Số tài khoản', f_bank_holder: 'Chủ tài khoản',
+    f_logo_url: 'Logo (URL)', f_slogan: 'Slogan', f_brand_color: 'Màu chủ đạo',
+    f_opened_at: 'Ngày khai trương', f_closed_at: 'Ngày đóng cửa', f_note: 'Ghi chú',
+    col_contact: 'Liên hệ', col_opened: 'Khai trương',
   },
   en: {
     org_name: 'ABC Language Center',
@@ -419,5 +435,13 @@ export const I18N: Record<'vi' | 'en', AdminDict> = {
     toast_scope_removed: '✅ Scope revoked',
     toast_scope_future: 'Class/student scope needs Academic data (P5) — grant branch scope first',
     grp_sys: 'System',
+    grp_general: 'General info', grp_contact: 'Contact', grp_bank: 'Bank', grp_brand: 'Branding',
+    f_short_name: 'Short name', f_tax_code: 'Tax code', f_license_no: 'Business license no.',
+    f_representative: 'Representative', f_founded_at: 'Founded date',
+    f_address: 'Head office address', f_phone: 'Phone', f_hotline: 'Hotline', f_website: 'Website', f_fax: 'Fax',
+    f_bank_name: 'Bank name', f_bank_account: 'Account number', f_bank_holder: 'Account holder',
+    f_logo_url: 'Logo (URL)', f_slogan: 'Slogan', f_brand_color: 'Brand color',
+    f_opened_at: 'Opening date', f_closed_at: 'Closing date', f_note: 'Note',
+    col_contact: 'Contact', col_opened: 'Opened',
   },
 };

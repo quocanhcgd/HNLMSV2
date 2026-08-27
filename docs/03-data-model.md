@@ -27,6 +27,7 @@
 
 ### Branch
 - `id`, `organization_id`, `code` (unique trong org), `name`, `address`, `manager_user_id`, `status`, `opened_at`, `closed_at`
+- Mở rộng (T030/T031): `phone`, `email`, `hotline`, `tax_code`, `representative_name`, `note` — khai báo liên hệ/giấy tờ chi nhánh
 - Rule: branch inactive → không nhận ghi danh, hóa đơn hoặc khoản chi mới.
 
 ### User, Role, Permission, ScopeGrant

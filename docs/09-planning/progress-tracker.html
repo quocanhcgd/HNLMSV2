@@ -201,15 +201,15 @@ const TASKS=[
 
 {id:"T030",phase:"P4",phaseName:"Org & Users",week:"8-9",pri:"High",group:"Frontend",title:"Org settings page",owner:"Dev2",est:2,deps:["T029"],
  input:["T029"],
- steps:["Form /settings/organization (name,timezone,academic_year)"],
+ steps:["Form /settings/organization (name,timezone,academic_year)","EXT: khai báo đầy đủ — chung/MST/ĐKKD/đại diện/thành lập + liên hệ + ngân hàng + thương hiệu → JSONB"],
  output:["Trang cấu hình org"],
- dod:["Lưu đổi hiển thị"]},
+ dod:["Lưu đổi hiển thị","E2E 8/8 save→reload persist (JSONB)"]},
 
 {id:"T031",phase:"P4",phaseName:"Org & Users",week:"8-9",pri:"High",group:"Frontend",title:"Branch management page",owner:"Dev2",est:2,deps:["T029"],
  input:["T029","13-mockups/02-admin-dashboard"],
- steps:["List/add/edit/archive branch","ProTable search"],
+ steps:["List/add/edit/archive branch","ProTable search","EXT: phone/email/hotline/MST/đại diện/ghi chú/ngày khai trương-đóng cửa"],
  output:["Trang /settings/branches"],
- dod:["CRUD branch từ UI"]},
+ dod:["CRUD branch từ UI","E2E 8/8 tạo/sửa/archive đủ field, closed_at tự ghi"]},
 
 {id:"T032",phase:"P4",phaseName:"Org & Users",week:"8-9",pri:"High",group:"Backend",title:"Role & Permission entities",owner:"Dev1",est:2,deps:["T016"],
  input:["T016","03-data-model.md Role/Permission"],

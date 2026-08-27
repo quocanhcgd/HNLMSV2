@@ -111,9 +111,11 @@
     ".type-card | width": "70px"
   },
   "diff": [],
+  "skipped": [],
   "summary": {
     "total": 53,
     "ok": 53,
-    "diff": 0
+    "diff": 0,
+    "skipped": 0
   }
 }

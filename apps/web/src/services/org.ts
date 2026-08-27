@@ -13,11 +13,35 @@ export interface Organization {
   timezone: string;
   academicPeriod: string | null;
   currency: string;
-  status: 'active' | 'inactive';
-  brandSettings?: Record<string, unknown>;
-  contactSettings?: Record<string, unknown>;
+  status: 'active' | 'inactive' | 'suspended';
+  brandSettings: OrgBrandSettings;
+  contactSettings: OrgContactSettings;
   createdAt: string;
   updatedAt: string;
+}
+
+/** Key cấu trúc của contact_settings JSONB (docs/04-database-schema.md §4.1). */
+export interface OrgContactSettings {
+  address?: string;
+  phone?: string;
+  hotline?: string;
+  email?: string;
+  website?: string;
+  fax?: string;
+  taxCode?: string;
+  licenseNo?: string;
+  representative?: string;
+  foundedAt?: string;
+  bankName?: string;
+  bankAccount?: string;
+  bankHolder?: string;
+}
+
+/** Key cấu trúc của brand_settings JSONB. */
+export interface OrgBrandSettings {
+  logoUrl?: string;
+  slogan?: string;
+  brandColor?: string;
 }
 
 export interface Branch {
@@ -25,9 +49,17 @@ export interface Branch {
   code: string;
   name: string;
   address: string | null;
+  phone: string | null;
+  email: string | null;
+  hotline: string | null;
+  taxCode: string | null;
+  representativeName: string | null;
+  note: string | null;
   status: 'active' | 'inactive';
   managerUserId: string | null;
   manager: { id: string; fullName: string; email: string } | null;
+  openedAt: string | null;
+  closedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -46,6 +78,8 @@ export async function updateOrganization(payload: {
   name?: string;
   timezone?: string;
   academicPeriod?: string;
+  contactSettings?: OrgContactSettings;
+  brandSettings?: OrgBrandSettings;
 }): Promise<Organization> {
   const { data } = await api.put<Organization>('/organization', payload);
   return data;
@@ -63,6 +97,13 @@ export async function createBranch(payload: {
   name: string;
   address?: string;
   managerUserId?: string | null;
+  phone?: string;
+  email?: string;
+  hotline?: string;
+  taxCode?: string;
+  representativeName?: string;
+  openedAt?: string;
+  note?: string;
 }): Promise<Branch> {
   const { data } = await api.post<Branch>('/organization/branches', payload);
   return data;
@@ -70,7 +111,20 @@ export async function createBranch(payload: {
 
 export async function updateBranch(
   branchId: string,
-  payload: { name?: string; address?: string; managerUserId?: string | null; status?: 'active' | 'inactive' },
+  payload: {
+    name?: string;
+    address?: string;
+    managerUserId?: string | null;
+    status?: 'active' | 'inactive';
+    phone?: string;
+    email?: string;
+    hotline?: string;
+    taxCode?: string;
+    representativeName?: string;
+    openedAt?: string;
+    closedAt?: string;
+    note?: string;
+  },
 ): Promise<Branch> {
   const { data } = await api.put<Branch>(`/organization/branches/${branchId}`, payload);
   return data;

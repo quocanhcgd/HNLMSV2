@@ -177,6 +177,11 @@ CREATE TABLE organizations (
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     deleted_at      TIMESTAMPTZ
 );
+-- brand_settings/contact_settings là JSONB mở — UI /org (T030) ghi key có cấu trúc:
+--   contact_settings: { address, phone, hotline, email, website, fax,
+--                       taxCode, licenseNo, representative, foundedAt,
+--                       bankName, bankAccount, bankHolder }
+--   brand_settings:   { logoUrl, slogan, brandColor }
 
 CREATE TABLE branches (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -185,6 +190,12 @@ CREATE TABLE branches (
     name            VARCHAR(255) NOT NULL,
     address         TEXT,
     manager_user_id UUID,                        -- FK users (add sau khi tạo users)
+    phone           VARCHAR(30),                 -- T030/T031 mở rộng (migration 1787800000002)
+    email           VARCHAR(255),
+    hotline         VARCHAR(30),
+    tax_code        VARCHAR(50),
+    representative_name VARCHAR(255),
+    note            TEXT,
     status          VARCHAR(20) NOT NULL DEFAULT 'active'
                     CHECK (status IN ('active','inactive')),
     opened_at       DATE,

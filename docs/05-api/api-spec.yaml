@@ -312,6 +312,21 @@ paths:
                 manager_user_id:
                   type: string
                   format: uuid
+                phone:
+                  type: string
+                email:
+                  type: string
+                hotline:
+                  type: string
+                tax_code:
+                  type: string
+                representative_name:
+                  type: string
+                opened_at:
+                  type: string
+                  format: date
+                note:
+                  type: string
       responses:
         "201":
           description: Đã tạo
@@ -361,6 +376,24 @@ paths:
                 status:
                   type: string
                   enum: [active, inactive]
+                phone:
+                  type: string
+                email:
+                  type: string
+                hotline:
+                  type: string
+                tax_code:
+                  type: string
+                representative_name:
+                  type: string
+                opened_at:
+                  type: string
+                  format: date
+                closed_at:
+                  type: string
+                  format: date
+                note:
+                  type: string
       responses:
         "200":
           description: Đã cập nhật
@@ -2061,6 +2094,18 @@ components:
         manager_user_id:
           type: string
           format: uuid
+        phone:
+          type: string
+        email:
+          type: string
+        hotline:
+          type: string
+        tax_code:
+          type: string
+        representative_name:
+          type: string
+        note:
+          type: string
         status:
           type: string
           enum: [active, inactive]

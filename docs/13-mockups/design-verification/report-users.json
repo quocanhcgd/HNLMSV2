@@ -116,12 +116,12 @@
     "#usersTable .badge-success | background-color": "rgba(16, 185, 129, 0.15)",
     "#usersTable .badge-purple | color": "rgb(139, 92, 246)",
     "#usersTable .badge-purple | background-color": "rgba(139, 92, 246, 0.15)",
-    "#usersTable .badge-warning | color": "rgb(245, 158, 11)",
-    "#usersTable .badge-warning | background-color": "rgba(245, 158, 11, 0.15)",
+    "#usersTable .badge-warning | color": "ELEMENT-MISSING",
+    "#usersTable .badge-warning | background-color": "ELEMENT-MISSING",
     "#usersTable .badge-gray | color": "rgb(107, 114, 128)",
     "#usersTable .badge-gray | background-color": "rgb(243, 244, 246)",
-    "#usersTable .badge-danger | color": "rgb(220, 38, 38)",
-    "#usersTable .badge-danger | background-color": "rgba(239, 68, 68, 0.12)",
+    "#usersTable .badge-danger | color": "ELEMENT-MISSING",
+    "#usersTable .badge-danger | background-color": "ELEMENT-MISSING",
     "#usersTable .btn-outline | font-size": "12px",
     "#usersTable .btn-outline | padding-top": "4px",
     "#usersTable .btn-outline | padding-left": "12px",
@@ -179,9 +179,16 @@
     ".role-item | width": "36px"
   },
   "diff": [],
+  "skipped": [
+    "#usersTable .badge-warning | color",
+    "#usersTable .badge-warning | background-color",
+    "#usersTable .badge-danger | color",
+    "#usersTable .badge-danger | background-color"
+  ],
   "summary": {
     "total": 87,
     "ok": 87,
-    "diff": 0
+    "diff": 0,
+    "skipped": 4
   }
 }

@@ -266,6 +266,7 @@ team: "2 Full-stack Developers"
       - Deliverable: Form to edit org name, timezone, academic year
       - Route: /settings/organization
       - Done: form (name/timezone/academicPeriod) wire GET/PUT /api/organization, lưu → toast + reload hiển thị (E2E browser 13/13). DEVIATION: mockup 02 không có screen org → dựng theo design system mockup 02/03, nằm trong trang /org (tab "Tổ chức", theo nav mockup nav_org thay vì route /settings/organization)
+      - EXTENDED: form đầy đủ 4 nhóm — Thông tin chung (tên viết tắt/MST/ĐKKD/người đại diện/ngày thành lập) + Liên hệ (trụ sở/ĐT/hotline/email/website/fax) + Ngân hàng (tên NH/STK/chủ TK) + Thương hiệu (logo/slogan/màu) — lưu vào contact_settings/brand_settings JSONB key cấu trúc (docs/04 §4.1), KHÔNG đổi contract API/DB (backend đã wire T027); E2E browser 8/8 (save → reload persist JSONB, xác nhận DB)
 
 - [x] **T031** [Frontend] Branch management page
       - Estimate: 2 days
@@ -275,6 +276,7 @@ team: "2 Full-stack Developers"
       - Route: /settings/branches
       - Features: ProTable with search/filter
       - Done: tab "Chi nhánh" trong /org — bảng (code/name/address/status badge) + search client-side + modal thêm/sửa + đóng cửa (status inactive); wire CRUD /api/organization/branches; E2E browser 13/13 (tạo/sửa/archive + toast)
+      - EXTENDED: branch khai báo đầy đủ — migration 1787800000002 thêm phone/email/hotline/tax_code/representative_name/note; modal + bảng hiển thị liên hệ/MST/ngày khai trương (opened_at đã có sẵn); opened_at mặc định = hôm nay khi tạo, closed_at tự ghi khi đóng cửa và xóa khi mở lại; docs 04/05/03 cập nhật; E2E browser 8/8
 
 ### User & Role Module
 

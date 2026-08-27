@@ -149,9 +149,11 @@
     ".grid.grid-cols-1.md\\:grid-cols-3 | grid-template-columns": "20px"
   },
   "diff": [],
+  "skipped": [],
   "summary": {
     "total": 72,
     "ok": 72,
-    "diff": 0
+    "diff": 0,
+    "skipped": 0
   }
 }

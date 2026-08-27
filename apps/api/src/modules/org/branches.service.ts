@@ -11,6 +11,13 @@ export interface CreateBranchInput {
   name: string;
   address?: string;
   managerUserId?: string;
+  phone?: string;
+  email?: string;
+  hotline?: string;
+  taxCode?: string;
+  representativeName?: string;
+  openedAt?: string;
+  note?: string;
 }
 
 export interface UpdateBranchInput {
@@ -18,6 +25,14 @@ export interface UpdateBranchInput {
   address?: string;
   managerUserId?: string;
   status?: 'active' | 'inactive';
+  phone?: string;
+  email?: string;
+  hotline?: string;
+  taxCode?: string;
+  representativeName?: string;
+  openedAt?: string;
+  closedAt?: string;
+  note?: string;
 }
 
 /**
@@ -67,6 +82,13 @@ export class BranchesService {
       name: input.name.trim(),
       address: input.address ?? null,
       managerUserId: input.managerUserId ?? null,
+      phone: input.phone ?? null,
+      email: input.email ?? null,
+      hotline: input.hotline ?? null,
+      taxCode: input.taxCode ?? null,
+      representativeName: input.representativeName ?? null,
+      openedAt: input.openedAt ?? new Date().toISOString().slice(0, 10), // mặc định = hôm nay
+      note: input.note ?? null,
       status: 'active',
     });
     try {
@@ -87,7 +109,22 @@ export class BranchesService {
       if (input.managerUserId) await this.assertManagerExists(input.managerUserId);
       branch.managerUserId = input.managerUserId ?? null;
     }
-    if (input.status !== undefined) branch.status = input.status;
+    if (input.phone !== undefined) branch.phone = input.phone ?? null;
+    if (input.email !== undefined) branch.email = input.email ?? null;
+    if (input.hotline !== undefined) branch.hotline = input.hotline ?? null;
+    if (input.taxCode !== undefined) branch.taxCode = input.taxCode ?? null;
+    if (input.representativeName !== undefined) branch.representativeName = input.representativeName ?? null;
+    if (input.openedAt !== undefined) branch.openedAt = input.openedAt ?? null;
+    if (input.note !== undefined) branch.note = input.note ?? null;
+    if (input.status !== undefined) {
+      branch.status = input.status;
+      // archive → ghi closed_at (nếu chưa có); mở lại → xóa closed_at
+      if (input.status === 'inactive' && !branch.closedAt) {
+        branch.closedAt = new Date().toISOString().slice(0, 10);
+      }
+      if (input.status === 'active') branch.closedAt = null;
+    }
+    if (input.closedAt !== undefined) branch.closedAt = input.closedAt ?? null;
     return this.branches.save(branch);
   }
 
